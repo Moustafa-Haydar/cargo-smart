@@ -16,7 +16,7 @@
 .login-container {
     width: 30vw;
     padding: 20px;
-    margin-top: 4vh;
+    margin-top: 10vh;
 }
 
 .login-card {
@@ -32,7 +32,8 @@
     font-size: 1.5vw;
     font-weight: 600;
     color: var(--text-color);
-    margin-bottom: 2vh;
+    margin-bottom: 3vh;
+    text-align: center;
 }
 
 .login-subtitle {
@@ -45,7 +46,7 @@
 .login-form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 3vh;
 }
 
 .form-group {

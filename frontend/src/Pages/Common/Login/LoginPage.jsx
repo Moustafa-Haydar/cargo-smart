@@ -6,7 +6,6 @@ import './style.css';
 import { TokenContext } from '../../../Contexts/TokenContexts';
 
 function LoginPage() {
-  const [role, setRole] = useState("admin");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

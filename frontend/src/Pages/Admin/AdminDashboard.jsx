@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { TokenContext } from '../../Contexts/TokenContexts';
 import { useNavigate } from 'react-router-dom';
 import AdminController from "../../Controllers/Admin/AdminController";
+import Button from '../../Components/Button/Button';
 import './style.css';
 
 function AdminDashboard() {
@@ -62,13 +63,11 @@ function AdminDashboard() {
     <main className="admin-dashboard">
       <header className="dashboard-header">
         <h1 className="dashboard-title">Admin Dashboard</h1>
-        <div>
-            <button onClick={() => setShowModal(true)} className="add-user-button">
-                + Add User
-            </button>
-            <button onClick={() => logout()} className="add-user-button">
-                Logout
-            </button>
+        <div className="admin-actions">
+
+          <Button btn_name="+ Add User" onClick={() => setShowModal(true)} type="primary" />
+          <Button btn_name="Logout" onClick={() => logout()} type="secondary" />
+
         </div>
       </header>
 
