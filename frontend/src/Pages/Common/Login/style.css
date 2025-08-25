@@ -55,14 +55,14 @@
 
 .form-label {
     font-size: 1vw;
-    font-weight: 500;
+    font-weight: 540;
     margin-bottom: 5px;
     color: var(--text-color);
 }
 
 .form-input,
 .form-select {
-    padding: 1vw 1vw;
+    padding: 0.7vw 1vw;
     border: 1px solid #ccc;
     border-radius: 10px;
     font-size: 0.9vw;

@@ -28,23 +28,23 @@ function LoginPage() {
 
     try {
       setLoading(true);
-      let url;
+      const loggedUser = await AuthController.login({user});
+      saveToken(loggedUser.token);
 
-      switch (role) {
+      switch (loggedUser.role) {
         case "admin":
-          url = "/AdminDashboard";
+          navigate("/AdminDashboard");
           break;
         case "manager":
-          url = "/ManagerDashboard"; 
+          navigate("/ManagerDashboard");
           break;
         case "analyst":
-          url = "/AnalystDashboard";
+          navigate("/AnalystDashboard");
           break;
         default:
-          url = "/";
+          navigate("/");
       }
 
-      await AuthController.login({user, saveToken, navigate, url});
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {
@@ -63,26 +63,8 @@ function LoginPage() {
       <section className="login-container">
         <div className="login-card">
           <h1 className="login-title">Sign in</h1>
-          <p className="login-subtitle">Choose your role and enter your credentials.</p>
 
           <form onSubmit={handleLogin} className="login-form" noValidate>
-            {/* Role */}
-            <div className="form-group">
-              <label htmlFor="role" className="form-label">Role</label>
-              <div className="form-select-wrapper">
-                <select
-                  id="role"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="form-select"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="manager">Operations Manager</option>
-                  <option value="manager">Analyst</option>
-                </select>
-              </div>
-            </div>
-
             {/* Username */}
             <div className="form-group">
               <label htmlFor="username" className="form-label">Username</label>
