@@ -51,6 +51,23 @@ function LoginPage() {
     }
   }
 
+  async function handleForgotPassword() {
+
+    if (!username) {
+      setError("Please enter your username to reset password.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await AuthController.sendResetLink({ username });
+    } catch (err) {
+      setError(err.message || "Failed to send reset link");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <main className="login-wrapper">
       {/* Top bar brand */}
@@ -108,10 +125,11 @@ function LoginPage() {
                 <input type="checkbox" className="form-checkbox" />
                 Remember me
               </label>
+
               <button
                 type="button"
                 className="forgot-password-link"
-                onClick={() => alert("Forgot password flow here")}
+                onClick={() => handleForgotPassword() }
               >
                 Forgot password?
               </button>
