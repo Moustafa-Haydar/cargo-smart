@@ -14,8 +14,6 @@ class UserService
         $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
         $user = User::create($data);
-        $token = Auth::guard('web')->login($user);
-        $user->token = $token;
         return ($user);
     }
 

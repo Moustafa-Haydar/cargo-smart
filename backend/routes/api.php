@@ -16,8 +16,6 @@ Route::group(["prefix" => "v0.1"], function () {
         Route::post("/forgot-password", [AuthController::class, "sendResetLink"]);
         Route::post("/reset-password", [AuthController::class, "resetPassword"]);
 
-        // Temporary for testing
-        Route::post("/addUser", [UserController::class, "addUser"]);
 
     });
 
@@ -25,6 +23,8 @@ Route::group(["prefix" => "v0.1"], function () {
 
         // USER-SPECIFIC ENDPOINTS
         Route::group(["prefix" => "user"], function () {
+
+            // add user-specific routes here
 
 
         });
