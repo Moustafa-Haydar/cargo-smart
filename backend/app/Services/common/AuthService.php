@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\LoginRequest;
+use Illuminate\Support\Facades\Password;
 
 class AuthService
 {
@@ -16,19 +17,25 @@ class AuthService
     {
         $user = User::where('username', $username)->first();
         if (!$user) {
+            Log::info(message: 'No user found with username: ' . $username);
             return false;
         }
 
-        $url = '';
+        $token = Password::createToken($user);
 
-        // $token = Password::createToken($user);
-        // $url = config('app.frontend_url') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
+        $url = config('app.frontend_url') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
 
         Mail::to(users: $user->email)->send(new ForgotPassword($user, $url));
 
         // debug
         Log::info(message: 'Invoice email sent successfully');
 
+        return true;
+    }
+
+    public static function updatePassword(Request $request)
+    {
+        // to be implemented
         return true;
     }
 

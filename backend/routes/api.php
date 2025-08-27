@@ -13,8 +13,17 @@ Route::group(["prefix" => "v0.1"], function () {
         Route::post("/login", [AuthController::class, "login"]);
         Route::get("/logout", [AuthController::class, "logout"]);
 
-        Route::post("/forgot-password", [AuthController::class, "sendResetLink"]);
-        Route::post("/reset-password", [AuthController::class, "resetPassword"]);
+        // Forgot and Reset Password Routes
+
+        // User views form to request password reset link
+        Route::get('/forgot-password', [AuthController::class, 'resetPasswordForm']);
+        // User requests password reset link by providing username
+        Route::post('/forgot-password', [AuthController::class, 'sendResetLink']);
+        // User views form to reset password using the token from email
+        Route::get('/reset-password/{token}', [AuthController::class, 'updatePasswordForm']);
+        // User submits new password
+        Route::post('/reset-password', [AuthController::class, 'updatePassword']);
+
 
 
     });
@@ -34,8 +43,9 @@ Route::group(["prefix" => "v0.1"], function () {
         Route::group(["prefix" => "admin"], function () {
             Route::group(["middleware" => ['auth', EnsureAdmin::class]], function () {
 
-                Route::post("/addUser", [UserController::class, "addUser"]);
                 Route::get("/getAllUsers/{id?}", [UserController::class, "getAllUsers"]);
+                Route::post("/addUser", [UserController::class, "addUser"]);
+
 
             });
         });

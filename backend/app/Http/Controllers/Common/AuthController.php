@@ -7,6 +7,13 @@ use App\Services\common\AuthService;
 use App\Http\Requests\LoginRequest;
 use App\Traits\ResponseTrait;
 use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Auth\Events\PasswordReset;
+
+
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
+
 
 use Illuminate\Support\Facades\Log;
 
@@ -42,10 +49,16 @@ class AuthController extends Controller
         return $this->responseJSON(null, "Logged out successfully");
     }
 
+    public function resetPasswordForm()
+    {
+        // display form to enter email for password reset
+        // this will be frontend route
+    }
+
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'username' => 'required|string|exists:users,username',
+            'username' => 'required|string',
         ]);
 
         $status = AuthService::sendResetLink($request->input('username'));
@@ -57,6 +70,55 @@ class AuthController extends Controller
         }
     }
 
+    public function updatePasswordForm($token)
+    {
+        // display form to enter new password
+        // this will be frontend route
+    }
+
+    public function updatePassword(Request $request)
+    {
+        // http://localhost:3000/reset-password?token=5426f392bd7be858963f8e8b5c95348b149023af217f38775dc936f4618d8e1e&email=moustafahaydar.eng%40gmail.com
+
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+            'token' => 'required|string',
+        ]);
+
+        $user = User::where('username', $request->username)->first();
+        if (!$user) {
+            return $this->responseJSON(null, "User not found.", 404);
+        }
+
+        Log::info("Token: " . $request->token);
+
+        $status = Password::reset(
+            [
+                'email' => $user->email,
+                'token' => $request->token,
+                'password' => $request->password,
+                'password_confirmation' => $request->password_confirmation,
+            ],
+
+            function ($user) use ($request) {
+                $user->forceFill([
+                    'password' => Hash::make($request->password),
+                ])->setRememberToken(Str::random(60));
+
+                $user->save();
+                event(new PasswordReset($user));
+            }
+        );
+
+        Log::info("Password reset status: " . $status);
+        // $status = AuthService::updatePassword($request);
+
+        return $status === Password::PASSWORD_RESET
+            ? $this->responseJSON(null, "Password has been reset successfully.")
+            : $this->responseJSON(null, "Failed to reset password.", 500);
+
+    }
 
 
 
