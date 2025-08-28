@@ -22,9 +22,9 @@ class UserController extends Controller
         return $this->responseJSON($user);
     }
 
-    public function deleteUser($id = null)
+    public function deleteAllUsers($id = null)
     {
-        $users = UserService::deleteUser($id);
+        $users = UserService::deleteAllUsers($id);
         return $this->responseJSON($users);
     }
 

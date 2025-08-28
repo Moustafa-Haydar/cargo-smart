@@ -25,17 +25,20 @@ class UserService
         return ($user);
     }
 
-    public static function deleteUser($id = null)
+    public static function deleteAllUsers($id = null)
     {
         if ($id == null) {
-            return false;
+            // delete all users
+            return User::truncate();
         }
 
         $user = User::find($id);
         if (!$user) {
+            // User not found
             return false;
         }
 
+        // Delete the user with the given ID
         return $user->delete();
     }
 

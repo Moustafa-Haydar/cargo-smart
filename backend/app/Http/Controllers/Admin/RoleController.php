@@ -30,6 +30,10 @@ class RoleController extends Controller
         return $this->responseJSON($role);
     }
 
-    
+    public function deleteRole($id = null)
+    {
+        $role = RoleService::deleteRole($id);
+        return $this->responseJSON($role);
+    }
 
 }

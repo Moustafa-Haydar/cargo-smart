@@ -49,12 +49,12 @@ Route::group(["prefix" => "v0.1"], function () {
                 // User Management
                 Route::get("/getAllUsers/{id?}", [UserController::class, "getAllUsers"]);
                 Route::post("/addUser", [UserController::class, "addUser"]);
-                Route::post("/deleteUser", [UserController::class, "deleteUser"]);
+                Route::get("/deleteAllUsers/{id?}", [UserController::class, "deleteAllUsers"]);
 
                 // Role Management
                 Route::get("/getAllRoles/{id?}", [RoleController::class, "getAllRoles"]);
                 Route::post("/addRole", [RoleController::class, "addRole"]);
-                Route::post("/deleteUser", [RoleController::class, "deleteUser"]);
+                Route::get("/deleteAllRoles/{id?}", [RoleController::class, "deleteAllRoles"]);
 
 
             });
