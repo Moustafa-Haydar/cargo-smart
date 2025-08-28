@@ -24,8 +24,6 @@ Route::group(["prefix" => "v0.1"], function () {
         // User submits new password
         Route::post('/reset-password', [AuthController::class, 'updatePassword']);
 
-
-
     });
 
     Route::group(["middleware" => "auth"], function () {
@@ -43,8 +41,15 @@ Route::group(["prefix" => "v0.1"], function () {
         Route::group(["prefix" => "admin"], function () {
             Route::group(["middleware" => ['auth', EnsureAdmin::class]], function () {
 
+                // User Management
                 Route::get("/getAllUsers/{id?}", [UserController::class, "getAllUsers"]);
                 Route::post("/addUser", [UserController::class, "addUser"]);
+                Route::post("/deleteUser", [UserController::class, "deleteUser"]);
+
+                // Role Management
+                Route::get("/getAllRoles/{id?}", [RoleController::class, "getAllRoles"]);
+                Route::post("/addUser", [UserController::class, "addUser"]);
+                Route::post("/deleteUser", [UserController::class, "deleteUser"]);
 
 
             });

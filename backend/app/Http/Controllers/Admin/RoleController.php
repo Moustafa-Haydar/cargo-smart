@@ -1,16 +1,17 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
-use App\Services\Admin\UserService;
-use App\Http\Requests\StoreUserRequest;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Traits\ResponseTrait;
 
-class UserController extends Controller
+class RoleController extends Controller
 {
     use ResponseTrait;
 
-    public function addUser(StoreUserRequest $request)
+    public function addUser(StoreRoleRequest $request)
     {
         $user = UserService::addUser($request);
         return $this->responseJSON($user);
@@ -21,6 +22,5 @@ class UserController extends Controller
         $users = UserService::getAllUsers($id);
         return $this->responseJSON($users);
     }
-
 
 }

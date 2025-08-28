@@ -5,14 +5,15 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class StoreUserRequest extends FormRequest
+
+class StoreRoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true; // set to true to enable request
+        return false;
     }
 
     /**
@@ -23,12 +24,8 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'username' => 'required|string|max:255',
-            'password' => 'required|min:6',
-            'role_id' => 'integer',
+            'name' => 'required|string|max:50',
+            'description' => 'required|string|max:255',
         ];
     }
 
