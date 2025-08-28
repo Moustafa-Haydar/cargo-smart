@@ -1,23 +1,14 @@
 <?php
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Services\Admin\UserService;
 use App\Http\Requests\StoreUserRequest;
+use Illuminate\Http\Request;
 use App\Traits\ResponseTrait;
-use Illuminate\Support\Facades\Log;
-use Psy\Readline\Hoa\EventListens;
 
 class UserController extends Controller
 {
     use ResponseTrait;
-
-    public function addUser(StoreUserRequest $request)
-    {
-        $user = UserService::addUser($request);
-        return $this->responseJSON($user);
-    }
 
     public function getAllUsers($id = null)
     {
@@ -25,5 +16,16 @@ class UserController extends Controller
         return $this->responseJSON($users);
     }
 
+    public function addUser(StoreUserRequest $request)
+    {
+        $user = UserService::addUser($request);
+        return $this->responseJSON($user);
+    }
+
+    public function deleteAllUsers($id = null)
+    {
+        $users = UserService::deleteAllUsers($id);
+        return $this->responseJSON($users);
+    }
 
 }
