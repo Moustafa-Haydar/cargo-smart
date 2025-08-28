@@ -24,4 +24,21 @@ class RoleService
         return Role::find($id);
     }
 
+    public static function deleteAllRoles($id = null)
+    {
+        if ($id == null) {
+            // delete all roles
+            return Role::truncate();
+        }
+
+        $role = Role::find($id);
+        if (!$role) {
+            // role not found
+            return false;
+        }
+
+        // Delete the role with the given ID
+        return $role->delete();
+    }
+
 }
