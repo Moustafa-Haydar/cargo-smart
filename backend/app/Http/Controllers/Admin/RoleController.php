@@ -16,6 +16,12 @@ class RoleController extends Controller
 {
     use ResponseTrait;
 
+    public function getAllRoles($id = null)
+    {
+        $roles = RoleService::getAllRoles($id);
+        return $this->responseJSON($roles);
+    }
+
     public function addRole(StoreRoleRequest $request)
     {
         Log::info('HIT addRole');
@@ -24,10 +30,6 @@ class RoleController extends Controller
         return $this->responseJSON($role);
     }
 
-    public function getAllRoles($id = null)
-    {
-        $roles = RoleService::getAllRoles($id);
-        return $this->responseJSON($roles);
-    }
+    
 
 }

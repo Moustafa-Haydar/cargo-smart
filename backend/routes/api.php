@@ -54,9 +54,6 @@ Route::group(["prefix" => "v0.1"], function () {
                 // Role Management
                 Route::get("/getAllRoles/{id?}", [RoleController::class, "getAllRoles"]);
                 Route::post("/addRole", [RoleController::class, "addRole"]);
-
-
-
                 Route::post("/deleteUser", [RoleController::class, "deleteUser"]);
 
 

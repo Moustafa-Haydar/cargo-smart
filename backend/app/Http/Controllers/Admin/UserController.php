@@ -10,17 +10,22 @@ class UserController extends Controller
 {
     use ResponseTrait;
 
-    public function addUser(StoreUserRequest $request)
-    {
-        $user = UserService::addUser($request);
-        return $this->responseJSON($user);
-    }
-
     public function getAllUsers($id = null)
     {
         $users = UserService::getAllUsers($id);
         return $this->responseJSON($users);
     }
 
+    public function addUser(StoreUserRequest $request)
+    {
+        $user = UserService::addUser($request);
+        return $this->responseJSON($user);
+    }
+
+    public function deleteUser($id = null)
+    {
+        $users = UserService::deleteUser($id);
+        return $this->responseJSON($users);
+    }
 
 }

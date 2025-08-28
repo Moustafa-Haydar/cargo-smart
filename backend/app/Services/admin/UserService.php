@@ -9,13 +9,6 @@ use App\Http\Requests\StoreUserRequest;
 
 class UserService
 {
-    public static function addUser(Request $request)
-    {
-        $data = $request->validated();
-        $data['password'] = Hash::make($data['password']);
-        $user = User::create($data);
-        return ($user);
-    }
 
     public static function getAllUsers($id = null)
     {
@@ -24,7 +17,26 @@ class UserService
         }
         return User::find($id);
     }
+    public static function addUser(Request $request)
+    {
+        $data = $request->validated();
+        $data['password'] = Hash::make($data['password']);
+        $user = User::create($data);
+        return ($user);
+    }
 
+    public static function deleteUser($id = null)
+    {
+        if ($id == null) {
+            return false;
+        }
 
+        $user = User::find($id);
+        if (!$user) {
+            return false;
+        }
+
+        return $user->delete();
+    }
 
 }
