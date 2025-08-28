@@ -52,7 +52,12 @@ class ForgotPassword extends Mailable
 
         return
             $this->subject('Reset your password ')
-                ->view('emails.forgotPassword');
+                ->from('no-reply@cargosmart.com', 'CargoSmart')
+                ->view('emails.forgotPassword')
+                ->with([
+                    'user' => $this->user,
+                    'url' => $this->url,
+                ]);
 
     }
 }
