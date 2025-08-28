@@ -1,9 +1,14 @@
 <?php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+// import middlewares
+use App\Http\Middleware\EnsureAdmin;
+
+// import controllers
 use App\Http\Controllers\Common\AuthController;
 use App\Http\Controllers\admin\UserController;
-use App\Http\Middleware\EnsureAdmin;
+use App\Http\Controllers\Admin\RoleController;
 
 Route::group(["prefix" => "v0.1"], function () {
 
@@ -47,9 +52,11 @@ Route::group(["prefix" => "v0.1"], function () {
                 Route::post("/deleteUser", [UserController::class, "deleteUser"]);
 
                 // Role Management
+                Route::post("/addRole", [RoleController::class, "addRole"]);
+
+
                 Route::get("/getAllRoles/{id?}", [RoleController::class, "getAllRoles"]);
-                Route::post("/addUser", [UserController::class, "addUser"]);
-                Route::post("/deleteUser", [UserController::class, "deleteUser"]);
+                Route::post("/deleteUser", [RoleController::class, "deleteUser"]);
 
 
             });
