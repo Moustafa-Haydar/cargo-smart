@@ -22,9 +22,6 @@ class AuthController extends Controller
     use ResponseTrait;
     public function login(LoginRequest $request)
     {
-
-        Log::info("test here: " . $request['username']);
-
         // $user = AuthService::login($request);
 
         $credentials = $request->validated();

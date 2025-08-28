@@ -31,12 +31,14 @@ Route::group(["prefix" => "v0.1"], function () {
 
     });
 
+
     Route::group(["middleware" => "auth"], function () {
 
         // USER-SPECIFIC ENDPOINTS
         Route::group(["prefix" => "user"], function () {
 
             // add user-specific routes here
+            Route::get("/getAllUsers/{id?}", [UserController::class, "getAllUsers"]);
 
 
         });

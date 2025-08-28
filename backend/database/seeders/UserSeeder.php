@@ -21,5 +21,15 @@ class UserSeeder extends Seeder
             'password' => bcrypt('ssssssss'),
             'role_id' => '1',
         ]);
+
+        User::firstOrCreate([
+            'first_name' => 'Nour',
+            'last_name' => 'Dandachi',
+            'email' => 'nour.eng@gmail.com',
+            'username' => 'nour',
+            'password' => bcrypt('ssssssss'),
+            'role_id' => '2',
+        ]);
     }
 }
+
