@@ -16,4 +16,12 @@ class RoleService
         return ($role);
     }
 
+    public static function getAllRoles($id = null)
+    {
+        if ($id == null) {
+            return Role::all();
+        }
+        return Role::find($id);
+    }
+
 }

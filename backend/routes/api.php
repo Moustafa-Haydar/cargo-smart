@@ -52,10 +52,11 @@ Route::group(["prefix" => "v0.1"], function () {
                 Route::post("/deleteUser", [UserController::class, "deleteUser"]);
 
                 // Role Management
+                Route::get("/getAllRoles/{id?}", [RoleController::class, "getAllRoles"]);
                 Route::post("/addRole", [RoleController::class, "addRole"]);
 
 
-                Route::get("/getAllRoles/{id?}", [RoleController::class, "getAllRoles"]);
+
                 Route::post("/deleteUser", [RoleController::class, "deleteUser"]);
 
 

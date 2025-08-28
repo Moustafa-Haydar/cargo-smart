@@ -24,10 +24,10 @@ class RoleController extends Controller
         return $this->responseJSON($role);
     }
 
-    // public function getAllUsers($id = null)
-    // {
-    //     $users = UserService::getAllUsers($id);
-    //     return $this->responseJSON($users);
-    // }
+    public function getAllRoles($id = null)
+    {
+        $roles = RoleService::getAllRoles($id);
+        return $this->responseJSON($roles);
+    }
 
 }
