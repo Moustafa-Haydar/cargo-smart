@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+
   frontend:
     build:
       context: ./frontend
@@ -29,11 +30,12 @@ services:
       - "5001:5000"
     environment:
       - NODE_ENV=production
-      - MONGO_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/remotelyx?authSource=admin&directConnection=true
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-cargo_db}?schema=public
     env_file:
-      - .env
+      - ./backend/.env
     depends_on:
-      - mongodb
+      postgres:
+        condition: service_healthy
     networks:
       - app-network
     deploy:
@@ -46,81 +48,65 @@ services:
       timeout: 3s
       retries: 3
 
-  n8n:
-    image: n8nio/n8n:latest
-    ports:
-      - "5678:5678"
+  postgres:
+    image: postgres:16
     environment:
-      - N8N_HOST=${N8N_HOST:-localhost}
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
-      - NODE_ENV=production
-      - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL:-http://localhost:5678}
-      - DB_TYPE=mongodb
-      - DB_MONGODB_CONNECTION_URL=mongodb://mongodb:27017/n8n
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=cargo_db
+    ports:
+      - "5433:5432"
     volumes:
-      - n8n_data:/home/node/.n8n
+      - pg_data:/var/lib/postgresql/data
     networks:
       - app-network
-    deploy:
-      restart_policy:
-        condition: on-failure
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cargo_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  mongodb:
-    image: mongo:latest
+  adminer:
+    image: adminer:latest
     ports:
-      - "27018:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
-      - MONGO_INITDB_DATABASE=remotelyx
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - app-network
-    deploy:
-      restart_policy:
-        condition: on-failure
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 30s
-      timeout: 3s
-      retries: 3
-    command: ["mongod", "--auth", "--bind_ip_all"]
-
-  mongo-express:
-    image: mongo-express:latest
-    ports:
-      - "8081:8081"
-    environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_USER:-admin}
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_PASSWORD:-password}
-      - ME_CONFIG_MONGODB_SERVER=mongodb
-      - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_EXPRESS_USER:-admin}
-      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_EXPRESS_PASSWORD:-password}
+      - "8080:8080"
     depends_on:
-      - mongodb
+      - postgres
     networks:
       - app-network
-    deploy:
-      restart_policy:
-        condition: on-failure
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
+
+  # n8n:
+  #   image: n8nio/n8n:latest
+  #   ports:
+  #     - "5678:5678"
+  #   environment:
+  #     - N8N_HOST=${N8N_HOST:-localhost}
+  #     - N8N_PORT=5678
+  #     - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+  #     - NODE_ENV=production
+  #     - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL:-http://localhost:5678}
+  #     - DB_TYPE=mongodb
+  #     - DB_MONGODB_CONNECTION_URL=mongodb://mongodb:27017/n8n
+  #   volumes:
+  #     - n8n_data:/home/node/.n8n
+  #   networks:
+  #     - app-network
+  #   deploy:
+  #     restart_policy:
+  #       condition: on-failure
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+  #     interval: 30s
+  #     timeout: 3s
+  #     retries: 3
 
 volumes:
-  n8n_data:
+  pg_data:
     driver: local
-  mongodb_data:
-    driver: local
+  # n8n_data:
+  #   driver: local
+  # mongodb_data:
+  #   driver: local
 
 networks:
   app-network:
