@@ -50,14 +50,23 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",  # username/password
 ]
 
-# Session & CSRF
-SESSION_COOKIE_NAME = "cargosmart_sessionid"
+ROOT_URLCONF = 'cargosmart.urls'
+
+# ---- Cookie/Session options ----
+SESSION_COOKIE_NAME = "cargosmart_sessionid"   # cookie that stores the session key
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7          # 7 days
 SESSION_SAVE_EVERY_REQUEST = False
+
+# CSRF cookie lets clients (like Postman or your SPA) send X-CSRFToken on writes
+CSRF_COOKIE_NAME = "csrftoken"
 CSRF_COOKIE_HTTPONLY = False
 
-ROOT_URLCONF = 'cargosmart.urls'
+# When you deploy behind HTTPS, uncomment these:
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SAMESITE = "Lax"   # or "None" if a different top-level site must send cookies
+# CSRF_TRUSTED_ORIGINS = ["https://your-frontend.example"]
 
 TEMPLATES = [
     {
