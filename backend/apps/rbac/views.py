@@ -41,3 +41,14 @@ def create_role(request):
 
     return JsonResponse({"created": True, "role": _role_payload(role)}, status=201)
 
+
+@require_GET
+@csrf_protect
+def roles(request):
+    """
+    Lists all roles.
+    """
+    roles = Role.objects.all()
+    roles_data = [_role_payload(role) for role in roles]
+    return JsonResponse({"roles": roles_data})
+
