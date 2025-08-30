@@ -112,3 +112,28 @@ def update_user(request):
     
     user.save()
     return JsonResponse({"updated": True, "user": _user_payload(user)})
+
+
+@require_POST
+@csrf_protect
+def delete_user(request):
+    """
+    Delete specific user with id
+    """
+    try:
+        data = json.loads(request.body.decode() or "{}")
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid JSON")
+    
+    user_id = data.get("id")
+
+    if not user_id:
+        return HttpResponseBadRequest("user_id is required")
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({"detail": "User not found"}, status=404)
+
+    user.delete()
+    return JsonResponse({"deleted": True, "user": _user_payload(user)})
