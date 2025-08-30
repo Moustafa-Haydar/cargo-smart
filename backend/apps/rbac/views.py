@@ -1,0 +1,43 @@
+import json
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.middleware.csrf import get_token
+from .models import Role
+
+
+def _role_payload(role):
+    return {
+        "id": role.id,
+        "name": role.name,
+        "description": role.description,
+    }
+
+
+@require_POST
+@csrf_protect
+def create_role(request):
+    """
+    Accepts JSON { "name": str, "description": str }.
+    Creates a Role and returns it.
+    """
+    try:
+        data = json.loads(request.body.decode() or "{}")
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    name = (data.get("name") or "").strip()
+    description = (data.get("description") or "").strip()
+
+    if not name:
+        return HttpResponseBadRequest("Role name is required")
+
+    # Prevent duplicate names
+    if Role.objects.filter(name=name).exists():
+        return JsonResponse({"detail": "Role with this name already exists"}, status=409)
+
+    role = Role.objects.create(name=name, description=description)
+
+    return JsonResponse({"created": True, "role": _role_payload(role)}, status=201)
+
