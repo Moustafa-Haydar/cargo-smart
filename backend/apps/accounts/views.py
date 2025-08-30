@@ -100,6 +100,8 @@ def create_user(request):
         return HttpResponseBadRequest("Invalid JSON")
 
     username = (data.get("username") or "").strip()
+    first_name = (data.get("first_name") or "").strip()
+    last_name = (data.get("last_name") or "").strip()
     email = (data.get("email") or "").strip()
     password = data.get("password")
     role_id = data.get("role_id")
@@ -110,7 +112,7 @@ def create_user(request):
     if User.objects.filter(username=username).exists():
         return JsonResponse({"detail": "username already exists"}, status=409)
 
-    user = User.objects.create_user(username=username, email=email, password=password)
+    user = User.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email, password=password)
 
     if role_id:
         # Validate FK exists before assigning
@@ -118,7 +120,7 @@ def create_user(request):
             role = Role.objects.get(pk=role_id)
         except Role.DoesNotExist:
             return JsonResponse({"detail": "invalid role_id"}, status=400)
-        user.role = role           # correct way to set FK
+        user.role = role
         user.save(update_fields=["role"])
 
     return JsonResponse({"created": True, "user": _user_payload(user)}, status=201)
