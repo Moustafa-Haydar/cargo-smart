@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.middleware.csrf import get_token
 
+
 def _user_payload(user):
     return {
         "id": user.id,
@@ -13,12 +14,14 @@ def _user_payload(user):
         "role": user.role,
     }
 
+
 @require_GET
 @ensure_csrf_cookie
 def csrf(request):
     """Return a CSRF token (also sets csrftoken cookie)."""
     token = get_token(request)        # same token as the cookie
     return JsonResponse({"csrfToken": token})
+
 
 @require_POST
 @csrf_protect
@@ -41,8 +44,9 @@ def login(request):
     if not user:
         return JsonResponse({"ok": False, "error": "Invalid credentials"}, status=401)
 
-    login(request, user)              # <- creates session + sets session cookie
-    return JsonResponse({"ok": True, "user": _user_payload(user)})
+    auth_login(request, user)  # sets sessionid cookie
+    return JsonResponse({"ok": True, "user": {"id": user.id, "username": user.username}})
+
 
 @require_POST
 @csrf_protect
@@ -51,9 +55,41 @@ def logout(request):
     logout(request)
     return JsonResponse({"ok": True})
 
+
 @require_GET
 def me(request):
     """Returns who you are based on the session cookie."""
     if request.user.is_authenticated:
         return JsonResponse({"authenticated": True, "user": _user_payload(request.user)})
     return JsonResponse({"authenticated": False}, status=401)
+
+
+@require_POST
+# @csrf_protect
+# @staff_or_super_required
+def create_user(request):
+    """
+    Body: { "username": str, "email": str, "password": str, "role": pk? }
+    """
+    try:
+        data = json.loads(request.body.decode() or "{}")
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    username = (data.get("username") or "").strip()
+    email = (data.get("email") or "").strip()
+    password = data.get("password")
+    role = bool(data.get("role", False))
+
+    if not username or not password:
+        return HttpResponseBadRequest("username and password are required")
+
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({"detail": "username already exists"}, status=409)
+
+    user = User.objects.create_user(username=username, email=email, password=password)
+    if role:
+        user.role = True
+        user.save(update_fields=["role"])
+
+    return JsonResponse({"created": True, "user": _user_payload(user)}, status=201)
