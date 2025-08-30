@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.middleware.csrf import get_token
 from .models import User
+from apps.rbac.models import Role  
 
 def _user_payload(user):
     return {
@@ -13,6 +14,12 @@ def _user_payload(user):
         "email": user.email,
         "role": user.role,
     }
+
+def _role_payload_from_user(user):
+    r = getattr(user, "role", None)
+    if r is None:
+        return None
+    return {"id": str(r.id), "name": getattr(r, "name")}
 
 
 @require_GET
@@ -66,7 +73,7 @@ def login(request):
 @csrf_protect
 def logout(request):
     """Logs out by clearing the server-side session and expiring the cookie."""
-    logout(request)
+    auth_logout(request)
     return JsonResponse({"ok": True})
 
 
@@ -92,7 +99,7 @@ def create_user(request):
     username = (data.get("username") or "").strip()
     email = (data.get("email") or "").strip()
     password = data.get("password")
-    role_id = bool(data.get("role_id", False))
+    role_id = data.get("role_id")
 
     if not username or not password:
         return HttpResponseBadRequest("username and password are required")
@@ -101,8 +108,14 @@ def create_user(request):
         return JsonResponse({"detail": "username already exists"}, status=409)
 
     user = User.objects.create_user(username=username, email=email, password=password)
+
     if role_id:
-        user.role_id = True
-        user.save(update_fields=["role_id"])
+        # Validate FK exists before assigning
+        try:
+            role = Role.objects.get(pk=role_id)
+        except Role.DoesNotExist:
+            return JsonResponse({"detail": "invalid role_id"}, status=400)
+        user.role = role           # correct way to set FK
+        user.save(update_fields=["role"])
 
     return JsonResponse({"created": True, "user": _user_payload(user)}, status=201)
