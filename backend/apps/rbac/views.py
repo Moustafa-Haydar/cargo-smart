@@ -15,6 +15,17 @@ def _role_payload(role):
     }
 
 
+@require_GET
+@csrf_protect
+def roles(request):
+    """
+    Lists all roles.
+    """
+    roles = Role.objects.all()
+    roles_data = [_role_payload(role) for role in roles]
+    return JsonResponse({"roles": roles_data})
+
+
 @require_POST
 @csrf_protect
 def create_role(request):
@@ -42,13 +53,66 @@ def create_role(request):
     return JsonResponse({"created": True, "role": _role_payload(role)}, status=201)
 
 
-@require_GET
+@require_POST
 @csrf_protect
-def roles(request):
+def delete_role(request):
     """
-    Lists all roles.
+    Accepts query param `role_id`.
+    Deletes the Role with the given ID.
     """
-    roles = Role.objects.all()
-    roles_data = [_role_payload(role) for role in roles]
-    return JsonResponse({"roles": roles_data})
+    try:
+        data = json.loads(request.body.decode() or "{}")
+        role_id = data.get("role_id")
+    except (json.JSONDecodeError, AttributeError):
+        return HttpResponseBadRequest("Invalid JSON")
+
+    if not role_id:
+        return HttpResponseBadRequest("role_id is required")
+
+    try:
+        role = Role.objects.get(id=role_id)
+    except Role.DoesNotExist:
+        return JsonResponse({"detail": "Role not found"}, status=404)
+
+    role.delete()
+    return JsonResponse({"deleted": True})
+
+
+@require_POST
+@csrf_protect
+def update_role(request):
+    """
+    Accepts JSON { "role_id": int, "name": str, "description": str }.
+    Updates the Role and returns it.
+    """
+    try:
+        data = json.loads(request.body.decode() or "{}")
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    role_id = data.get("role_id")
+    name = (data.get("name") or "").strip()
+    description = (data.get("description") or "").strip()
+
+    if not role_id:
+        return HttpResponseBadRequest("role_id is required")
+
+    try:
+        role = Role.objects.get(id=role_id)
+    except Role.DoesNotExist:
+        return JsonResponse({"detail": "Role not found"}, status=404)
+
+    # Prevent duplicate names
+    if Role.objects.filter(name=name).exclude(id=role_id).exists():
+        return JsonResponse({"detail": "Role with this name already exists"}, status=409)
+
+    if name:
+        role.name = name
+    if description:
+        role.description = description
+
+    role.save()
+    return JsonResponse({"updated": True, "role": _role_payload(role)})
+
+
 

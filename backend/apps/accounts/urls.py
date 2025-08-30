@@ -1,17 +1,16 @@
 from django.urls import path
-from . import views
+from .views import login, logout, csrf, me, create_user
 
 urlpatterns = [
 
-    path("csrf/", views.csrf, name="csrf"),
-    path("login/", views.login, name="login"),
-    path("logout/", views.logout, name="logout"),
-    path("me/", views.me, name="me"),
+    # auth - (public endpoints)
+    path("csrf/", csrf, name="csrf"),
+    path("login/", login, name="login"),
+    path("logout/", logout, name="logout"),
+    path("me/", me, name="me"),
 
     # user management - (admin only)
-    # to add all user related endpoints here
-    # add, update, delete, list users
-    path("addUser/", views.create_user, name="create_user"),    
-
+    # path("users/", users, name="users"),
+    path("addUser/", create_user, name="create_user"),
 
 ]
