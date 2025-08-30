@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
 
-    path("csrf/", views.csrf, name="csrf"),
+    path("addRole/", views.create_role, name="create_role"),
        
 
 ]

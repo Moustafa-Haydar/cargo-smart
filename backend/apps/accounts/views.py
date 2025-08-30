@@ -82,7 +82,7 @@ def me(request):
 @csrf_protect
 def create_user(request):
     """
-    Body: { "username": str, "email": str, "password": str, "role": pk? }
+    Body: { "username": str, "email": str, "password": str, "role_id": pk? }
     """
     try:
         data = json.loads(request.body.decode() or "{}")
@@ -92,7 +92,7 @@ def create_user(request):
     username = (data.get("username") or "").strip()
     email = (data.get("email") or "").strip()
     password = data.get("password")
-    role = bool(data.get("role", False))
+    role_id = bool(data.get("role_id", False))
 
     if not username or not password:
         return HttpResponseBadRequest("username and password are required")
@@ -101,8 +101,8 @@ def create_user(request):
         return JsonResponse({"detail": "username already exists"}, status=409)
 
     user = User.objects.create_user(username=username, email=email, password=password)
-    if role:
-        user.role = True
-        user.save(update_fields=["role"])
+    if role_id:
+        user.role_id = True
+        user.save(update_fields=["role_id"])
 
     return JsonResponse({"created": True, "user": _user_payload(user)}, status=201)
