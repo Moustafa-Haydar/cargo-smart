@@ -45,7 +45,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 
-    # "apps.accounts.middleware.RequireAdminRoleMiddleware",
+    "apps.accounts.middleware.RequireAdminRoleMiddleware",
+    "apps.rbac.middleware.RequireAdminRoleMiddleware",
 ]
 
 AUTHENTICATION_BACKENDS = [

@@ -8,7 +8,10 @@ urlpatterns = [
     path("logout/", views.logout, name="logout"),
     path("me/", views.me, name="me"),
 
-    path("addUsers/", views.create_user, name="create_user"),    
-    
+    # user management - (admin only)
+    # to add all user related endpoints here
+    # add, update, delete, list users
+    path("addUser/", views.create_user, name="create_user"),    
+
 
 ]
