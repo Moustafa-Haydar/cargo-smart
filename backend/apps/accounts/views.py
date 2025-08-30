@@ -7,19 +7,22 @@ from django.middleware.csrf import get_token
 from .models import User
 from apps.rbac.models import Role  
 
+def _role_payload(role):
+    if not role:
+        return None
+    return {
+        "id": str(role.id),
+        "name": getattr(role, "name", None),
+        "description": getattr(role, "description", None),
+    }
+
 def _user_payload(user):
     return {
         "id": user.id,
         "username": user.username,
         "email": user.email,
-        "role": user.role,
+        "role": _role_payload(getattr(user, "role", None)),
     }
-
-def _role_payload_from_user(user):
-    r = getattr(user, "role", None)
-    if r is None:
-        return None
-    return {"id": str(r.id), "name": getattr(r, "name")}
 
 
 @require_GET
