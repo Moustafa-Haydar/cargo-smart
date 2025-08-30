@@ -1,10 +1,10 @@
 import json
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.middleware.csrf import get_token
-
+from .models import User
 
 def _user_payload(user):
     return {
@@ -45,7 +45,21 @@ def login(request):
         return JsonResponse({"ok": False, "error": "Invalid credentials"}, status=401)
 
     auth_login(request, user)  # sets sessionid cookie
-    return JsonResponse({"ok": True, "user": {"id": user.id, "username": user.username}})
+
+
+    role_id = getattr(user, "role_id", None)
+    # Store in session for quick access in middleware
+    request.session["role_id"] = role_id
+
+    return JsonResponse({
+        "ok": True, 
+        "user": {
+            "id": user.id, 
+            "username": user.username,
+            "email": user.email,
+            "role_id": role_id
+            }
+    })
 
 
 @require_POST
@@ -65,8 +79,7 @@ def me(request):
 
 
 @require_POST
-# @csrf_protect
-# @staff_or_super_required
+@csrf_protect
 def create_user(request):
     """
     Body: { "username": str, "email": str, "password": str, "role": pk? }
