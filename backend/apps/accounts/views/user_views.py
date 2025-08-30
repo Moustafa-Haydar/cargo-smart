@@ -1,10 +1,33 @@
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_protect
 from django.http import JsonResponse, HttpResponseBadRequest
 from .utils import _user_payload
 from apps.rbac.models import Role
 from ..models import User
 import json
+
+def _user_payload(user):
+    return {
+        "id": user.id,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "username": user.username,
+        "email": user.email,
+        "role": user.role_id
+    }
+
+
+@require_GET
+@csrf_protect
+def users(request):
+    """
+    List all users
+    """
+    users = User.objects.all()
+
+    users_data = [_user_payload(user) for user in users]
+    print(users_data)
+    return JsonResponse({"users": users_data})
 
 
 @require_POST
@@ -43,3 +66,49 @@ def create_user(request):
         user.save(update_fields=["role"])
 
     return JsonResponse({"created": True, "user": _user_payload(user)}, status=201)
+
+
+@require_POST
+@csrf_protect
+def update_user(request):
+    """
+    Update the user info
+    """
+    try:
+        data = json.loads(request.body.decode() or "{}")
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid JSON")
+    
+    user_id = data.get("id")
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
+    username = data.get("username")
+    email = data.get("email")
+    role = data.get("role")
+    
+    if not user_id:
+        return HttpResponseBadRequest("user_id is required")
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({"detail": "User not found"}, status=404)
+    
+    if first_name:
+        user.first_name = first_name
+    if last_name:
+        user.last_name = last_name
+    if username:
+        user.username = username
+    if email:
+        user.email = email
+    if role:
+        user.role = role
+
+    if User.objects.filter(username=username).exclude(id=user_id).exists():
+        return JsonResponse({"detail": "User with this username already exists"}, status=409)
+    if User.objects.filter(email=email).exclude(id=user_id).exists():
+        return JsonResponse({"detail": "User with this email already exists"}, status=409)
+    
+    user.save()
+    return JsonResponse({"updated": True, "user": _user_payload(user)})

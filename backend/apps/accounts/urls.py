@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import login, logout, csrf, me, create_user
+from .views import login, logout, csrf, me, create_user, users, update_user
 
 urlpatterns = [
 
@@ -10,7 +10,8 @@ urlpatterns = [
     path("me/", me, name="me"),
 
     # user management - (admin only)
-    # path("users/", users, name="users"),
+    path("users/", users, name="users"),
     path("addUser/", create_user, name="create_user"),
+    path("updateUser/", update_user, name="update_user"),
 
 ]
