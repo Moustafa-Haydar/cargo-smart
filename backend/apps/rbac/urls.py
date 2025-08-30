@@ -8,5 +8,8 @@ urlpatterns = [
     path("addRole/", views.create_role, name="create_role"),
     path("deleteRole/", views.delete_role, name="delete_role"),
     path("updateRole/", views.update_role, name="update_role"),
+
+    # Permission management
+    
     
 ]
