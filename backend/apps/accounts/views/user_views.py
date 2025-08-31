@@ -16,7 +16,6 @@ def _user_payload(user):
         "last_name": user.last_name,
         "username": user.username,
         "email": user.email,
-        "role": user.role_id
     }
 
 

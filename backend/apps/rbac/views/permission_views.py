@@ -1,79 +1,123 @@
 import json
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.http import JsonResponse, HttpResponseBadRequest
-from django.views.decorators.http import require_POST, require_GET
-from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.views.decorators.http import require_POST, require_GET, require_http_methods
+from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from django.views.decorators.http import require_http_methods
-from ..models import Role, Permission, RolePermission
+
+from ..models import Group, Permission, GroupPermission
 
 
-def _permission_payload(permission):
+# ---------- helpers ----------
+
+def _split_code(code: str):
+    """Split 'app.codename' -> (app, codename); default app 'core' if no dot."""
+    return code.split(".", 1) if "." in code else ("core", code)
+
+def _permission_payload(p: Permission):
     return {
-        "id": permission.id,
-        "code": permission.code,
-        "description": permission.description,
+        "id": str(p.id),
+        "app_label": p.app_label,
+        "codename": p.codename,
+        "code": f"{p.app_label}.{p.codename}",   # convenience for frontend
+        "name": p.name,
+        "description": p.description,
     }
 
 
+# ---------- GET all permissions ----------
+
 @require_GET
-@csrf_protect
 def permissions(request):
     """
     Lists all permissions.
     """
-    permissions = Permission.objects.all()
-    permissions_data = [_permission_payload(permission) for permission in permissions]
-    return JsonResponse({"permissions": permissions_data})
+    perms = Permission.objects.all().order_by("app_label", "codename")
+    return JsonResponse({"permissions": [_permission_payload(p) for p in perms]})
 
+
+# ---------- Create permission (supports 'code' or app/codename) ----------
 
 @require_POST
 @csrf_protect
 def add_permission(request):
+    """
+    Body (either):
+      { "code": "shipments.view", "description": "..." , "name": "View Shipments"? }
+    or:
+      { "app_label": "shipments", "codename": "view", "description": "...", "name": "View Shipments"? }
+    Creates the permission if missing, updates description/name if it exists.
+    """
     try:
         data = json.loads(request.body.decode() or "{}")
     except json.JSONDecodeError:
         return HttpResponseBadRequest("Invalid JSON")
-    
-    code = data.get("code")
-    description = data.get("description")
-    
-    if not code:
-        return HttpResponseBadRequest("Permission code is required")
+
+    code = (data.get("code") or "").strip()
+    app_label = (data.get("app_label") or "").strip()
+    codename = (data.get("codename") or "").strip()
+    description = (data.get("description") or "").strip()
+    name = (data.get("name") or "").strip()
+
+    if code and not (app_label and codename):
+        app_label, codename = _split_code(code)
+
+    if not app_label or not codename:
+        return HttpResponseBadRequest("Provide either 'code' or both 'app_label' and 'codename'.")
     if not description:
         return HttpResponseBadRequest("Permission description is required")
-    
-    # Prevent duplicate code
-    if Permission.objects.filter(code=code).exists():
-        return JsonResponse({"detail": "Permission with this code already exists"}, status=409)
-    permission = Permission.objects.create(code=code, description=description)
 
-    return JsonResponse({"created": True, "role": _permission_payload(permission)}, status=201)
+    # default a reasonable display name if not given
+    if not name:
+        name = codename.replace("_", " ").title()
 
+    perm, created = Permission.objects.get_or_create(
+        app_label=app_label,
+        codename=codename,
+        defaults={"name": name, "description": description},
+    )
+
+    updates = {}
+    if perm.description != description:
+        updates["description"] = description
+    # only update name if client provided it explicitly (keeps existing nice names)
+    if data.get("name") and perm.name != name:
+        updates["name"] = name
+    if updates:
+        for k, v in updates.items():
+            setattr(perm, k, v)
+        perm.save(update_fields=list(updates.keys()))
+
+    return JsonResponse(
+        {"created": created, "permission": _permission_payload(perm)},
+        status=201 if created else 200,
+    )
+
+
+# ---------- Group permission management ----------
 
 @require_http_methods(["GET", "POST"])
 @csrf_protect
-def role_permissions(request, role_id):
+def group_permissions(request, group_id):
     """
-    GET  /roles/<role_id>/permissions/         -> list permissions for the role
-    POST /roles/<role_id>/permissions/         -> change permissions
+    GET  /groups/<group_id>/permissions/     -> list permissions for the group
+    POST /groups/<group_id>/permissions/     -> change permissions
       body:
         {
           "action": "grant" | "revoke" | "set",   # default: "set"
           "permission_ids": ["uuid1", "uuid2", ...]
         }
     """
-    role = get_object_or_404(Role, pk=role_id)
+    group = get_object_or_404(Group, pk=group_id)
 
     if request.method == "GET":
         perms = (
             Permission.objects
-            .filter(role_permissions__role=role)
-            .values("id", "code", "description")
-            .order_by("code")
+            .filter(group_permissions__group=group)
+            .order_by("app_label", "codename")
         )
-        return JsonResponse({"role_id": role.id, "permissions": list(perms)})
+        out = [_permission_payload(p) for p in perms]
+        return JsonResponse({"group_id": str(group.id), "permissions": out})
 
     # POST
     try:
@@ -82,11 +126,14 @@ def role_permissions(request, role_id):
         return HttpResponseBadRequest("Invalid JSON")
 
     action = (data.get("action") or "set").lower()
-    ids = data.get("permission_ids", [])
+    if action not in {"grant", "revoke", "set"}:
+        return JsonResponse({"detail": "action must be 'grant', 'revoke', or 'set'."}, status=400)
+
+    ids = data.get("permission_ids") or []
     if not isinstance(ids, list):
         return JsonResponse({"detail": "permission_ids must be a list"}, status=400)
 
-    # Validate all IDs exist — uncomment if you want strict checking
+    # validate IDs exist
     found = set(Permission.objects.filter(id__in=ids).values_list("id", flat=True))
     missing = [pid for pid in ids if pid not in found]
     if missing:
@@ -95,39 +142,38 @@ def role_permissions(request, role_id):
     changed = {}
     with transaction.atomic():
         if action == "grant":
-            for pid in ids:
-                RolePermission.objects.get_or_create(role=role, permission_id=pid)
+            GroupPermission.objects.bulk_create(
+                [GroupPermission(group=group, permission_id=pid) for pid in ids],
+                ignore_conflicts=True,
+            )
             changed = {"granted": ids}
 
         elif action == "revoke":
-            RolePermission.objects.filter(role=role, permission_id__in=ids).delete()
+            GroupPermission.objects.filter(group=group, permission_id__in=ids).delete()
             changed = {"revoked": ids}
 
-        elif action == "set":
+        else:  # set (exact replace)
             current_ids = set(
-                RolePermission.objects.filter(role=role).values_list("permission_id", flat=True)
+                GroupPermission.objects.filter(group=group).values_list("permission_id", flat=True)
             )
             new_ids = set(ids)
             to_add = list(new_ids - current_ids)
             to_remove = list(current_ids - new_ids)
 
             if to_remove:
-                RolePermission.objects.filter(role=role, permission_id__in=to_remove).delete()
+                GroupPermission.objects.filter(group=group, permission_id__in=to_remove).delete()
             if to_add:
-                RolePermission.objects.bulk_create(
-                    [RolePermission(role=role, permission_id=pid) for pid in to_add],
+                GroupPermission.objects.bulk_create(
+                    [GroupPermission(group=group, permission_id=pid) for pid in to_add],
                     ignore_conflicts=True,
                 )
             changed = {"added": to_add, "removed": to_remove}
 
-        else:
-            return JsonResponse({"detail": "action must be 'grant', 'revoke', or 'set'."}, status=400)
-
-    # Return the updated list
+    # return updated list
     perms = (
         Permission.objects
-        .filter(role_permissions__role=role)
-        .values("id", "code", "description")
-        .order_by("code")
+        .filter(group_permissions__group=group)
+        .order_by("app_label", "codename")
     )
-    return JsonResponse({"role_id": role.id, "permissions": list(perms), **changed})
+    out = [_permission_payload(p) for p in perms]
+    return JsonResponse({"group_id": str(group.id), "permissions": out, **changed})

@@ -1,27 +1,19 @@
 from django.urls import path
-from . import views
+from .views import groups, create_group, update_group, delete_group, permissions, add_permission, group_permissions
 
 urlpatterns = [
 
-    path("permissions/", permissions, name="permissions"),
-
     # Group management
-    path("groups/", views.groups, name="groups"),
+    path("groups/", groups, name="groups"),
     path("groups/create/", create_group, name="create_group"),
     path("groups/update/", update_group, name="update_group"),
     path("groups/delete/", delete_group, name="delete_group"),
 
-    # Role management
-    path("roles/", views.roles, name="roles"),
-    path("addRole/", views.create_role, name="create_role"),
-    path("deleteRole/", views.delete_role, name="delete_role"),
-    path("updateRole/", views.update_role, name="update_role"),
-
     # Permission management
-    path("permissions/", views.permissions, name="permissions"),
-    path("addPermission/", views.add_permission, name="add_permission"),
-    # List all permissions for specific role, and update the permissions
-    path("roles/<int:role_id>/permissions/", views.role_permissions, name="role_permissions"),
+    path("permissions/", permissions, name="permissions"),
+    path("addPermission/", add_permission, name="add_permission"),
+    # List all permissions for specific group, and update the permissions
+    path("groups/<int:group_id>/permissions/", group_permissions, name="group_permissions"),
     
     
 ]
