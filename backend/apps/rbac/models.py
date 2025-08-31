@@ -1,10 +1,10 @@
 import uuid
+from django.conf import settings
 from django.db import models
 
-
-class Role(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    name = models.CharField(max_length=100, unique=True)
+class Group(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=150, unique=True)
     description = models.TextField(blank=True)
 
     def __str__(self):
@@ -13,69 +13,75 @@ class Role(models.Model):
 
 class Permission(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=150, unique=True)
+    app_label = models.CharField(max_length=100)
+    codename = models.CharField(max_length=150)
+    name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["app_label", "codename"],
+                name="uniq_permission_app_label_codename",
+            )
+        ]
+
     def __str__(self):
-        return self.code
+        return f"{self.app_label}.{self.codename}"
+
+
+class UserGroup(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_groups")
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="user_groups")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "group"], name="uniq_user_group")
+        ]
+
+
+class GroupPermission(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="group_permissions")
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE, related_name="group_permissions")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["group", "permission"], name="uniq_group_permission")
+        ]
 
 
 class Operation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
 
 
-class ObjectModel(models.Model):
+class Object(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=150)
-
-    class Meta:
-        db_table = "objects"
+    name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return self.name
 
 
-class RolePermission(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    role = models.ForeignKey("rbac.Role", on_delete=models.CASCADE, related_name="role_permissions")
-    permission = models.ForeignKey("rbac.Permission", on_delete=models.CASCADE, related_name="role_permissions")
-
-    class Meta:
-        unique_together = (("role", "permission"),)
-
-    def __str__(self):
-        return f"{self.role} → {self.permission}"
-
-
-class PermissionOpObj(models.Model):
+class PermissionOperationObject(models.Model):
     """
-    Matrix tying Permission -> Operation on ObjectModel.
+    Bridges permissions to (operation, object).
+    Think: permission 'shipments.view' == (READ, Shipment).
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    permission = models.ForeignKey("rbac.Permission", on_delete=models.CASCADE, related_name="op_objects")
-    operation = models.ForeignKey("rbac.Operation", on_delete=models.CASCADE, related_name="permission_objects")
-    objectmodel = models.ForeignKey("rbac.ObjectModel", on_delete=models.CASCADE, related_name="permission_operations")
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE, related_name="op_objs")
+    operation = models.ForeignKey(Operation, on_delete=models.CASCADE, related_name="op_permissions")
+    object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="obj_permissions")
 
     class Meta:
-        db_table = "permission_ops_objs"
-        unique_together = (("permission", "operation", "objectmodel"),)
-        indexes = [
-            models.Index(fields=["permission", "operation", "objectmodel"], name="perm_op_obj_idx"),
+        constraints = [
+            models.UniqueConstraint(
+                fields=["permission", "operation", "object"],
+                name="uniq_permission_operation_object",
+            )
         ]
-
-    def __str__(self):
-        return f"{self.permission.code}: {self.operation.name} on {self.objectmodel.name}"
-
-
-class Dashboard(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField(max_length=200)
-    layout_config = models.JSONField(default=dict)
-    role = models.ForeignKey("rbac.Role", on_delete=models.CASCADE, related_name="dashboards")
-
-    def __str__(self):
-        return f"{self.title} ({self.role.name})"

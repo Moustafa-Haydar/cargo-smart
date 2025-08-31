@@ -3,6 +3,14 @@ from . import views
 
 urlpatterns = [
 
+    path("permissions/", permissions, name="permissions"),
+
+    # Group management
+    path("groups/", views.groups, name="groups"),
+    path("groups/create/", create_group, name="create_group"),
+    path("groups/update/", update_group, name="update_group"),
+    path("groups/delete/", delete_group, name="delete_group"),
+
     # Role management
     path("roles/", views.roles, name="roles"),
     path("addRole/", views.create_role, name="create_role"),
