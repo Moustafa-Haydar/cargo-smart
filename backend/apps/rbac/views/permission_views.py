@@ -9,6 +9,38 @@ from django.views.decorators.http import require_http_methods
 from ..models import Role, Permission, RolePermission
 
 
+def _permission_payload(permission):
+    return {
+        "id": permission.id,
+        "code": permission.code,
+        "description": permission.description,
+    }
+
+
+@require_POST
+@csrf_protect
+def add_permission(request):
+    try:
+        data = json.loads(request.body.decode() or "{}")
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid JSON")
+    
+    code = data.get("code")
+    description = data.get("description")
+    
+    if not code:
+        return HttpResponseBadRequest("Permission code is required")
+    if not description:
+        return HttpResponseBadRequest("Permission description is required")
+    
+    # Prevent duplicate code
+    if Permission.objects.filter(code=code).exists():
+        return JsonResponse({"detail": "Permission with this code already exists"}, status=409)
+    permission = Permission.objects.create(code=code, description=description)
+
+    return JsonResponse({"created": True, "role": _permission_payload(permission)}, status=201)
+
+
 @require_http_methods(["GET", "POST"])
 @csrf_protect
 def role_permissions(request, role_id):
