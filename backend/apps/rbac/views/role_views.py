@@ -4,7 +4,7 @@ from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.middleware.csrf import get_token
-from .models import Role
+from ..models import Role
 
 
 def _role_payload(role):
@@ -113,6 +113,3 @@ def update_role(request):
 
     role.save()
     return JsonResponse({"updated": True, "role": _role_payload(role)})
-
-
-
