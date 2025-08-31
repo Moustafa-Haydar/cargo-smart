@@ -1,35 +1,46 @@
-# backend/apps/accounts/middleware.py
 from django.http import JsonResponse
-from django.urls import resolve
+from django.conf import settings
+from apps.rbac.models import Group
 
-class RequireAdminRoleMiddleware:
+class RequireAdminGroupMiddleware:
     """
-    Blocks access to selected endpoints unless the logged-in user's role_id == 1.
-    Uses session first (set at login).
+    Blocks access to selected endpoints unless the logged-in user is in an ADMIN group.
+    - Admin groups default to ["Admin"] and can be overridden via settings.RBAC_ADMIN_GROUPS = ["Admin", ...]
+    - Superusers are always allowed.
     """
 
-    PROTECTED_PATH_PREFIXES = ("/accounts/addUser/",)
+    PROTECTED_PATH_PREFIXES = (
+        "/accounts/users/",
+        "/accounts/addUser/",
+        "/accounts/updateUser/",
+        "/accounts/deleteUser/",
+    )
 
     def __init__(self, get_response):
         self.get_response = get_response
+        self.admin_group_names = set(getattr(settings, "RBAC_ADMIN_GROUPS", ["Admin"]))
 
     def __call__(self, request):
-        # Check if request path starts with one of the protected prefixes
-        if any(request.path.startswith(prefix) for prefix in self.PROTECTED_PATH_PREFIXES):
-            if not request.user.is_authenticated:
-                return JsonResponse({"detail": "Authentication required"}, status=401)
+        # Only guard selected endpoints
+        if not any(request.path.startswith(p) for p in self.PROTECTED_PATH_PREFIXES):
+            return self.get_response(request)
 
-            # Prefer role_id from session
-            role_id = request.session.get("role_id")
+        # Must be authenticated
+        user = getattr(request, "user", None)
+        if not user or not user.is_authenticated:
+            return JsonResponse({"detail": "Authentication required"}, status=401)
 
-            if role_id is None:
-                # Fallback: check attribute directly on user
-                role_id = getattr(request.user, "role_id", None)
-                if role_id is None and isinstance(getattr(request.user, "role", None), bool):
-                    # If you store role as boolean (True = admin)
-                    role_id = 1 if request.user.role else 0
+        # Always allow Django superusers
+        if getattr(user, "is_superuser", False):
+            return self.get_response(request)
 
-            if role_id != 1:
-                return JsonResponse({"detail": "Admin access required"}, status=403)
+        # Check group membership (case-insensitive match)
+        is_admin = Group.objects.filter(
+            user_groups__user_id=user.id,
+            name__in=self.admin_group_names
+        ).exists()
+
+        if not is_admin:
+            return JsonResponse({"detail": "Admin access required"}, status=403)
 
         return self.get_response(request)
