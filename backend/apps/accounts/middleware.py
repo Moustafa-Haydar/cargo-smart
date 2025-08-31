@@ -8,7 +8,7 @@ class RequireAdminRoleMiddleware:
     Uses session first (set at login).
     """
 
-    PROTECTED_PATH_PREFIXES = ("/accounts/addUser/",)
+    PROTECTED_PATH_PREFIXES = ("/accounts/users/","/accounts/addUser/","/accounts/updateUser/","/accounts/deleteUser/")
 
     def __init__(self, get_response):
         self.get_response = get_response
