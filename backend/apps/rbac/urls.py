@@ -10,9 +10,10 @@ urlpatterns = [
     path("updateRole/", views.update_role, name="update_role"),
 
     # Permission management
+    path("permissions/", views.permissions, name="permissions"),
     path("addPermission/", views.add_permission, name="add_permission"),
     # List all permissions for specific role, and update the permissions
     path("roles/<int:role_id>/permissions/", views.role_permissions, name="role_permissions"),
     
     
-]#
+]

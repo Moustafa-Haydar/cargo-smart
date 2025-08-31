@@ -17,6 +17,17 @@ def _permission_payload(permission):
     }
 
 
+@require_GET
+@csrf_protect
+def permissions(request):
+    """
+    Lists all permissions.
+    """
+    permissions = Permission.objects.all()
+    permissions_data = [_permission_payload(permission) for permission in permissions]
+    return JsonResponse({"permissions": permissions_data})
+
+
 @require_POST
 @csrf_protect
 def add_permission(request):
