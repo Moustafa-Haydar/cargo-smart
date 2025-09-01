@@ -40,11 +40,11 @@ def seed_accounts(stdout=None):
             raise ValueError(f"Group '{u['group']}' does not exist. User '{u['username']}' not registered.")
 
         user, created = User.objects.get_or_create(
-            username=u["username"],
+            username = u["username"],
+            email = u["email"],
             defaults={
                 "first_name": u["first_name"],
-                "last_name": u["last_name"],
-                "email": u["email"],
+                "last_name": u["last_name"]
             },
         )
 

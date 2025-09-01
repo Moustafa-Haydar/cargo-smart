@@ -11,6 +11,7 @@ urlpatterns = [
 
     # user management - (admin only)
     path("users/", users, name="users"),
+    
     path("addUser/", create_user, name="create_user"),
     path("updateUser/", update_user, name="update_user"),
     path("deleteUser/", delete_user, name="delete_user")
