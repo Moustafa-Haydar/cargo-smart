@@ -6,6 +6,14 @@ from django.apps import apps
 
 USERS = [
     {
+        "first_name": "Admin",
+        "last_name": "Admin",
+        "username": "admin",
+        "password": "ssssssss",
+        "email": "programmermoustafa@gmail.com",
+        "group": "Admin"
+    },
+    {
         "first_name": "Moustafa",
         "last_name": "Haydar",
         "username": "mustish",
@@ -48,4 +56,4 @@ def seed_accounts(stdout=None):
 
         UserGroup.objects.get_or_create(user_id=user.id, group_id=group.id)
 
-        return users
+    return users
