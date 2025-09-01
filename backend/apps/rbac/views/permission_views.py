@@ -146,7 +146,7 @@ def update_permission(request):
 
     try:
         perm.save(update_fields=list(updates.keys()))
-    except IntegrityError:
+    except:
         return JsonResponse({"detail": "Conflict updating permission (race condition)."}, status=409)
 
     return JsonResponse({"updated": True, "permission": _permission_payload(perm)})
@@ -185,7 +185,6 @@ def delete_permission(request):
     return JsonResponse({"deleted": True, "id": perm_id})
 
 
-
 # ---------- Group permission management ----------
 
 @require_http_methods(["GET", "POST"])
@@ -196,12 +195,12 @@ def group_permissions(request, group_id):
     POST /groups/<group_id>/permissions/     -> change permissions
       body:
         {
-          "action": "grant" | "revoke" | "set",   # default: "set"
           "permission_ids": ["uuid1", "uuid2", ...]
         }
     """
     group = get_object_or_404(Group, pk=group_id)
 
+    # GET
     if request.method == "GET":
         perms = (
             Permission.objects
@@ -217,49 +216,31 @@ def group_permissions(request, group_id):
     except json.JSONDecodeError:
         return HttpResponseBadRequest("Invalid JSON")
 
-    action = (data.get("action") or "set").lower()
-    if action not in {"grant", "revoke", "set"}:
-        return JsonResponse({"detail": "action must be 'grant', 'revoke', or 'set'."}, status=400)
-
     ids = data.get("permission_ids") or []
-    if not isinstance(ids, list):
-        return JsonResponse({"detail": "permission_ids must be a list"}, status=400)
+    if not ids:
+        return JsonResponse({"detail": "permission_ids cannot be empty"}, status=400)
 
-    # validate IDs exist
-    found = set(Permission.objects.filter(id__in=ids).values_list("id", flat=True))
+    # validate permissions exist
+    found = set(
+        str(pid) for pid in Permission.objects
+                    .filter(id__in=ids)
+                    .values_list("id", flat=True)
+    )
     missing = [pid for pid in ids if pid not in found]
     if missing:
         return JsonResponse({"detail": "Unknown permission ids", "missing": missing}, status=400)
 
-    changed = {}
-    with transaction.atomic():
-        if action == "grant":
-            GroupPermission.objects.bulk_create(
-                [GroupPermission(group=group, permission_id=pid) for pid in ids],
-                ignore_conflicts=True,
-            )
-            changed = {"granted": ids}
-
-        elif action == "revoke":
-            GroupPermission.objects.filter(group=group, permission_id__in=ids).delete()
-            changed = {"revoked": ids}
-
-        else:  # set (exact replace)
-            current_ids = set(
-                GroupPermission.objects.filter(group=group).values_list("permission_id", flat=True)
-            )
-            new_ids = set(ids)
-            to_add = list(new_ids - current_ids)
-            to_remove = list(current_ids - new_ids)
-
-            if to_remove:
-                GroupPermission.objects.filter(group=group, permission_id__in=to_remove).delete()
-            if to_add:
-                GroupPermission.objects.bulk_create(
-                    [GroupPermission(group=group, permission_id=pid) for pid in to_add],
-                    ignore_conflicts=True,
-                )
-            changed = {"added": to_add, "removed": to_remove}
+    # validate the group doesn't have the permissions
+    existing = set(
+        str(pid) for pid in GroupPermission.objects
+                    .filter(group=group, permission_id__in=found)
+                    .values_list("permission_id", flat=True)
+    )
+    to_add = [pid for pid in found if pid not in existing]
+    if to_add:
+        GroupPermission.objects.bulk_create(
+            [GroupPermission(group=group, permission_id=pid) for pid in to_add],
+        )
 
     # return updated list
     perms = (
@@ -268,4 +249,4 @@ def group_permissions(request, group_id):
         .order_by("app_label", "codename")
     )
     out = [_permission_payload(p) for p in perms]
-    return JsonResponse({"group_id": str(group.id), "permissions": out, **changed})
+    return JsonResponse({"group_id": str(group.id), "permissions": out})
