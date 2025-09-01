@@ -6,6 +6,7 @@ from django.db import transaction
 from .utils import _user_payload
 import json
 from ..models import User
+from django.apps import apps
 from apps.rbac.models import Group, Permission, UserGroup, GroupPermission
 
 
@@ -41,11 +42,14 @@ def users(request):
 @transaction.atomic
 def create_user(request):
     """
-    Body:
+    Body (JSON):
       {
-        "username": str, "email": str, "password": str,
-        "first_name": str?, "last_name": str?,
-        "group_ids": [uuid, ...]?   # optional list of groups to assign
+        "username": str,
+        "email": str,
+        "password": str,
+        "first_name": str?, 
+        "last_name": str?,
+        "group": str?   # e.g. "manager" or "admin" ...
       }
     """
     try:
@@ -58,7 +62,7 @@ def create_user(request):
     username = (data.get("username") or "").strip()
     email = (data.get("email") or "").strip()
     password = data.get("password") or ""
-    group_id = data.get("group") or ""
+    group_name = (data.get("group")      or "").strip()
 
     if not username or not password:
         return HttpResponseBadRequest("username and password are required")
@@ -68,27 +72,31 @@ def create_user(request):
     if email and User.objects.filter(email=email).exists():
         return JsonResponse({"detail": "email already exists"}, status=409)
 
-    user, created = User.objects.create_user(
-        username=username,
-        email=email,
-        first_name=first_name,
-        last_name=last_name
-    )
+    group = None
+    if group_name:
+        Group = apps.get_model("rbac", "Group")
+        try:
+            group = Group.objects.get(name__iexact=group_name)
+        except Group.DoesNotExist:
+            return JsonResponse(
+                {"detail": f"Group '{group_name}' does not exist"},
+                status=400
+            )
 
-    if created:
-        user.set_password(password)
-        user.save(update_fields=["password"])
-
-    # apps is not defined
-    Group = apps.get_model("rbac", "Group")
     try:
-        group = Group.objects.get(name=u["group"])
-    except Group.DoesNotExist:
-        raise ValueError(f"Group '{u['group']}' does not exist. User '{u['username']}' not registered.")
-    
-    if group_id:
-        UserGroup.objects.get_or_create(user_id=user.id, group_id=group.id)
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+        )
+    except:
+        return JsonResponse({"detail": "username or email already exists"}, status=409)
 
+    if group:
+        UserGroup = apps.get_model("rbac", "UserGroup")
+        UserGroup.objects.get_or_create(user_id=user.id, group_id=group.id)
 
     return JsonResponse({"created": True, "user": _user_payload(user)}, status=201)
 
