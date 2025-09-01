@@ -152,6 +152,40 @@ def update_permission(request):
     return JsonResponse({"updated": True, "permission": _permission_payload(perm)})
 
 
+@require_POST
+@csrf_protect
+@transaction.atomic
+def delete_permission(request):
+    """
+    Body (DELETE):
+      { "id": "uuid" }   # required
+    """
+    try:
+        data = json.loads(request.body.decode() or "{}")
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    perm_id = str(data.get("id") or "").strip()
+    if not perm_id:
+        return HttpResponseBadRequest("'id' is required")
+
+    try:
+        perm = Permission.objects.get(id=perm_id)
+    except Permission.DoesNotExist:
+        return JsonResponse({"detail": "Permission not found"}, status=404)
+
+    try:
+        perm.delete()
+    except:
+        return JsonResponse(
+            {"detail": "Permission is in use and cannot be deleted"},
+            status=409
+        )
+
+    return JsonResponse({"deleted": True, "id": perm_id})
+
+
+
 # ---------- Group permission management ----------
 
 @require_http_methods(["GET", "POST"])
