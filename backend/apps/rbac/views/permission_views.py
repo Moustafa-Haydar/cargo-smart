@@ -40,13 +40,10 @@ def permissions(request):
 
 @require_POST
 @csrf_protect
-def add_permission(request):
+def create_permission(request):
     """
-    Body (either):
-      { "code": "shipments.view", "description": "..." , "name": "View Shipments"? }
-    or:
-      { "app_label": "shipments", "codename": "view", "description": "...", "name": "View Shipments"? }
-    Creates the permission if missing, updates description/name if it exists.
+    Body:
+      { "app_label": "shipments", "codename": "view", "name": "View Shipments", "description": "..." }
     """
     try:
         data = json.loads(request.body.decode() or "{}")
@@ -92,6 +89,67 @@ def add_permission(request):
         {"created": created, "permission": _permission_payload(perm)},
         status=201 if created else 200,
     )
+
+
+@require_POST
+@csrf_protect
+@transaction.atomic
+def update_permission(request):
+    """
+    Body (PUT/PATCH):
+      {
+        "id": "uuid-or-int",
+        "app_label": "app"?,
+        "codename": "code"?,
+        "name": "Nice Name"?,
+        "description": "..."?
+      }
+    """
+    try:
+        data = json.loads(request.body.decode() or "{}")
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    perm_id = (data.get("id") or "").strip()
+    if not perm_id:
+        return HttpResponseBadRequest("'id' is required")
+
+    try:
+        perm = Permission.objects.select_for_update().get(id=perm_id)
+    except Permission.DoesNotExist:
+        return JsonResponse({"detail": "Permission not found"}, status=404)
+
+    new_app_label = (data.get("app_label") or "").strip() if "app_label" in data else None
+    new_codename  = (data.get("codename")  or "").strip() if "codename"  in data else None
+    new_name      = (data.get("name")      or "").strip() if "name"      in data else None
+    new_desc      = (data.get("description") or "").strip() if "description" in data else None
+
+    if new_app_label == perm.app_label or new_codename == perm.codename:
+        return JsonResponse({"detail": f"Permission '{new_app_label}.{new_codename}' already exists"}, status=409)
+
+    updates = {}
+    if new_app_label is not None:
+        updates["app_label"] = new_app_label
+    if new_codename is not None:
+        updates["codename"] = new_codename
+    if new_desc is not None and new_desc != perm.description:
+        updates["description"] = new_desc
+    if new_name is not None:
+        updates["name"] = new_name
+
+    if not updates:
+        return JsonResponse({"updated": False, "permission": _permission_payload(perm)})
+
+    # Apply & save
+    for k, v in updates.items():
+        setattr(perm, k, v)
+
+    try:
+        perm.save(update_fields=list(updates.keys()))
+    except IntegrityError:
+        return JsonResponse({"detail": "Conflict updating permission (race condition)."}, status=409)
+
+    return JsonResponse({"updated": True, "permission": _permission_payload(perm)})
 
 
 # ---------- Group permission management ----------

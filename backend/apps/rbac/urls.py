@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import groups, create_group, update_group, delete_group, permissions, add_permission, group_permissions
+from .views import groups, create_group, update_group, delete_group, permissions, create_permission, group_permissions, update_permission
 
 urlpatterns = [
 
@@ -10,8 +10,10 @@ urlpatterns = [
     path("groups/delete/", delete_group, name="delete_group"),
 
     # Permission management
+
     path("permissions/", permissions, name="permissions"),
-    path("addPermission/", add_permission, name="add_permission"),
+    path("permissions/create/", create_permission, name="create_permission"),
+    path("permissions/update/", update_permission, name="update_permission"),
     # List all permissions for specific group, and update the permissions
     path("groups/<int:group_id>/permissions/", group_permissions, name="group_permissions"),
     
