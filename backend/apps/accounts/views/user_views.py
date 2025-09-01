@@ -110,17 +110,19 @@ def update_user(request):
     Body:
       {
         "id": uuid (required),
-        "username": str?, "email": str?,
-        "first_name": str?, "last_name": str?,
-        "password": str?,                 # optional password reset
-        "group_ids": [uuid, ...]?         # full replacement of memberships if provided
+        "username": str,
+        "email": str,
+        "password": str,
+        "first_name": str?, 
+        "last_name": str?,
+        "group": str?   # e.g. "manager" or "admin" ...
       }
     """
     try:
         data = _parse_json(request)
     except ValueError as e:
         return HttpResponseBadRequest(str(e))
-
+ 
     user_id = data.get("id")
     if not user_id:
         return HttpResponseBadRequest("id is required")
@@ -130,8 +132,12 @@ def update_user(request):
     except User.DoesNotExist:
         return JsonResponse({"detail": "User not found"}, status=404)
 
-    username = (data.get("username") or "").strip() or None
-    email = (data.get("email") or "").strip() or None
+    username   = (data.get("username") or "").strip() or None
+    email      = (data.get("email") or "").strip() or None
+    first_name = (data.get("first_name") or "").strip() if "first_name" in data else None
+    last_name  = (data.get("last_name")  or "").strip() if "last_name"  in data else None
+    password   = data.get("password") or None
+    group_name = (data.get("group") or "").strip() if "group" in data else None
 
     # Uniqueness checks only when provided
     if username and User.objects.filter(username=username).exclude(id=user_id).exists():
@@ -139,29 +145,34 @@ def update_user(request):
     if email and User.objects.filter(email=email).exclude(id=user_id).exists():
         return JsonResponse({"detail": "email already exists"}, status=409)
 
-    # Apply updates
-    for field in ("first_name", "last_name"):
-        if field in data and data[field] is not None:
-            setattr(user, field, (data[field] or "").strip())
+    target_group = None
+    if group_name is not None and group_name != "":
+        try:
+            target_group = Group.objects.get(name__iexact=group_name)
+        except Group.DoesNotExist:
+            return JsonResponse({"detail": f"Group '{group_name}' does not exist"}, status=400)
+
+    # Update only set fields that were provided
+    if first_name is not None:
+        user.first_name = first_name
+    if last_name is not None:
+        user.last_name = last_name
     if username is not None:
         user.username = username
     if email is not None:
         user.email = email
-    if data.get("password"):
-        user.set_password(data["password"])
+    if password:
+        user.set_password(password)
 
-    user.save()
+    try:
+        user.save()
+    except:
+        return JsonResponse({"detail": "username or email already exists"}, status=409)
 
-    # Replace group memberships if group_ids provided
-    if "group_ids" in data and isinstance(data["group_ids"], list):
-        new_ids = set(data["group_ids"])
-        # delete old
-        UserGroup.objects.filter(user=user).exclude(group_id__in=new_ids).delete()
-        # add new
-        existing = set(UserGroup.objects.filter(user=user).values_list("group_id", flat=True))
-        to_add = [gid for gid in new_ids if gid not in existing]
-        groups = Group.objects.filter(id__in=to_add)
-        UserGroup.objects.bulk_create([UserGroup(user=user, group=g) for g in groups], ignore_conflicts=True)
+    if group_name is not None:
+        UserGroup.objects.filter(user_id=user.id).delete()
+        if target_group:
+            UserGroup.objects.get_or_create(user_id=user.id, group_id=target_group.id)
 
     return JsonResponse({"updated": True, "user": _user_payload(user)})
 
