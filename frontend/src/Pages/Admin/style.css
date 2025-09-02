@@ -1,11 +1,3 @@
-:root {
-    --primary-color: #358C9C;
-    --secondary-color: #F68716;
-    --text-color: black;
-    --secondary-text-color: #4c4b4b;
-    --background-color: #F8F5F5;
-}
-
 .admin-dashboard {
     background: var(--background-color);
     padding: 30px;
