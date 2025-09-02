@@ -28,10 +28,12 @@ def _permission_payload(p: Permission):
 # ---------- GET all permissions ----------
 
 @require_GET
-def permissions(request):
-    """
-    Lists all permissions.
-    """
+def permissions(request, id=None):
+
+    if id is not None:
+        permission = Permission.objects.filter(pk=id).first()
+        return JsonResponse({"permission":_permission_payload(permission)})
+
     perms = Permission.objects.all().order_by("app_label", "codename")
     return JsonResponse({"permissions": [_permission_payload(p) for p in perms]})
 

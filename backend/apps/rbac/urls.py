@@ -12,7 +12,8 @@ urlpatterns = [
     path("groups/delete/", delete_group, name="delete_group"),
 
     # Permission management
-    path("permissions/", permissions, name="permissions"),
+    path("permissions/", permissions, name="permission"),
+    path("permission/<uuid:id>/", permissions, name="permissions"),
     path("permissions/create/", create_permission, name="create_permission"),
     path("permissions/update/", update_permission, name="update_permission"),
     path("permissions/delete/", delete_permission, name="delete_permission"),
