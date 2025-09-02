@@ -1,8 +1,17 @@
+
+.main-dashboard {
+    display: flex;
+    flex-direction: row;
+}
+
 .admin-dashboard {
     background: var(--background-color);
     padding: 30px;
     min-height: 100vh;
+    margin-left: 13vw;
+    padding-left: 3vw;
     font-family: sans-serif;
+    width: 100%;
 }
 
 .dashboard-header {

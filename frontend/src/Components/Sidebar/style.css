@@ -12,15 +12,12 @@
 
 .sidebar {
     position: fixed;
-    inset: 0 auto 0 0;
-    /* left side, full height */
-    width: 240px;
+    height: 100vh;
+    overflow-y: auto;
     background: var(--sidebar-bg);
     border-right: 1px solid var(--sidebar-border);
     padding: 20px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    width: 13vw;
 }
 
 .sidebar_logo {

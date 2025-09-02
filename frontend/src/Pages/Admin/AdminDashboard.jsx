@@ -61,7 +61,7 @@ function AdminDashboard() {
     
 
   return (
-    <div>
+    <div className="main-dashboard">
       <Sidebar/>
       <main className="admin-dashboard">
         <header className="dashboard-header">
