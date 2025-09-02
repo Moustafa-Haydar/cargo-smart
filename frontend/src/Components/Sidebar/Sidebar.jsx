@@ -2,6 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import "./style.css";
 import { useNavigate } from 'react-router-dom';
+import logo from '../../Assets/Logo/Cargo-Photoroom.png';
 
 
 const Sidebar = () => {
@@ -12,7 +13,7 @@ const Sidebar = () => {
 
     return (
         <aside className="sidebar" role="navigation">
-            <div className="sidebar_logo">CargoSmart</div>
+            <img src={logo} alt="" className="login-page-logo"/>
 
             <nav className="sidebar__nav">
                 <NavLink to="/AdminDashboard" className={linkClass}>

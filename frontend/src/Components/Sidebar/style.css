@@ -16,16 +16,13 @@
     overflow-y: auto;
     background: var(--sidebar-bg);
     border-right: 1px solid var(--sidebar-border);
-    padding: 20px 14px;
+    padding: 0vh 1vw;
     width: 13vw;
 }
 
-.sidebar_logo {
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--ink);
-    padding: 6px 10px;
-    margin-bottom: 8px;
+.login-page-logo {
+    width: 7vw;
+    padding-bottom: 3vh;
 }
 
 .sidebar__nav {
