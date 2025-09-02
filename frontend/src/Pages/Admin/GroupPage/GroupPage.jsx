@@ -10,7 +10,7 @@ import '../../../Styles/variables.css';
 const GroupPage = () => {
     
     const [groups, setGroups] = useState([]);
-    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [filteredGroups, setFilteredGroups] = useState([]);
     const [groupFilter, setGroupFilter] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [showModal, setShowModal] = useState(false);
@@ -20,14 +20,14 @@ const GroupPage = () => {
     // Fetch all groups
     useEffect(() => {
     const fetchGroups = async () => {
-        const allUsers = await GroupController.getAllUsers();
-        setGroups(allUsers);
-        setFilteredUsers(allUsers);
+        const allGroups = await GroupController.getAllGroups();
+        setGroups(allGroups);
+        setFilteredGroups(allGroups);
     };
     fetchGroups();
     }, []);
 
-    // Filter users based on role and search query
+    // Filter groups based on role and search query
     useEffect(() => {
     let filtered = groups;
 
@@ -41,10 +41,10 @@ const GroupPage = () => {
         );
     }
 
-    setFilteredUsers(filtered);
+    setFilteredGroups(filtered);
     }, [groupFilter, searchQuery, groups]);
 
-    // Handle adding a new user
+    // Handle adding a new group
     const handleAddUser = async () => {
     if (!newGroup.first_name) return;
     const id = newGroup.length + 1;
@@ -66,7 +66,7 @@ const GroupPage = () => {
         <Sidebar/>
         <main className="admin-dashboard">
         <header className="dashboard-header">
-            <h1 className="dashboard-title">Manage Users</h1>
+            <h1 className="dashboard-title">Manage Groups</h1>
             <div className="admin-actions">
 
             <Button btn_name="+ Add User" onClick={() => setShowModal(true)} type="primary" />
@@ -97,27 +97,22 @@ const GroupPage = () => {
         </section>
 
         <section className="user-list">
-            {filteredUsers.length === 0 ? (
-            <p className="no-users">No users found.</p>
+            {filteredGroups.length === 0 ? (
+            <p className="no-groups">No groups found.</p>
             ) : (
             <table className="user-table">
                 <thead>
                 <tr>
-                    <th>First-Name</th>
-                    <th>Last-Name</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Group</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    
                 </tr>
                 </thead>
                 <tbody>
-                {filteredUsers.map((user) => (
-                    <tr key={user.id}>
-                    <td>{user.first_name}</td>
-                    <td>{user.last_name}</td>
-                    <td>{user.username}</td>
-                    <td>{user.email}</td>
-                    <td>{user.groups[0].name}</td>
+                {filteredGroups.map((group) => (
+                    <tr key={group.id}>
+                        <td>{group.name}</td>
+                        <td>{group.description}</td>
                     </tr>
                 ))}
                 </tbody>
@@ -129,7 +124,7 @@ const GroupPage = () => {
         {showModal && (
             <div className="modal-overlay">
             <div className="modal">
-                <h2>Add New User</h2>
+                <h2>Add New Group</h2>
 
                 <input
                 type="text"
