@@ -1,6 +1,6 @@
 import api from "../api";
 
-class AdminController {
+class UserController {
 
     static async getAllUsers(token) {
         try {
@@ -31,7 +31,7 @@ class AdminController {
 
 }
 
-export default AdminController;
+export default UserController;
     
 
     

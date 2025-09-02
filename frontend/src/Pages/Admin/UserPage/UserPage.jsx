@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import AdminController from "../../../Controllers/Admin/AdminController";
+import UserController from "../../../Controllers/Users/UserController";
 import AuthController from "../../../Controllers/Common/AuthController";
 import Button from '../../../Components/Button/Button';
 import './style.css';
