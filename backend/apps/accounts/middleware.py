@@ -11,9 +11,9 @@ class RequireAdminGroupMiddleware:
 
     PROTECTED_PATH_PREFIXES = (
         "/accounts/users/",
-        "/accounts/addUser/",
-        "/accounts/updateUser/",
-        "/accounts/deleteUser/",
+        "/accounts/users/create/",
+        "/accounts/users/update/",
+        "/accounts/users/delete/",
     )
 
     def __init__(self, get_response):

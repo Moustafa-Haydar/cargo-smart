@@ -39,8 +39,10 @@ def _user_payload(user: User):
         "username": user.username,
         "email": user.email,
         "groups": groups,
-        "permission_ids": perm_ids,
-        "permissions": perm_codes,
+        "permissions": {
+            "perm_ids" : perm_ids,
+            "perm_codes" : perm_codes
+        }
     }
 
 

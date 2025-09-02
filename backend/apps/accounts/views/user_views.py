@@ -30,7 +30,6 @@ def _parse_json(request):
 @login_required
 @require_GET
 def users(request):
-    # TODO: check a specific permission, e.g., "accounts.view_user"
     qs = User.objects.all().order_by("username")
     data = [_user_payload(u) for u in qs]
     return JsonResponse({"users": data})
