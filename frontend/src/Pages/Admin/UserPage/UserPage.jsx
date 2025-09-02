@@ -4,11 +4,12 @@ import AdminController from "../../../Controllers/Admin/AdminController";
 import AuthController from "../../../Controllers/Common/AuthController";
 import Button from '../../../Components/Button/Button';
 import './style.css';
-import '../../Styles/variables.css';
+import '../../../Styles/variables.css';
 import Sidebar from "../../../Components/Sidebar/Sidebar";
 
-function UserPage() {
-  const [users, setUsers] = useState([]);
+const UserPage = () => {
+
+    const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [groupFilter, setGroupFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,7 +59,7 @@ function UserPage() {
     AuthController.logout();
     navigate("/");
   }
-    
+
 
   return (
     <div className="main-dashboard">
@@ -194,6 +195,8 @@ function UserPage() {
       </main>
     </div>
   );
+
 }
+ 
 
 export default UserPage;

@@ -1,18 +1,16 @@
 import React from 'react';
 import Sidebar from "../../../Components/Sidebar/Sidebar";
 
-
-const GroupPage = () => {
+const PermissionPage = () => {
     return ( 
 
         <div>
             <Sidebar/>
             <main className="admin-dashboard">
-                Group Management
+                Permission Management
             </main>
         </div>
-
-);
+     );
 }
  
-export default GroupPage;
+export default PermissionPage;

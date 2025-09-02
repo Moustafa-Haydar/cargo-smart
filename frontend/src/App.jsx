@@ -3,7 +3,7 @@ import Login from './Pages/Common/Login/LoginPage';
 
 import UserPage from './Pages/Admin/UserPage/UserPage';
 import GroupPage from './Pages/Admin/GroupPage/GroupPage';
-import UserPage from './Pages/Admin/UserPage/UserPage';
+import PermissionPage from './Pages/Admin/PermissionPage/PermissionPage';
 
 import './Styles/index.css';
 import './Styles/style.css';
@@ -20,8 +20,8 @@ function App() {
 
         {/* Admin Routes */}
         <Route path="/AdminDashboard" element={<UserPage />} />
-        <Route path="/GroupPage" element={<UserPage />} />
-        <Route path="/AdminDashboard" element={<UserPage />} />
+        <Route path="/GroupPage" element={<GroupPage />} />
+        <Route path="/PermissionPage" element={<PermissionPage />} />
 
 
       </Routes>

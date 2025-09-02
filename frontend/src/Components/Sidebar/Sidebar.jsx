@@ -14,19 +14,19 @@ const Sidebar = () => {
             <img src={logo} alt="" className="login-page-logo"/>
 
             <nav className="sidebar__nav">
-                <NavLink to="/UserPage" className={linkClass}>
+                <NavLink to="/AdminDashboard" className={linkClass}>
                     <span className="icon" aria-hidden>👥</span>
                     <span className="label">UserDashboard</span>
                 </NavLink>
 
-                <NavLink to="/Users" className={linkClass}>
+                <NavLink to="/GroupPage" className={linkClass}>
                     <span className="icon" aria-hidden>👥</span>
-                    <span className="label">Users</span>
+                    <span className="label">GroupPage</span>
                 </NavLink>
 
-                <NavLink to="/Shipments" className={linkClass}>
+                <NavLink to="/PermissionPage" className={linkClass}>
                     <span className="icon" aria-hidden>📦</span>
-                    <span className="label">Shipments</span>
+                    <span className="label">PermissionPage</span>
                 </NavLink>
 
                 <NavLink to="/Reports" className={linkClass}>
