@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import logo from '../../../Assets/Logo/Cargo-Photoroom.png';
 import AuthController from '../../../Controllers/Common/AuthController';
@@ -17,6 +17,9 @@ function LoginPage() {
   useEffect(() => {
     
     if (loggedUser) {
+
+      const user_group = loggedUser.user.groups[0].name;
+
       switch (user_group) {
         case "Admin":
           navigate("/AdminDashboard");
@@ -29,8 +32,8 @@ function LoginPage() {
       }
     }
 
-  }, []);
-  
+  }, [loggedUser, navigate]);
+
   async function handleLogin(e) {
     e.preventDefault();
     setError("");
