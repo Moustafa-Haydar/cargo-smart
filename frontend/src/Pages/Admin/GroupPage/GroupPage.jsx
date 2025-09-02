@@ -27,13 +27,9 @@ const GroupPage = () => {
     fetchGroups();
     }, []);
 
-    // Filter groups based on role and search query
+    // Filter groups based on search query
     useEffect(() => {
     let filtered = groups;
-
-    if (groupFilter !== "all") {
-        filtered = filtered.filter((user) => user.groups[0].name === groupFilter);
-    }
 
     if (searchQuery.trim()) {
         filtered = filtered.filter((user) =>
@@ -83,17 +79,6 @@ const GroupPage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="filter-input"
             />
-
-            <select
-            value={groupFilter}
-            onChange={(e) => setGroupFilter(e.target.value)}
-            className="filter-select"
-            >
-            <option value="all">All Roles</option>
-            <option value="Admin">Admin</option>
-            <option value="Ops Manager">Ops Manager</option>
-            <option value="driver">Driver</option>
-            </select>
         </section>
 
         <section className="user-list">
