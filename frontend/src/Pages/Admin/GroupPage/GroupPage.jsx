@@ -18,12 +18,12 @@ const GroupPage = () => {
 
     // Fetch all groups
     useEffect(() => {
-    const fetchGroups = async () => {
-        const allGroups = await GroupController.getAllGroups();
-        setGroups(allGroups);
-        setFilteredGroups(allGroups);
-    };
-    fetchGroups();
+        const fetchGroups = async () => {
+            const allGroups = await GroupController.getAllGroups();
+            setGroups(allGroups);
+            setFilteredGroups(allGroups);
+        };
+        fetchGroups();
     }, []);
 
     // Filter groups based on search query
@@ -41,18 +41,55 @@ const GroupPage = () => {
 
     // Handle adding a new group
     const handleAddGroup = async () => {
-    if (!newGroup.name) return;
-    const id = groups.length + 1;
-    setGroups([...groups, { ...newGroup, id }]);
-    await GroupController.addGroup(newGroup);
-    setShowModal(false);
-    setNewGroup({ name: "", description: "" });
-    return null;
+        if (!newGroup.name) return;
+        const id = groups.length + 1;
+        setGroups([...groups, { ...newGroup, id }]);
+        await GroupController.addGroup(newGroup);
+        setShowModal(false);
+        setNewGroup({ name: "", description: "" });
+        return null;
     };
 
     const logout = () => {
-    AuthController.logout();
-    navigate("/");
+        AuthController.logout();
+        navigate("/");
+    }
+
+    // handle delele groups
+    const [ toDeleteGroups, setToDeleteGroups ] = useState([]);
+    const addToDeleteList = (group_id) => {
+
+        setToDeleteGroups(prev => {
+            const isSelected = prev.includes(group_id);
+            const updated = isSelected
+                ? prev.filter(id => id !== group_id) :
+                [...prev, group_id];
+
+            console.log(updated);
+            return updated;
+        })
+    }
+    const deleteGroups = async () => {
+
+        try {
+
+            await Promise.all( 
+                toDeleteGroups.map(group_id =>
+                    GroupController.deleteGroup(group_id))
+            );
+
+            const updatedGroups = groups.filter(
+                group => !toDeleteGroups.includes(group.id)
+            );
+            setGroups(updatedGroups);
+            setFilteredGroups(updatedGroups);
+            setToDeleteGroups([]);
+            console.log("Groups deleted successfully.")
+
+        } catch (error) {
+            console.error(error);
+            return;
+        }
     }
 
 
@@ -86,19 +123,33 @@ const GroupPage = () => {
             ) : (
             <table className="user-table">
                 <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    
-                </tr>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        
+                    </tr>
                 </thead>
                 <tbody>
-                {filteredGroups.map((group) => (
-                    <tr key={group.id}>
-                        <td>{group.name}</td>
-                        <td>{group.description}</td>
+                    {filteredGroups.map((group) => (
+                        <tr key={group.id}>
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    onChange={() => addToDeleteList(group.id)}
+                                />
+                            </td>
+                            <td>{group.name}</td>
+                            <td>{group.description}</td>
+                        </tr>
+                    ))}
+
+                    <tr>
+                        <td colSpan={3} className="deleteBtn">
+                            <Button btn_name={"Delete"} type="secondary"
+                            onClick={deleteGroups}/>
+                        </td>
                     </tr>
-                ))}
                 </tbody>
             </table>
             )}
