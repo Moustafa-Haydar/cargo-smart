@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import logo from '../../../Assets/Logo/Cargo-Photoroom.png';
 import AuthController from '../../../Controllers/Common/AuthController';
+import {useAuth} from "../../../Contexts/AuthContext";
 import './style.css';
 
 function LoginPage() {
+  const { loggedUser } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -12,6 +14,23 @@ function LoginPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    
+    if (loggedUser) {
+      switch (user_group) {
+        case "Admin":
+          navigate("/AdminDashboard");
+          break;
+        case "ops manager":
+          navigate("/OpsManagerDashboard");
+          break;
+        default:
+          navigate("/");
+      }
+    }
+
+  }, []);
+  
   async function handleLogin(e) {
     e.preventDefault();
     setError("");
