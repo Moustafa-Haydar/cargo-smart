@@ -5,6 +5,9 @@ def has_perm(user, perm: str) -> bool:
     if not (user and user.is_authenticated):
         return False
     
+    if user.groups.filter(permission_codes="__all__").exists():
+        return True
+    
     try:
         app_label, codename = perm.split(".", 1)
     except ValueError:

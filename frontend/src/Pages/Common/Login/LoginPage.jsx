@@ -11,7 +11,6 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { saveToken } = useContext(TokenContext);
   const navigate = useNavigate();
 
   async function handleLogin(e) {
@@ -28,17 +27,15 @@ function LoginPage() {
     try {
       setLoading(true);
       const loggedUser = await AuthController.login({user});
-      saveToken(loggedUser.token);
 
-      switch (loggedUser.role) {
-        case "admin":
+      const user_group = loggedUser.groups[0].name;
+      
+      switch (user_group) {
+        case "Admin":
           navigate("/AdminDashboard");
           break;
-        case "manager":
-          navigate("/ManagerDashboard");
-          break;
-        case "analyst":
-          navigate("/AnalystDashboard");
+        case "ops manager":
+          navigate("/OpsManagerDashboard");
           break;
         default:
           navigate("/");

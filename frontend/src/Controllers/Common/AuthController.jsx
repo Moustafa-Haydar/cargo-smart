@@ -1,26 +1,32 @@
-import axios from "axios";
+import api from "../api";
 
 class AuthController {
 
     static async login({ user }) {
-
         try {
-            const response = await axios
-            .post("http://localhost:8000/api/v0.1/auth/login", user);
+            const { data } = await api.get("/accounts/csrf/");
+            const csrfToken = data?.csrfToken;
 
-            return response.data.payload;               
-
+            const res = await api.post(
+                "/accounts/login/", 
+                user,
+                { 
+                    headers: { 
+                        "X-CSRFToken": csrfToken } 
+                },
+            );
+            return res.data.user;
+        
         } catch (error) {
-            const message ="Login failed. Please try again.";
-            console.log(error.response.data);
-            throw new Error(message);
+            console.log(error?.response?.data);
+            throw new Error("Login failed. Please try again.");
         }
     }
 
     static async sendResetLink({ username }) {
 
         try {
-            const response = await axios
+            const response = await api
             .post("http://localhost:8000/api/v0.1/auth/forgot-password", { username });
             return response.data.payload;               
 

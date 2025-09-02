@@ -54,7 +54,6 @@ function AdminDashboard() {
   };
 
   const logout = () => {
-    clearToken();
     navigate('/');
   }
     
