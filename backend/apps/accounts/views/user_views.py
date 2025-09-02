@@ -10,26 +10,22 @@ from django.apps import apps
 from apps.rbac.models import Group, Permission, UserGroup, GroupPermission
 
 
-def _user_payload(user):
-    return {
-        "id": user.id,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "username": user.username,
-        "email": user.email,
-    }
-
-
 def _parse_json(request):
     try:
         return json.loads(request.body.decode() or "{}")
     except json.JSONDecodeError:
         raise ValueError("Invalid JSON")
 
-
 @login_required
 @require_GET
-def users(request):
+def users(request, id=None):
+    
+    if id is not None:
+        user = User.objects.filter(pk=id).first()
+        if not user:
+            return JsonResponse({"detail": "User not found"}, status=404)
+        return JsonResponse({"user": _user_payload(user)})
+    
     qs = User.objects.all().order_by("username")
     data = [_user_payload(u) for u in qs]
     return JsonResponse({"users": data})

@@ -7,43 +7,9 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
 import json
-
+from .utils import _user_payload, _user_permissions
 from apps.accounts.models import User
 from apps.rbac.models import Group, Permission, UserGroup, GroupPermission
-
-
-def _user_permissions(user: User):
-    """
-    Collect permission ids & codenames via the user's groups.
-    """
-    # SELECT DISTINCT permission fields via join
-    perms = (
-        Permission.objects.filter(group_permissions__group__user_groups__user=user)
-        .distinct()
-        .values("id", "app_label", "codename", "name")
-    )
-    ids = [str(p["id"]) for p in perms]
-    codes = [f'{p["app_label"]}.{p["codename"]}' for p in perms]
-    return ids, codes
-
-def _user_payload(user: User):
-    perm_ids, perm_codes = _user_permissions(user)
-    groups = list(
-        Group.objects.filter(user_groups__user=user)
-        .values("id", "name")
-    )
-    return {
-        "id": str(user.id),
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "username": user.username,
-        "email": user.email,
-        "groups": groups,
-        "permissions": {
-            "perm_ids" : perm_ids,
-            "perm_codes" : perm_codes
-        }
-    }
 
 
 @require_GET

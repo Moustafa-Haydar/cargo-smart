@@ -13,6 +13,7 @@ urlpatterns = [
 
     # user management - (admin only)
     path("users/", users, name="users"),
+    path("user/<uuid:id>/", users, name="user"),
     path("users/create/", create_user, name="create_user"),
     path("users/update/", update_user, name="update_user"),
     path("users/delete/", delete_user, name="delete_user")

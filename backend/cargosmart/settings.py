@@ -51,6 +51,7 @@ MIDDLEWARE = [
 RBAC_ADMIN_GROUPS = ["Admin"]   # who counts as admin
 RBAC_ADMIN_PROTECTED = [        # which endpoints to protect
     "accounts:users",
+    "accounts:user",
     "accounts:create_user",
     "accounts:update_user",
     "accounts:delete_user",
