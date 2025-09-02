@@ -20,7 +20,7 @@ const UserPage = () => {
   // Fetch all users
   useEffect(() => {
     const fetchUsers = async () => {
-        const allUsers = await AdminController.getAllUsers();
+        const allUsers = await UserController.getAllUsers();
         setUsers(allUsers);
         setFilteredUsers(allUsers);
     };
@@ -49,7 +49,7 @@ const UserPage = () => {
     if (!newUser.first_name || !newUser.last_name || !newUser.email || !newUser.username || !newUser.password) return;
     const id = users.length + 1;
     setUsers([...users, { ...newUser, id }]);
-    await AdminController.addUser(newUser);
+    await UserController.addUser(newUser);
     setShowModal(false);
     setNewUser({ name: "", email: "", role: "manager" });
     return null;

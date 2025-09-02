@@ -1,22 +1,22 @@
 import api from "../api";
 
-class UserController {
+class GroupController {
 
-    static async getAllUsers() {
+    static async getAllGroups() {
         try {
 
             const { data } = await api.get("/accounts/csrf/");
             const csrfToken = data?.csrfToken;
 
             const res = await api.get(
-                "/accounts/users/", 
+                "/rbac/groups/", 
                 { 
                     headers: { 
                         "X-CSRFToken": csrfToken } 
                 },
             );
-            console.log(res.data.users);
-            return res.data.users;
+            console.log(res.data.groups);
+            return res.data.groups;
             
         } catch (error) {
             console.error(error);
@@ -24,14 +24,4 @@ class UserController {
         }
     }
 
-    static async addUser(userData) {
-        
-        return;
-    }
-
 }
-
-export default UserController;
-    
-
-    

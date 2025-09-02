@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../../Components/Sidebar/Sidebar";
 import { useNavigate } from 'react-router-dom';
-import UserController from "../../../Controllers/Users/UserController";
+import GroupController from "../../../Controllers/Groups/GroupController";
 import AuthController from "../../../Controllers/Common/AuthController";
 import Button from '../../../Components/Button/Button';
 import './style.css';
@@ -20,16 +20,16 @@ const GroupPage = () => {
     // Fetch all groups
     useEffect(() => {
     const fetchGroups = async () => {
-        const allUsers = await UserController.getAllUsers();
+        const allUsers = await GroupController.getAllUsers();
         setGroups(allUsers);
         setFilteredUsers(allUsers);
     };
-    fetchUsers();
+    fetchGroups();
     }, []);
 
     // Filter users based on role and search query
     useEffect(() => {
-    let filtered = users;
+    let filtered = groups;
 
     if (groupFilter !== "all") {
         filtered = filtered.filter((user) => user.groups[0].name === groupFilter);
@@ -42,16 +42,16 @@ const GroupPage = () => {
     }
 
     setFilteredUsers(filtered);
-    }, [groupFilter, searchQuery, users]);
+    }, [groupFilter, searchQuery, groups]);
 
     // Handle adding a new user
     const handleAddUser = async () => {
-    if (!newUser.first_name || !newUser.last_name || !newUser.email || !newUser.username || !newUser.password) return;
-    const id = users.length + 1;
-    setUsers([...users, { ...newUser, id }]);
-    await AdminController.addUser(newUser);
+    if (!newGroup.first_name) return;
+    const id = newGroup.length + 1;
+    setGroups([...groups, { ...newGroup, id }]);
+    await GroupController.addUser(newGroup);
     setShowModal(false);
-    setNewUser({ name: "", email: "", role: "manager" });
+    setNewGroup({ name: "", email: "", role: "manager" });
     return null;
     };
 
@@ -134,44 +134,28 @@ const GroupPage = () => {
                 <input
                 type="text"
                 placeholder="First Name"
-                value={newUser.first_name}
-                onChange={(e) => setNewUser({ ...newUser, first_name: e.target.value })}
+                value={newGroup.first_name}
+                onChange={(e) => setNewGroup({ ...newGroup, first_name: e.target.value })}
                 className="modal-input"
                 />
 
                 <input
                 type="text"
                 placeholder="Last Name"
-                value={newUser.last_name}
-                onChange={(e) => setNewUser({ ...newUser, last_name: e.target.value })}
+                value={newGroup.last_name}
+                onChange={(e) => setNewGroup({ ...newGroup, last_name: e.target.value })}
                 className="modal-input"
                 />
 
                 <input
                 type="email"
                 placeholder="Email"
-                value={newUser.email}
-                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                value={newGroup.email}
+                onChange={(e) => setNewGroup({ ...newGroup, email: e.target.value })}
                 className="modal-input"
                 />
 
-                <input
-                type="text"
-                placeholder="Username"
-                value={newUser.username}
-                onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-                className="modal-input"
-                />
-
-                <input
-                type="password"
-                placeholder="Password"
-                value={newUser.password}
-                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                className="modal-input"
-                />
-
-                <select
+                {/* <select
                 value={newUser.role}
                 onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                 className="modal-select"
@@ -179,7 +163,7 @@ const GroupPage = () => {
                 <option value="admin">Admin</option>
                 <option value="manager">Operations Manager</option>
                 <option value="driver">Analyst</option>
-                </select>
+                </select> */}
 
                 <div className="modal-actions">
                 <button className="modal-cancel" onClick={() => setShowModal(false)}>
