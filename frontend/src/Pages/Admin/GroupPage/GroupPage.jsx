@@ -13,7 +13,7 @@ const GroupPage = () => {
     const [filteredGroups, setFilteredGroups] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [showModal, setShowModal] = useState(false);
-    const [newGroup, setNewGroup] = useState({ name: "", email: "", role: "manager" });
+    const [newGroup, setNewGroup] = useState({ name: "", description: "" });
     const navigate = useNavigate();
 
     // Fetch all groups
@@ -37,16 +37,16 @@ const GroupPage = () => {
     }
 
     setFilteredGroups(filtered);
-    }, [filteredGroups, searchQuery, groups]);
+    }, [searchQuery, groups]);
 
     // Handle adding a new group
-    const handleAddUser = async () => {
-    if (!newGroup.first_name) return;
-    const id = newGroup.length + 1;
+    const handleAddGroup = async () => {
+    if (!newGroup.name) return;
+    const id = groups.length + 1;
     setGroups([...groups, { ...newGroup, id }]);
-    await GroupController.addUser(newGroup);
+    await GroupController.addGroup(newGroup);
     setShowModal(false);
-    setNewGroup({ name: "", email: "", role: "manager" });
+    setNewGroup({ name: "", description: "" });
     return null;
     };
 
@@ -112,44 +112,26 @@ const GroupPage = () => {
 
                 <input
                 type="text"
-                placeholder="First Name"
-                value={newGroup.first_name}
-                onChange={(e) => setNewGroup({ ...newGroup, first_name: e.target.value })}
+                placeholder="Name"
+                value={newGroup.name}
+                onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
                 className="modal-input"
                 />
 
                 <input
                 type="text"
-                placeholder="Last Name"
-                value={newGroup.last_name}
-                onChange={(e) => setNewGroup({ ...newGroup, last_name: e.target.value })}
+                placeholder="Description"
+                value={newGroup.description}
+                onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
                 className="modal-input"
                 />
-
-                <input
-                type="email"
-                placeholder="Email"
-                value={newGroup.email}
-                onChange={(e) => setNewGroup({ ...newGroup, email: e.target.value })}
-                className="modal-input"
-                />
-
-                {/* <select
-                value={newUser.role}
-                onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                className="modal-select"
-                >
-                <option value="admin">Admin</option>
-                <option value="manager">Operations Manager</option>
-                <option value="driver">Analyst</option>
-                </select> */}
 
                 <div className="modal-actions">
                 <button className="modal-cancel" onClick={() => setShowModal(false)}>
                     Cancel
                 </button>
-                <button className="modal-confirm" onClick={handleAddUser}>
-                    Add User
+                <button className="modal-confirm" onClick={handleAddGroup}>
+                    Add Group
                 </button>
                 </div>
             </div>

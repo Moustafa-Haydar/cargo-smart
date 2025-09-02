@@ -24,6 +24,29 @@ class GroupController {
         }
     }
 
+    static async addGroup(group) {
+        try {
+
+            const { data } = await api.get("/accounts/csrf/");
+            const csrfToken = data?.csrfToken;
+
+            const res = await api.post(
+                "rbac/groups/create/",
+                group,
+                {
+                    headers: {
+                        "X-CSRFToken" : csrfToken }
+                }
+            )
+            console.log(res);
+            return res;
+
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+    }
+
 }
 
 export default GroupController;
