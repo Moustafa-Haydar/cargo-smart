@@ -23,19 +23,29 @@ class AuthController {
         }
     }
 
-    static async sendResetLink({ username }) {
+    static async logout() {
 
         try {
-            const response = await api
-            .post("http://localhost:8000/api/v0.1/auth/forgot-password", { username });
-            return response.data.payload;               
+            const { data } = await api.get("/accounts/csrf/");
+            const csrfToken = data?.csrfToken;
 
+            const res = await api.post(
+                "/accounts/logout/", 
+                {},
+                { 
+                    headers: { 
+                        "X-CSRFToken": csrfToken } 
+                },
+            );
+            console.log(res);
+            return res;
+        
         } catch (error) {
-            const message ="Failed to send reset link. Please try again.";
-            console.log(error.response.data);
-            throw new Error(message);
+            console.log(error?.response?.data);
+            throw new Error("Logout failed.");
         }
     }
+
 }
 
 export default AuthController;

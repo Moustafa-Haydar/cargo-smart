@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import AdminController from "../../Controllers/Admin/AdminController";
+import AuthController from "../../Controllers/Common/AuthController";
 import Button from '../../Components/Button/Button';
 import './style.css';
 
@@ -33,7 +34,7 @@ function AdminDashboard() {
 
     if (searchQuery.trim()) {
       filtered = filtered.filter((user) =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase())
+        user.first_name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -42,7 +43,7 @@ function AdminDashboard() {
 
   // Handle adding a new user
   const handleAddUser = async () => {
-    if (!newUser.first_name || !newUser.last_name || !newUser.email || !newUser.username || !newUser.password || !newUser.role) return;
+    if (!newUser.first_name || !newUser.last_name || !newUser.email || !newUser.username || !newUser.password) return;
     const id = users.length + 1;
     setUsers([...users, { ...newUser, id }]);
     await AdminController.addUser(newUser);
@@ -52,7 +53,8 @@ function AdminDashboard() {
   };
 
   const logout = () => {
-    navigate('/');
+    AuthController.logout();
+    navigate("/");
   }
     
 
