@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import groups, create_group, update_group, delete_group, permissions, create_permission, group_permissions, update_permission, delete_permission
 
+app_name = "rbac"
+
 urlpatterns = [
 
     # Group management

@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import login, logout, csrf, me, create_user, users, update_user, delete_user
 
+app_name = "accounts"
+
 urlpatterns = [
 
     # auth - (public endpoints)

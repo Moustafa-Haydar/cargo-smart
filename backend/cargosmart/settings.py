@@ -36,14 +36,25 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
+    
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware', # enable session cookies
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware', # enable CSRF protection for session auth
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "apps.accounts.middleware.RequireAdminGroupMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+RBAC_ADMIN_GROUPS = ["Admin"]   # who counts as admin
+RBAC_ADMIN_PROTECTED = [        # which endpoints to protect
+    "accounts:users",
+    "accounts:create_user",
+    "accounts:update_user",
+    "accounts:delete_user",
+    "rbac:*"
 ]
 
 REST_FRAMEWORK = {
