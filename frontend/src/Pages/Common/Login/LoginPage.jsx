@@ -1,9 +1,8 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import logo from '../../../Assets/Logo/Cargo-Photoroom.png';
 import AuthController from '../../../Controllers/Common/AuthController';
 import './style.css';
-import { TokenContext } from '../../../Contexts/TokenContexts';
 
 function LoginPage() {
   const [username, setUsername] = useState("");

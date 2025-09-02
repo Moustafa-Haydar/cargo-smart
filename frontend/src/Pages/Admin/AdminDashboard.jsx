@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
-import { TokenContext } from '../../Contexts/TokenContexts';
+import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import AdminController from "../../Controllers/Admin/AdminController";
 import Button from '../../Components/Button/Button';
@@ -7,9 +6,8 @@ import './style.css';
 
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
-  const { tokenState, clearToken } = useContext(TokenContext);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [roleFilter, setRoleFilter] = useState("all");
+  const [groupFilter, setGroupFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [newUser, setNewUser] = useState({ name: "", email: "", role: "manager" });
@@ -18,19 +16,19 @@ function AdminDashboard() {
   // Fetch all users
   useEffect(() => {
     const fetchUsers = async () => {
-        const allUsers = await AdminController.getAllUsers(tokenState);
+        const allUsers = await AdminController.getAllUsers();
         setUsers(allUsers);
         setFilteredUsers(allUsers);
     };
     fetchUsers();
-    }, [tokenState]);
+    }, []);
 
   // Filter users based on role and search query
   useEffect(() => {
     let filtered = users;
 
-    if (roleFilter !== "all") {
-      filtered = filtered.filter((user) => user.role === roleFilter);
+    if (groupFilter !== "all") {
+      filtered = filtered.filter((user) => user.groups[0].name === groupFilter);
     }
 
     if (searchQuery.trim()) {
@@ -40,14 +38,14 @@ function AdminDashboard() {
     }
 
     setFilteredUsers(filtered);
-  }, [roleFilter, searchQuery, users]);
+  }, [groupFilter, searchQuery, users]);
 
   // Handle adding a new user
   const handleAddUser = async () => {
     if (!newUser.first_name || !newUser.last_name || !newUser.email || !newUser.username || !newUser.password || !newUser.role) return;
     const id = users.length + 1;
     setUsers([...users, { ...newUser, id }]);
-    await AdminController.addUser(newUser, tokenState);
+    await AdminController.addUser(newUser);
     setShowModal(false);
     setNewUser({ name: "", email: "", role: "manager" });
     return null;
@@ -80,13 +78,13 @@ function AdminDashboard() {
         />
 
         <select
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
+          value={groupFilter}
+          onChange={(e) => setGroupFilter(e.target.value)}
           className="filter-select"
         >
           <option value="all">All Roles</option>
-          <option value="admin">Admin</option>
-          <option value="manager">Manager</option>
+          <option value="Admin">Admin</option>
+          <option value="Ops Manager">Ops Manager</option>
           <option value="driver">Driver</option>
         </select>
       </section>
@@ -99,10 +97,10 @@ function AdminDashboard() {
             <thead>
               <tr>
                 <th>First-Name</th>
-                <th>First-Name</th>
-                <th>Email</th>
+                <th>Last-Name</th>
                 <th>Username</th>
-                <th>Role</th>
+                <th>Email</th>
+                <th>Group</th>
               </tr>
             </thead>
             <tbody>
@@ -110,9 +108,9 @@ function AdminDashboard() {
                 <tr key={user.id}>
                   <td>{user.first_name}</td>
                   <td>{user.last_name}</td>
-                  <td>{user.email}</td>
                   <td>{user.username}</td>
-                  <td>{user.role}</td>
+                  <td>{user.email}</td>
+                  <td>{user.groups[0].name}</td>
                 </tr>
               ))}
             </tbody>

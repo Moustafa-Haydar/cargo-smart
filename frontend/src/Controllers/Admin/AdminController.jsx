@@ -1,20 +1,22 @@
-import axios from "axios";
-const BASE_URL = "http://localhost:8000/api/v0.1/admin";
+import api from "../api";
 
 class AdminController {
 
     static async getAllUsers(token) {
         try {
 
-            const response = await axios.get(`${BASE_URL}/getAllUsers`,
-                {
-                    headers: {
-                    Authorization: `Bearer ${token}`,
+            const { data } = await api.get("/accounts/csrf/");
+            const csrfToken = data?.csrfToken;
+
+            const res = await api.get(
+                "/accounts/users/", 
+                { 
+                    headers: { 
+                        "X-CSRFToken": csrfToken } 
                 },
-                }
             );
-            const users = (await response).data.payload;
-            return users;
+            console.log(res.data.users);
+            return res.data.users;
             
         } catch (error) {
             console.error(error);
@@ -23,19 +25,8 @@ class AdminController {
     }
 
     static async addUser(userData, token) {
-        try {
-            const response = await axios.post(`${BASE_URL}/addUser`, userData, 
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            return response.data;
-
-        } catch (error) {
-            console.error("Error adding user:", error);
-        }
+        
+        return;
     }
 
 }
