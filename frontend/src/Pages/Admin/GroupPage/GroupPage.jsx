@@ -11,7 +11,6 @@ const GroupPage = () => {
     
     const [groups, setGroups] = useState([]);
     const [filteredGroups, setFilteredGroups] = useState([]);
-    const [groupFilter, setGroupFilter] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [newGroup, setNewGroup] = useState({ name: "", email: "", role: "manager" });
@@ -32,13 +31,13 @@ const GroupPage = () => {
     let filtered = groups;
 
     if (searchQuery.trim()) {
-        filtered = filtered.filter((user) =>
-        user.first_name.toLowerCase().includes(searchQuery.toLowerCase())
+        filtered = filtered.filter((group) =>
+        group.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
     }
 
     setFilteredGroups(filtered);
-    }, [groupFilter, searchQuery, groups]);
+    }, [filteredGroups, searchQuery, groups]);
 
     // Handle adding a new group
     const handleAddUser = async () => {
@@ -65,7 +64,7 @@ const GroupPage = () => {
             <h1 className="dashboard-title">Manage Groups</h1>
             <div className="admin-actions">
 
-            <Button btn_name="+ Add User" onClick={() => setShowModal(true)} type="primary" />
+            <Button btn_name="+ Add Group" onClick={() => setShowModal(true)} type="primary" />
             <Button btn_name="Logout" onClick={() => logout()} type="secondary" />
 
             </div>
