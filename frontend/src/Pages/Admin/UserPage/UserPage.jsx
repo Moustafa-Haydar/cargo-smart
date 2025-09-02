@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import AdminController from "../../Controllers/Admin/AdminController";
-import AuthController from "../../Controllers/Common/AuthController";
-import Button from '../../Components/Button/Button';
+import AdminController from "../../../Controllers/Admin/AdminController";
+import AuthController from "../../../Controllers/Common/AuthController";
+import Button from '../../../Components/Button/Button';
 import './style.css';
 import '../../Styles/variables.css';
-import Sidebar from "../../Components/Sidebar/Sidebar";
+import Sidebar from "../../../Components/Sidebar/Sidebar";
 
-function AdminDashboard() {
+function UserPage() {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [groupFilter, setGroupFilter] = useState("all");
@@ -196,4 +196,4 @@ function AdminDashboard() {
   );
 }
 
-export default AdminDashboard;
+export default UserPage;

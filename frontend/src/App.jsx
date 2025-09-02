@@ -1,6 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Pages/Common/Login/LoginPage';
-import AdminDashboard from './Pages/Admin/AdminDashboard';
+
+import UserPage from './Pages/Admin/UserPage/UserPage';
+import GroupPage from './Pages/Admin/GroupPage/GroupPage';
+import UserPage from './Pages/Admin/UserPage/UserPage';
 
 import './Styles/index.css';
 import './Styles/style.css';
@@ -16,8 +19,9 @@ function App() {
         <Route path="/" element={<Login />} />
 
         {/* Admin Routes */}
-        <Route path="/AdminDashboard" element={<AdminDashboard />} />
-
+        <Route path="/AdminDashboard" element={<UserPage />} />
+        <Route path="/GroupPage" element={<UserPage />} />
+        <Route path="/AdminDashboard" element={<UserPage />} />
 
 
       </Routes>
