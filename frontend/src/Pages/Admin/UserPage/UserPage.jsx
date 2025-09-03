@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
 import UserController from "../../../Controllers/Users/UserController";
 import GroupController from "../../../Controllers/Groups/GroupController";
-import AuthController from "../../../Controllers/Common/AuthController";
 import Button from '../../../Components/Button/Button';
 import './style.css';
 import '../../../Styles/variables.css';
@@ -21,7 +19,6 @@ const UserPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [newUser, setNewUser] = useState({ first_name: "", last_name:"", email: "", username:"", password:"", group: "" });
   
-  const navigate = useNavigate();
 
   // Fetch all users
   useEffect(() => {
@@ -44,40 +41,43 @@ const UserPage = () => {
   }, []);
 
   // Filter users based on role and search query
-  // useEffect(() => {
-  //   let filtered = [...users];
+  useEffect(() => {
+    let filtered = [...users];
 
-  //   if (groupFilter !== "all") {
-  //     filtered = filtered.filter((user) => 
-  //       user.groups[0].name === groupFilter
-  //   );
-  //   }
+    if (groupFilter !== "all") {
+      filtered = filtered.filter((user) => 
+        user.groups[0].name === groupFilter
+    );
+    }
 
-  //   if (searchQuery.trim()) {
-  //     filtered = filtered.filter((user) =>
-  //       user.first_name.toLowerCase().includes(searchQuery.toLowerCase())
-  //     );
-  //   }
+    if (searchQuery.trim()) {
+      filtered = filtered.filter((user) =>
+        user.first_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
-  //   setFilteredUsers(filtered);
-  // }, [groupFilter, searchQuery, users]);
+    setFilteredUsers(filtered);
+  }, [groupFilter, searchQuery, users]);
 
   // Handle adding a new user
   const handleAddUser = async () => {
-    if (!newUser.first_name || !newUser.last_name || !newUser.email || !newUser.username || !newUser.password || !newUser.group) return;
-    const id = users.length + 1;
-    console.log(newUser);
-    setUsers([...users, { ...newUser, id }]);
-    await UserController.addUser(newUser);
+    const { first_name, last_name, email, username, password, group } = newUser;
+    if (!first_name || !last_name || !email || !username || !password || !group) return;
+
+    await UserController.addUser({
+      username, email, password, first_name, last_name, group
+    });
+
+    const fresh = await UserController.getAllUsers();
+    setUsers(fresh);
+    setFilteredUsers(fresh);
+
     setShowModal(false);
-    setNewUser({ first_name: "", last_name: "", username: "", password: "", email: "", group: "" });
+    setNewUser({ first_name: "", last_name: "", email: "", username: "", password: "", group: "" });
     return null;
   };
 
-  const logout = () => {
-    AuthController.logout();
-    navigate("/");
-  }
+  
 
   // handle delele users
     const [ toDeleteUsers, setToDeleteUsers ] = useState([]);
@@ -96,6 +96,8 @@ const UserPage = () => {
     const deleteUsers = async () => {
 
         try {
+
+            console.log(toDeleteUsers);
 
             await Promise.all( 
                 toDeleteUsers.map(user_id =>
@@ -126,7 +128,6 @@ const UserPage = () => {
           <div className="admin-actions">
 
             <Button btn_name="+ Add User" onClick={() => setShowModal(true)} type="primary" />
-            <Button btn_name="Logout" onClick={() => logout()} type="secondary" />
 
           </div>
         </header>

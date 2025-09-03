@@ -12,7 +12,7 @@
 
 .sidebar {
     position: fixed;
-    height: 100vh;
+    height: 98vh;
     overflow-y: auto;
     background: var(--sidebar-bg);
     border-right: 1px solid var(--sidebar-border);
@@ -91,4 +91,8 @@
         gap: 6px;
         overflow-x: auto;
     }
+}
+
+.deleteBtn {
+    position: relative;
 }

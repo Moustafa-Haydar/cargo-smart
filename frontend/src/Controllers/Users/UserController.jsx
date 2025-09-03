@@ -56,9 +56,9 @@ class UserController {
             const csrfToken = data?.csrfToken;
 
             const res = await api.post(
-                "accounts/users/delete/",
+                "/accounts/users/delete/",
                 {
-                    "user_id": user_id
+                    "id": user_id
                 },
                 {
                     headers: {
@@ -73,6 +73,10 @@ class UserController {
             console.error(error.message);
             return;
         }
+    }
+
+    static async updateUser(user) {
+        return;
     }
 
 }

@@ -2,12 +2,22 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import "./style.css";
 import logo from '../../Assets/Logo/Cargo-Photoroom.png';
+import AuthController from "../../Controllers/Common/AuthController";
+import { useNavigate } from 'react-router-dom';
+import Button from '../../Components/Button/Button';
 
 
 const Sidebar = () => {
 
+    const navigate = useNavigate();
+
     const linkClass = ({ isActive }) =>
         "sidebar__link" + (isActive ? " active" : "");
+
+    const logout = () => {
+        AuthController.logout();
+        navigate("/");
+    }
 
     return (
         <aside className="sidebar" role="navigation">
@@ -34,6 +44,11 @@ const Sidebar = () => {
                     <span className="label">Reports</span>
                 </NavLink>
             </nav>
+
+            <div className="deleteBtn">
+                <Button btn_name="Logout" onClick={() => logout()} type="secondary" className="logout-btn" />
+            </div>
+            
         </aside>
     );
 };
