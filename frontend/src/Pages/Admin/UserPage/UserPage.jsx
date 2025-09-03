@@ -11,6 +11,9 @@ const UserPage = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
 
+  const [editingUserId, setEditingUserId] = useState(null);
+  const [editedUser, setEditedUser] = useState({});
+
   const [groupsList, setGroupsList] = useState([]);
   const [groupFilter, setGroupFilter] = useState("all");
 
@@ -76,48 +79,73 @@ const UserPage = () => {
     setNewUser({ first_name: "", last_name: "", email: "", username: "", password: "", group: "" });
     return null;
   };
-
   
 
   // handle delele users
-    const [ toDeleteUsers, setToDeleteUsers ] = useState([]);
-    const addToDeleteList = (user_id) => {
+  const [ toDeleteUsers, setToDeleteUsers ] = useState([]);
+  const addToDeleteList = (user_id) => {
 
-        setToDeleteUsers(prev => {
-            const isSelected = prev.includes(user_id);
-            const updated = isSelected
-                ? prev.filter(id => id !== user_id) :
-                [...prev, user_id];
+      setToDeleteUsers(prev => {
+          const isSelected = prev.includes(user_id);
+          const updated = isSelected
+              ? prev.filter(id => id !== user_id) :
+              [...prev, user_id];
 
-            console.log(updated);
-            return updated;
-        })
-    }
-    const deleteUsers = async () => {
+          console.log(updated);
+          return updated;
+      })
+  }
+  const deleteUsers = async () => {
 
-        try {
+      try {
 
-            console.log(toDeleteUsers);
+          console.log(toDeleteUsers);
 
-            await Promise.all( 
-                toDeleteUsers.map(user_id =>
-                    UserController.deleteUser(user_id))
-            );
+          await Promise.all( 
+              toDeleteUsers.map(user_id =>
+                  UserController.deleteUser(user_id))
+          );
 
-            const updatedUsers = users.filter(
-                user => !toDeleteUsers.includes(user.id)
-            );
-            setUsers(updatedUsers);
-            setFilteredUsers(updatedUsers);
-            setToDeleteUsers([]);
-            console.log("Users deleted successfully.")
+          const updatedUsers = users.filter(
+              user => !toDeleteUsers.includes(user.id)
+          );
+          setUsers(updatedUsers);
+          setFilteredUsers(updatedUsers);
+          setToDeleteUsers([]);
+          console.log("Users deleted successfully.")
 
-        } catch (error) {
-            console.error(error);
-            return;
-        }
-    }
+      } catch (error) {
+          console.error(error);
+          return;
+      }
+  }
 
+
+  // handle update user
+  const startEditing = (user) => {
+    setEditingUserId(user.id);
+    setEditedUser({
+      first_name: user.first_name,
+      last_name: user.last_name,
+      username: user.username,
+      email: user.email,
+      group: user.groups[0]?.name.toLowerCase() || ""
+    });
+  };
+
+  const cancelEditing = () => {
+    setEditingUserId(null);
+    setEditedUser({});
+  };
+
+  const handleUpdateUser = async () => {
+    const payload = { ...editedUser };
+    await UserController.updateUser(editingUserId, payload);
+    const fresh = await UserController.getAllUsers();
+    setUsers(fresh);
+    setFilteredUsers(fresh);
+    cancelEditing();
+  };
 
   return (
     <div className="main-dashboard">
@@ -169,28 +197,102 @@ const UserPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map((user) => (
-                  <tr key={user.id}>
+                {filteredUsers.map((user) => {
+                  const isEditing = editingUserId === user.id;
+
+                  return (
+                    <tr key={user.id}>
                     <td>
-                      <input
-                          type="checkbox"
-                          onChange={() => addToDeleteList(user.id)}
-                      />
+                      <input type="checkbox"
+                        onChange={() => addToDeleteList(user.id)}/>
                     </td>
-                    <td>{user.first_name}</td>
-                    <td>{user.last_name}</td>
-                    <td>{user.username}</td>
-                    <td>{user.email}</td>
-                    <td>{user.groups[0].name}</td>
+
+                    <td>
+                      {isEditing ? (
+                        <input
+                          value={editedUser.first_name}
+                          onChange={(e) => setEditedUser({ ...editedUser, first_name: e.target.value })}
+                          className="cell-input"
+                        />
+                      ) : (
+                        user.first_name
+                      )}
+                    </td>
+
+                    <td>
+                      {isEditing ? (
+                        <input
+                          value={editedUser.last_name}
+                          onChange={(e) => setEditedUser({ ...editedUser, last_name: e.target.value })}
+                          className="cell-input"
+                        />
+                      ) : (
+                        user.last_name
+                      )}
+                    </td>
+
+                    <td>
+                      {isEditing ? (
+                        <input
+                          value={editedUser.username}
+                          onChange={(e) => setEditedUser({ ...editedUser, username: e.target.value })}
+                          className="cell-input"
+                        />
+                      ) : (
+                        user.username
+                      )}
+                    </td>
+
+                    <td>
+                      {isEditing ? (
+                        <input
+                          value={editedUser.email}
+                          onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
+                          className="cell-input"
+                        />
+                      ) : (
+                        user.email
+                      )}
+                    </td>
+
+                    <td>
+                      {isEditing ? (
+                        <select
+                          value={editedUser.group}
+                          onChange={(e) => setEditedUser({ ...editedUser, group: e.target.value })}
+                          className="cell-input"
+                        >
+                          <option value="">Select Group</option>
+                          {groupsList.map(g => (
+                            <option key={g.id} value={g.name.toLowerCase()}>{g.name}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        user.groups[0]?.name
+                      )}
+                    </td>
+
+                    <td>
+                      {isEditing ? (
+                        <>
+                          <button onClick={handleUpdateUser}>Save</button>
+                          <button onClick={cancelEditing}>Cancel</button>
+                        </>
+                      ) : (
+                        <button onClick={() => startEditing(user)}>Edit</button>
+                      )}
+                    </td>
                   </tr>
-                ))}
+                  )
+
+                })}
 
                 <tr>
-                        <td colSpan={3} className="deleteBtn">
-                            <Button btn_name={"Delete"} type="delete"
-                            onClick={deleteUsers}/>
-                        </td>
-                    </tr>
+                    <td colSpan={3} className="deleteBtn">
+                        <Button btn_name={"Delete"} type="delete"
+                        onClick={deleteUsers}/>
+                    </td>
+                </tr>
               </tbody>
             </table>
           )}

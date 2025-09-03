@@ -124,3 +124,11 @@
     background: var(--secondary-color);
     color: white;
 }
+
+.cell-input {
+    width: 80%;
+    padding: 6px 8px;
+    font: inherit;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
