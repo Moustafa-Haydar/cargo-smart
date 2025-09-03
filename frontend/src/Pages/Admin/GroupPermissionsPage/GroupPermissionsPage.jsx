@@ -15,13 +15,21 @@ const GroupPermissionsPage = () => {
     const [allPermissions, setAllPermissions] = useState([]);
     const [newPermissionId, setNewPermissionId] = useState("");
 
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState("");
+
     // Fetch groups + all permissions on mount
     useEffect(() => {
         const fetchData = async () => {
-        const g = await GroupController.getAllGroups();
-        const p = await PermissionController.getAllPermissions();
-        setGroups(g);
-        setAllPermissions(p);
+            try {
+                const g = await GroupController.getAllGroups();
+                const p = await PermissionController.getAllPermissions();
+                setGroups(g);
+                setAllPermissions(p);
+            } catch (e) {
+                console.log(e);
+                setError("Failed to load groups or permissions.")
+            }
         };
         fetchData();
     }, []);
@@ -29,22 +37,26 @@ const GroupPermissionsPage = () => {
     // Fetch permissions for selected group
     useEffect(() => {
         const fetchGroupPermissions = async () => {
-        if (!selectedGroupId) return;
-        const perms = await GroupPermissionsController.getGroupPermissions(selectedGroupId);
-        setGroupPermissions(perms.permissions);
-        console.log(perms.permissions);
+            try {
+                if (!selectedGroupId) return;
+                const perms = await GroupPermissionsController.getGroupPermissions(selectedGroupId);
+                setGroupPermissions(perms.permissions);
+                console.log(perms.permissions);
+            } catch (error) {
+                console.log(error);
+                setError("Failed to load group permissions.");
+            }
         };
         fetchGroupPermissions();
     }, [selectedGroupId]);
 
     const handleAddPermission = () => {
-        return;
-        // if (!newPermissionId) return;
-        // const perm = allPermissions.find(p => p.id === newPermissionId);
-        // if (perm && !groupPermissions.some(p => p.id === perm.id)) {
-        // setGroupPermissions(prev => [...prev, perm]);
-        // setNewPermissionId("");
-        // }
+        if (!newPermissionId) return;
+        const perm = allPermissions.find(p => p.id === newPermissionId);
+        if (perm && !groupPermissions.some(p => p.id === perm.id)) {
+            setGroupPermissions(prev => [...prev, perm]);
+            setNewPermissionId("");
+        }
     };
 
     const handleRemovePermission = (id) => {
@@ -52,10 +64,9 @@ const GroupPermissionsPage = () => {
     };
 
     const handleSave = async () => {
-        return;
-        // const permission_ids = groupPermissions.map(p => p.id);
-        // await GroupController.updateGroupPermissions(selectedGroupId, { permission_ids });
-        // alert("Permissions updated successfully!");
+        const permission_ids = groupPermissions.map(p => p.id);
+        await GroupController.setGroupPermissions(selectedGroupId, permission_ids);
+        alert("Permissions updated successfully!");
     };
 
     return (
