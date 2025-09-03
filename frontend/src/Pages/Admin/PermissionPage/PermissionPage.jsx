@@ -45,62 +45,57 @@ const PermissionPage = () => {
     const handleAddPermission = async () => {
         if (!newPermission.name || !newPermission.app_label || !newPermission.codename) return;
 
-        
-        const res = await PermissionController.addPermission(newPermission);
-        const added = res.data.permission;
-        console.log(added);
+        try {
+            const res = await PermissionController.addPermission(newPermission);
+            const added = res.data.permission;
+            console.log(added);
 
-        setPermissions(prev => {
-            const next = [...prev, added];
+            setPermissions(prev => [...prev, added]);
 
-            setFilteredPermissions(next);
-            return next;
-        });
+            setShowModal(false);
+            setNewPermission({ name: "", description: "", app_label: "", codename: "" });
 
-        setShowModal(false);
-        setNewPermission({ name: "", description: "", app_label: "", codename: "" });
-        return null;
+        } catch ( error) {
+            console.error(error);
+        }      
     };
 
 
-
-
     // handle delele groups
-    // const [ toDeleteGroups, setToDeleteGroups ] = useState([]);
-    // const addToDeleteList = (group_id) => {
+    const [ toDeletePermissions, setToDeletePermissions ] = useState([]);
+    const addToDeleteList = (permission_id) => {
 
-    //     setToDeleteGroups(prev => {
-    //         const isSelected = prev.includes(group_id);
-    //         const updated = isSelected
-    //             ? prev.filter(id => id !== group_id) :
-    //             [...prev, group_id];
+        setToDeletePermissions(prev => {
+            const isSelected = prev.includes(permission_id);
+            const updated = isSelected
+                ? prev.filter(id => id !== permission_id) :
+                [...prev, permission_id];
 
-    //         console.log(updated);
-    //         return updated;
-    //     })
-    // }
-    // const deleteGroups = async () => {
+            console.log(updated);
+            return updated;
+        })
+    }
+    const deletePermissions = async () => {
 
-    //     try {
+        try {
+            await Promise.all( 
+                toDeletePermissions.map(permission_id =>
+                    PermissionController.deletePermission(permission_id))
+            );
 
-    //         await Promise.all( 
-    //             toDeleteGroups.map(group_id =>
-    //                 GroupController.deleteGroup(group_id))
-    //         );
+            const updatedPermissions = permissions.filter(
+                permission => !toDeletePermissions.includes(permission.id)
+            );
+            setPermissions(updatedPermissions);
+            setFilteredPermissions(updatedPermissions);
+            setToDeletePermissions([]);
+            console.log("Permissions deleted successfully.")
 
-    //         const updatedGroups = groups.filter(
-    //             group => !toDeleteGroups.includes(group.id)
-    //         );
-    //         setGroups(updatedGroups);
-    //         setFilteredGroups(updatedGroups);
-    //         setToDeleteGroups([]);
-    //         console.log("Groups deleted successfully.")
-
-    //     } catch (error) {
-    //         console.error(error);
-    //         return;
-    //     }
-    // }
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+    }
 
 
     return (
@@ -143,10 +138,10 @@ const PermissionPage = () => {
                     {filteredPermissions.map((permission) => (
                         <tr key={permission.id}>
                             <td>
-                                {/* <input
+                                <input
                                     type="checkbox"
-                                    onChange={() => addToDeleteList(group.id)}
-                                /> */}
+                                    onChange={() => addToDeleteList(permission.id)}
+                                />
                             </td>
                             <td>{permission.name}</td>
                             <td>{permission.app_label}</td>
@@ -157,8 +152,8 @@ const PermissionPage = () => {
 
                     <tr>
                         <td colSpan={3} className="deleteBtn">
-                            {/* <Button btn_name={"Delete"} type="delete"
-                            onClick={deleteGroups}/> */}
+                            <Button btn_name={"Delete"} type="delete"
+                            onClick={deletePermissions}/>
                         </td>
                     </tr>
                 </tbody>
@@ -186,10 +181,11 @@ const PermissionPage = () => {
                     className="modal-select"
                 >
                     <option value="">Select App_Name</option>
-                    <option value={(e) => e.name.toLowerCase()}>shipments</option>
-                    <option value={(e) => e.name.toLowerCase()}>rbac</option>
-                    <option value={(e) => e.name.toLowerCase()}>alerts</option>
-                    <option value={(e) => e.name.toLowerCase()}>vehicles</option>
+                    {["shipments", "rbac", "alerts", "vehicles"].map((name) => (
+                        <option key={name} value={name}>
+                        {name}
+                        </option>
+                    ))}
 
                 </select>
 

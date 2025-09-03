@@ -15,6 +15,7 @@ class PermissionController {
                         "X-CSRFToken": csrfToken } 
                 },
             );
+            console.log(res.data.permissions);
             return res.data.permissions;
             
         } catch (error) {
@@ -37,11 +38,36 @@ class PermissionController {
                         "X-CSRFToken" : csrfToken }
                 }
             )
-            console.log(res);
             return res;
 
         } catch (error) {
             console.error(error);
+            return;
+        }
+    }
+
+        static async deletePermission(permission_id) {
+        try {
+
+            const { data } = await api.get("/accounts/csrf");
+            const csrfToken = data?.csrfToken;
+
+            const res = await api.post(
+                "rbac/permissions/delete/",
+                {
+                    "id": permission_id
+                },
+                {
+                    headers: {
+                        "X-CSRFToken" : csrfToken
+                    }
+                }
+            )
+            console.log(res);
+            return res;
+
+        } catch (error) {
+            console.error(error.message);
             return;
         }
     }
