@@ -36,6 +36,12 @@
     color: white;
 }
 
+.btn.delete {
+    font-size: 0.8vw;
+    background-color: rgb(215, 3, 3);
+    color: white;
+}
+
 /* Ghost button */
 .btn.ghost {
     background-color: transparent;

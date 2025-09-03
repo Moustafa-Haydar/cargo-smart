@@ -60,6 +60,43 @@ const UserPage = () => {
     navigate("/");
   }
 
+  // handle delele users
+    const [ toDeleteUsers, setToDeleteUsers ] = useState([]);
+    const addToDeleteList = (user_id) => {
+
+        setToDeleteUsers(prev => {
+            const isSelected = prev.includes(user_id);
+            const updated = isSelected
+                ? prev.filter(id => id !== user_id) :
+                [...prev, user_id];
+
+            console.log(updated);
+            return updated;
+        })
+    }
+    const deleteUsers = async () => {
+
+        try {
+
+            await Promise.all( 
+                toDeleteUsers.map(user_id =>
+                    UserController.deleteUser(user_id))
+            );
+
+            const updatedUsers = users.filter(
+                user => !toDeleteUsers.includes(user.id)
+            );
+            setUsers(updatedUsers);
+            setFilteredUsers(updatedUsers);
+            setToDeleteUsers([]);
+            console.log("Users deleted successfully.")
+
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+    }
+
 
   return (
     <div className="main-dashboard">
@@ -103,6 +140,7 @@ const UserPage = () => {
             <table className="user-table">
               <thead>
                 <tr>
+                  <th></th>
                   <th>First-Name</th>
                   <th>Last-Name</th>
                   <th>Username</th>
@@ -113,6 +151,12 @@ const UserPage = () => {
               <tbody>
                 {filteredUsers.map((user) => (
                   <tr key={user.id}>
+                    <td>
+                      <input
+                          type="checkbox"
+                          onChange={() => addToDeleteList(user.id)}
+                      />
+                    </td>
                     <td>{user.first_name}</td>
                     <td>{user.last_name}</td>
                     <td>{user.username}</td>
@@ -120,6 +164,13 @@ const UserPage = () => {
                     <td>{user.groups[0].name}</td>
                   </tr>
                 ))}
+
+                <tr>
+                        <td colSpan={3} className="deleteBtn">
+                            <Button btn_name={"Delete"} type="delete"
+                            onClick={deleteUsers}/>
+                        </td>
+                    </tr>
               </tbody>
             </table>
           )}

@@ -146,7 +146,7 @@ const GroupPage = () => {
 
                     <tr>
                         <td colSpan={3} className="deleteBtn">
-                            <Button btn_name={"Delete"} type="secondary"
+                            <Button btn_name={"Delete"} type="delete"
                             onClick={deleteGroups}/>
                         </td>
                     </tr>
