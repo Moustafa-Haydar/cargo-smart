@@ -22,7 +22,7 @@ const PermissionPage = () => {
             console.log(allPermissions);
         };
         fetchPermissions();
-    }, []);
+    }, [setPermissions]);
 
     // // Filter groups based on search query
     // useEffect(() => {
@@ -40,15 +40,19 @@ const PermissionPage = () => {
 
     // Handle adding a new group
     const handleAddPermission = async () => {
-        return;
-        // if (!newGroup.name) return;
-        // const id = groups.length + 1;
-        // setGroups([...groups, { ...newGroup, id }]);
-        // await GroupController.addGroup(newGroup);
-        // setShowModal(false);
-        // setNewGroup({ name: "", description: "" });
-        // return null;
+        if (!newPermission.name || !newPermission.app_label || !newPermission.codename) return;
+        const res = await PermissionController.addPermission(newPermission);
+        const addedPermission = res.data.permission;
+        console.log(addedPermission);
+        const updatedPermissions = [...permissions, addedPermission];
+        setPermissions(updatedPermissions);
+        setFilteredPermissions(updatedPermissions);
+
+        setShowModal(false);
+        setNewPermission({ name: "", description: "", app_label: "", codename: "" });
+        return null;
     };
+
 
     // handle delele groups
     // const [ toDeleteGroups, setToDeleteGroups ] = useState([]);
