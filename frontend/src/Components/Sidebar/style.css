@@ -18,6 +18,8 @@
     border-right: 1px solid var(--sidebar-border);
     padding: 0vh 1vw;
     width: 13vw;
+    display: flex;
+    flex-direction: column;
 }
 
 .login-page-logo {
@@ -93,6 +95,16 @@
     }
 }
 
-.deleteBtn {
-    position: relative;
+.sidebar__footer {
+    margin-top: auto;
+    padding: 2vh;
+    
+}
+
+.logout-btn {
+    
+}
+
+.logout-btn:hover {
+    cursor: pointer;
 }

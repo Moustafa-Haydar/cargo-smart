@@ -45,8 +45,11 @@ const Sidebar = () => {
                 </NavLink>
             </nav>
 
-            <div className="deleteBtn">
-                <Button btn_name="Logout" onClick={() => logout()} type="secondary" className="logout-btn" />
+            <div className="sidebar__footer">
+                <div className="logout-btn" onClick={logout}>
+                    <span className="icon" aria-hidden>📊</span>
+                    <span className="label">Logout</span>
+                </div>
             </div>
             
         </aside>
