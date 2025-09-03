@@ -4,8 +4,6 @@ import "./style.css";
 import logo from '../../Assets/Logo/Cargo-Photoroom.png';
 import AuthController from "../../Controllers/Common/AuthController";
 import { useNavigate } from 'react-router-dom';
-import Button from '../../Components/Button/Button';
-
 
 const Sidebar = () => {
 

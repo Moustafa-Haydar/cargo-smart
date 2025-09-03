@@ -5,7 +5,7 @@ import Button from '../../../Components/Button/Button';
 import './style.css';
 import '../../../Styles/variables.css';
 
-const GroupPage = () => {
+const PermissionPage = () => {
     
     const [permissions, setPermissions] = useState([]);
     const [filteredPermissions, setFilteredPermissions] = useState([]);
@@ -95,7 +95,7 @@ const GroupPage = () => {
         <header className="dashboard-header">
             <h1 className="dashboard-title">Manage Groups</h1>
             <div className="admin-actions">
-            <Button btn_name="+ Add Group" onClick={() => setShowModal(true)} type="primary" />
+            <Button btn_name="+ Add Permission" onClick={() => setShowModal(true)} type="primary" />
             </div>
         </header>
 
@@ -111,7 +111,7 @@ const GroupPage = () => {
 
         <section className="user-list">
             {filteredPermissions.length === 0 ? (
-            <p className="no-groups">No groups found.</p>
+            <p className="no-groups">No permissions found.</p>
             ) : (
             <table className="user-table">
                 <thead>
@@ -152,24 +152,45 @@ const GroupPage = () => {
         </section>
 
         {/* Modal */}
-        {/* {showModal && (
+        {showModal && (
             <div className="modal-overlay">
             <div className="modal">
-                <h2>Add New Group</h2>
+                <h2>Add New Permission</h2>
 
                 <input
                 type="text"
                 placeholder="Name"
-                value={newGroup.name}
-                onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
+                value={newPermission.name}
+                onChange={(e) => setNewPermission({ ...newPermission, name: e.target.value })}
+                className="modal-input"
+                />
+
+                <select
+                    value={newPermission.app_label}
+                    onChange={(e) => setNewPermission({ ...newPermission, app_label: e.target.value })}
+                    className="modal-select"
+                >
+                    <option value="">Select App_Name</option>
+                    <option value={(e) => e.name.toLowerCase()}>shipments</option>
+                    <option value={(e) => e.name.toLowerCase()}>rbac</option>
+                    <option value={(e) => e.name.toLowerCase()}>alerts</option>
+                    <option value={(e) => e.name.toLowerCase()}>vehicles</option>
+
+                </select>
+
+                <input
+                type="text"
+                placeholder="codename"
+                value={newPermission.codename}
+                onChange={(e) => setNewPermission({ ...newPermission, codename: e.target.value })}
                 className="modal-input"
                 />
 
                 <input
                 type="text"
                 placeholder="Description"
-                value={newGroup.description}
-                onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
+                value={newPermission.description}
+                onChange={(e) => setNewPermission({ ...newPermission, description: e.target.value })}
                 className="modal-input"
                 />
 
@@ -178,16 +199,16 @@ const GroupPage = () => {
                     Cancel
                 </button>
                 <button className="modal-confirm" onClick={handleAddPermission}>
-                    Add Group
+                    Add Permission
                 </button>
                 </div>
             </div>
             </div>
-        )} */}
+        )}
         </main>
     </div>
     );
 
 }
 
-export default GroupPage;
+export default PermissionPage;
