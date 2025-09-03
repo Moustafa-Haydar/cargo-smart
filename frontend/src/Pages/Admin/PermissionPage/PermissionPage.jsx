@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../../Components/Sidebar/Sidebar";
-import { useNavigate } from 'react-router-dom';
 import PermissionController from "../../../Controllers/Permissions/PermissionController";
-import AuthController from "../../../Controllers/Common/AuthController";
 import Button from '../../../Components/Button/Button';
 import './style.css';
 import '../../../Styles/variables.css';
@@ -14,7 +12,6 @@ const GroupPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [newPermission, setNewPermission] = useState({ name: "", description: "", app_label: "",  codename: ""});
-    const navigate = useNavigate();
 
     // Fetch all permissions
     useEffect(() => {
@@ -52,11 +49,6 @@ const GroupPage = () => {
         // setNewGroup({ name: "", description: "" });
         // return null;
     };
-
-    const logout = () => {
-        AuthController.logout();
-        navigate("/");
-    }
 
     // handle delele groups
     // const [ toDeleteGroups, setToDeleteGroups ] = useState([]);
