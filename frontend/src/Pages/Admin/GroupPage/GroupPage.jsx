@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../../Components/Sidebar/Sidebar";
-import { useNavigate } from 'react-router-dom';
 import GroupController from "../../../Controllers/Groups/GroupController";
-import AuthController from "../../../Controllers/Common/AuthController";
 import Button from '../../../Components/Button/Button';
 import './style.css';
 import '../../../Styles/variables.css';
@@ -14,7 +12,6 @@ const GroupPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [newGroup, setNewGroup] = useState({ name: "", description: "" });
-    const navigate = useNavigate();
 
     // Fetch all groups
     useEffect(() => {
@@ -49,11 +46,6 @@ const GroupPage = () => {
         setNewGroup({ name: "", description: "" });
         return null;
     };
-
-    const logout = () => {
-        AuthController.logout();
-        navigate("/");
-    }
 
     // handle delele groups
     const [ toDeleteGroups, setToDeleteGroups ] = useState([]);
@@ -100,10 +92,7 @@ const GroupPage = () => {
         <header className="dashboard-header">
             <h1 className="dashboard-title">Manage Groups</h1>
             <div className="admin-actions">
-
-            <Button btn_name="+ Add Group" onClick={() => setShowModal(true)} type="primary" />
-            <Button btn_name="Logout" onClick={() => logout()} type="secondary" />
-
+                <Button btn_name="+ Add Group" onClick={() => setShowModal(true)} type="primary" />
             </div>
         </header>
 

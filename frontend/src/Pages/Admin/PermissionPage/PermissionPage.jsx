@@ -95,10 +95,7 @@ const GroupPage = () => {
         <header className="dashboard-header">
             <h1 className="dashboard-title">Manage Groups</h1>
             <div className="admin-actions">
-
             <Button btn_name="+ Add Group" onClick={() => setShowModal(true)} type="primary" />
-            <Button btn_name="Logout" onClick={() => logout()} type="secondary" />
-
             </div>
         </header>
 
