@@ -39,13 +39,23 @@ const GroupPage = () => {
     // Handle adding a new group
     const handleAddGroup = async () => {
         if (!newGroup.name) return;
-        const id = groups.length + 1;
-        setGroups([...groups, { ...newGroup, id }]);
-        await GroupController.addGroup(newGroup);
-        setShowModal(false);
-        setNewGroup({ name: "", description: "" });
-        return null;
+
+        try {
+            const res = await GroupController.addGroup(newGroup);
+            const added = res.data.group;
+
+            setGroups(prev => [...prev, added]);
+
+            setShowModal(false);
+            setNewGroup({ name: "", description: "" });
+
+        } catch (error) {
+            console.log(error);
+            return;
+        }
+
     };
+
 
     // handle delele groups
     const [ toDeleteGroups, setToDeleteGroups ] = useState([]);

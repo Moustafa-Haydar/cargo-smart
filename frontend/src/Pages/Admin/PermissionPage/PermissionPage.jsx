@@ -16,42 +16,53 @@ const PermissionPage = () => {
     // Fetch all permissions
     useEffect(() => {
         const fetchPermissions = async () => {
-            const allPermissions = await PermissionController.getAllPermissions();
-            setPermissions(allPermissions);
-            setFilteredPermissions(allPermissions);
-            console.log(allPermissions);
+            const all = await PermissionController.getAllPermissions();
+            setPermissions(all);
+            setFilteredPermissions(all);
         };
         fetchPermissions();
-    }, [setPermissions]);
+    }, []);
 
-    // // Filter groups based on search query
-    // useEffect(() => {
-    // let filtered = groups;
+    useEffect(() => {
 
-    // if (searchQuery.trim()) {
-    //     filtered = filtered.filter((group) =>
-    //     group.name.toLowerCase().includes(searchQuery.toLowerCase())
-    //     );
-    // }
-
-    // setFilteredGroups(filtered);
-    // }, [searchQuery, groups]);
+        if (!searchQuery.trim()) {
+            setFilteredPermissions(permissions);
+        } else {
+            const q = searchQuery.toLowerCase();
+            setFilteredPermissions(
+                permissions.filter(p =>
+                (p?.name || "").toLowerCase().includes(q) ||
+                (p?.description || "").toLowerCase().includes(q) ||
+                (p?.app_label  || "").toLowerCase().includes(q) ||
+                (p?.codename  || "").toLowerCase().includes(q)
+                )
+            )}
+        }, [searchQuery, permissions]
+    );
 
 
     // Handle adding a new group
     const handleAddPermission = async () => {
         if (!newPermission.name || !newPermission.app_label || !newPermission.codename) return;
+
+        
         const res = await PermissionController.addPermission(newPermission);
-        const addedPermission = res.data.permission;
-        console.log(addedPermission);
-        const updatedPermissions = [...permissions, addedPermission];
-        setPermissions(updatedPermissions);
-        setFilteredPermissions(updatedPermissions);
+        const added = res.data.permission;
+        console.log(added);
+
+        setPermissions(prev => {
+            const next = [...prev, added];
+
+            setFilteredPermissions(next);
+            return next;
+        });
 
         setShowModal(false);
         setNewPermission({ name: "", description: "", app_label: "", codename: "" });
         return null;
     };
+
+
 
 
     // handle delele groups
