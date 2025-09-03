@@ -129,21 +129,25 @@ const GroupPage = () => {
                     <tr>
                         <th></th>
                         <th>Name</th>
+                        <th>App_Label</th>
+                        <th>Codename</th>
                         <th>Description</th>
                         
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredPermissions.map((group) => (
-                        <tr key={group.id}>
+                    {filteredPermissions.map((permission) => (
+                        <tr key={permission.id}>
                             <td>
                                 {/* <input
                                     type="checkbox"
                                     onChange={() => addToDeleteList(group.id)}
                                 /> */}
                             </td>
-                            <td>{group.name}</td>
-                            <td>{group.description}</td>
+                            <td>{permission.name}</td>
+                            <td>{permission.app_label}</td>
+                            <td>{permission.codename}</td>
+                            <td>{permission.description}</td>
                         </tr>
                     ))}
 
