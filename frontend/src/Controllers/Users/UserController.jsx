@@ -76,7 +76,27 @@ class UserController {
     }
 
     static async updateUser(user) {
-        return;
+        try {
+
+            const { data } = await api.get("/accounts/csrf");
+            const csrfToken = data?.csrfToken;
+
+            const res = await api.post(
+                "accounts/users/update/",
+                user,
+                {
+                    headers: {
+                        "X-CSRFToken" : csrfToken
+                    }
+                }
+            )
+            console.log(res);
+            return res;
+
+        } catch (error) {
+            console.error(error);
+            return;
+        }
     }
 
 }

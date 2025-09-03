@@ -139,8 +139,9 @@ const UserPage = () => {
   };
 
   const handleUpdateUser = async () => {
-    const payload = { ...editedUser };
-    await UserController.updateUser(editingUserId, payload);
+    const id = editingUserId;
+    const payload = { ...editedUser, id };
+    await UserController.updateUser(payload);
     const fresh = await UserController.getAllUsers();
     setUsers(fresh);
     setFilteredUsers(fresh);
