@@ -4,6 +4,7 @@ import Login from './Pages/Common/Login/LoginPage';
 import UserPage from './Pages/Admin/UserPage/UserPage';
 import GroupPage from './Pages/Admin/GroupPage/GroupPage';
 import PermissionPage from './Pages/Admin/PermissionPage/PermissionPage';
+import GroupPermissionsPage from './Pages/Admin/GroupPermissionsPage/GroupPermissionsPage';
 
 import './Styles/index.css';
 import './Styles/style.css';
@@ -22,6 +23,7 @@ function App() {
         <Route path="/AdminDashboard" element={<UserPage />} />
         <Route path="/GroupPage" element={<GroupPage />} />
         <Route path="/PermissionPage" element={<PermissionPage />} />
+        <Route path="/GroupPermissionsPage" element={<GroupPermissionsPage />} />
 
 
       </Routes>

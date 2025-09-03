@@ -23,28 +23,28 @@ const Sidebar = () => {
 
             <nav className="sidebar__nav">
                 <NavLink to="/AdminDashboard" className={linkClass}>
-                    <span className="icon" aria-hidden>👥</span>
-                    <span className="label">UserDashboard</span>
+                    <span className="icon" aria-hidden>👤</span>
+                    <span className="label">Users</span>
                 </NavLink>
 
                 <NavLink to="/GroupPage" className={linkClass}>
                     <span className="icon" aria-hidden>👥</span>
-                    <span className="label">GroupPage</span>
+                    <span className="label">Groups</span>
                 </NavLink>
 
                 <NavLink to="/PermissionPage" className={linkClass}>
-                    <span className="icon" aria-hidden>📦</span>
-                    <span className="label">PermissionPage</span>
+                    <span className="icon" aria-hidden>🛡️</span>
+                    <span className="label">Permissions</span>
                 </NavLink>
 
-                <NavLink to="/Reports" className={linkClass}>
-                    <span className="icon" aria-hidden>📊</span>
-                    <span className="label">Reports</span>
+                <NavLink to="/GroupPermissionsPage" className={linkClass}>
+                    <span className="icon" aria-hidden>🔗</span>
+                    <span className="label">Group-Permissions</span>
                 </NavLink>
             </nav>
 
             <div className="sidebar__footer">
-                <div className="logout-btn" onClick={logout}>
+                <div className="logout-btn sidebar__link" onClick={logout}>
                     <span className="icon" aria-hidden>📊</span>
                     <span className="label">Logout</span>
                 </div>
