@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import UserController from "../../../Controllers/Users/UserController";
+import GroupController from "../../../Controllers/Groups/GroupController";
 import AuthController from "../../../Controllers/Common/AuthController";
 import Button from '../../../Components/Button/Button';
 import './style.css';
@@ -9,49 +10,67 @@ import Sidebar from "../../../Components/Sidebar/Sidebar";
 
 const UserPage = () => {
 
-    const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
+
+  const [groupsList, setGroupsList] = useState([]);
   const [groupFilter, setGroupFilter] = useState("all");
+
   const [searchQuery, setSearchQuery] = useState("");
+
   const [showModal, setShowModal] = useState(false);
-  const [newUser, setNewUser] = useState({ name: "", email: "", role: "manager" });
+  const [newUser, setNewUser] = useState({ first_name: "", last_name:"", email: "", username:"", password:"", group: "" });
+  
   const navigate = useNavigate();
 
   // Fetch all users
   useEffect(() => {
     const fetchUsers = async () => {
-        const allUsers = await UserController.getAllUsers();
-        setUsers(allUsers);
-        setFilteredUsers(allUsers);
+      const allUsers = await UserController.getAllUsers();
+      setUsers(allUsers);
+      setFilteredUsers(allUsers);
     };
     fetchUsers();
     }, []);
 
-  // Filter users based on role and search query
+  // Fetch all groups
   useEffect(() => {
-    let filtered = users;
+    const fetchGroups = async () => {
+      const allGroups = await GroupController.getAllGroups();
+      console.log(allGroups);
+      setGroupsList(allGroups);
+    };
+    fetchGroups();
+  }, []);
 
-    if (groupFilter !== "all") {
-      filtered = filtered.filter((user) => user.groups[0].name === groupFilter);
-    }
+  // Filter users based on role and search query
+  // useEffect(() => {
+  //   let filtered = [...users];
 
-    if (searchQuery.trim()) {
-      filtered = filtered.filter((user) =>
-        user.first_name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
+  //   if (groupFilter !== "all") {
+  //     filtered = filtered.filter((user) => 
+  //       user.groups[0].name === groupFilter
+  //   );
+  //   }
 
-    setFilteredUsers(filtered);
-  }, [groupFilter, searchQuery, users]);
+  //   if (searchQuery.trim()) {
+  //     filtered = filtered.filter((user) =>
+  //       user.first_name.toLowerCase().includes(searchQuery.toLowerCase())
+  //     );
+  //   }
+
+  //   setFilteredUsers(filtered);
+  // }, [groupFilter, searchQuery, users]);
 
   // Handle adding a new user
   const handleAddUser = async () => {
-    if (!newUser.first_name || !newUser.last_name || !newUser.email || !newUser.username || !newUser.password) return;
+    if (!newUser.first_name || !newUser.last_name || !newUser.email || !newUser.username || !newUser.password || !newUser.group) return;
     const id = users.length + 1;
+    console.log(newUser);
     setUsers([...users, { ...newUser, id }]);
     await UserController.addUser(newUser);
     setShowModal(false);
-    setNewUser({ name: "", email: "", role: "manager" });
+    setNewUser({ first_name: "", last_name: "", username: "", password: "", email: "", group: "" });
     return null;
   };
 
@@ -223,13 +242,15 @@ const UserPage = () => {
               />
 
               <select
-                value={newUser.role}
-                onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                value={newUser.group}
+                onChange={(e) => setNewUser({ ...newUser, group: e.target.value })}
                 className="modal-select"
               >
-                <option value="admin">Admin</option>
-                <option value="manager">Operations Manager</option>
-                <option value="driver">Analyst</option>
+                <option value="">Select Group</option>
+                {groupsList.map(g => (
+                  <option key={g.id} value={g.name.toLowerCase()}>{g.name}</option>
+                ))}
+
               </select>
 
               <div className="modal-actions">

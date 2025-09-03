@@ -15,7 +15,6 @@ class GroupController {
                         "X-CSRFToken": csrfToken } 
                 },
             );
-            console.log(res.data.groups);
             return res.data.groups;
             
         } catch (error) {

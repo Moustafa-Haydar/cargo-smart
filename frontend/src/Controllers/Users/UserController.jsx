@@ -15,7 +15,6 @@ class UserController {
                         "X-CSRFToken": csrfToken } 
                 },
             );
-            console.log(res.data.users);
             return res.data.users;
             
         } catch (error) {
@@ -29,6 +28,8 @@ class UserController {
 
             const { data } = await api.get("/accounts/csrf");
             const csrfToken = data?.csrfToken;
+
+            console.log(user);
 
             const res = await api.post(
                 "accounts/users/create/",
