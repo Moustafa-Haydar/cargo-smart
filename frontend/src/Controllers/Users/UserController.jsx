@@ -24,9 +24,28 @@ class UserController {
         }
     }
 
-    static async addUser(userData) {
-        
-        return;
+    static async addUser(user) {
+        try {
+
+            const { data } = await api.get("/accounts/csrf");
+            const csrfToken = data?.csrfToken;
+
+            const res = await api.post(
+                "accounts/users/create/",
+                user,
+                {
+                    headers: {
+                        "X-CSRFToken" : csrfToken
+                    }
+                }
+            )
+            console.log(res);
+            return res;
+
+        } catch (error) {
+            console.error(error);
+            return;
+        }
     }
 
     static async deleteUser(user_id) {
