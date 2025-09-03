@@ -103,7 +103,7 @@ const PermissionPage = () => {
         <Sidebar/>
         <main className="admin-dashboard">
         <header className="dashboard-header">
-            <h1 className="dashboard-title">Manage Groups</h1>
+            <h1 className="dashboard-title">Manage Permissions</h1>
             <div className="admin-actions">
             <Button btn_name="+ Add Permission" onClick={() => setShowModal(true)} type="primary" />
             </div>

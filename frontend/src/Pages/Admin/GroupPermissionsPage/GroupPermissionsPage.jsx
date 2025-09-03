@@ -1,9 +1,128 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
+import Sidebar from "../../../Components/Sidebar/Sidebar";
+import GroupController from "../../../Controllers/Groups/GroupController";
+import PermissionController from "../../../Controllers/Permissions/PermissionController";
+import GroupPermissionsController from "../../../Controllers/GroupPermissions/GroupPermissionsController";
+import Button from '../../../Components/Button/Button';
+import './style.css';
+import '../../../Styles/variables.css';
 
 const GroupPermissionsPage = () => {
-    return ( 
-        <div>GroupPermissionsPage</div>
-     );
+    
+    const [groups, setGroups] = useState([]);
+    const [selectedGroupId, setSelectedGroupId] = useState("");
+    const [groupPermissions, setGroupPermissions] = useState([]);
+    const [allPermissions, setAllPermissions] = useState([]);
+    const [newPermissionId, setNewPermissionId] = useState("");
+
+    // Fetch groups + all permissions on mount
+    useEffect(() => {
+        const fetchData = async () => {
+        const g = await GroupController.getAllGroups();
+        const p = await PermissionController.getAllPermissions();
+        setGroups(g);
+        setAllPermissions(p);
+        };
+        fetchData();
+    }, []);
+
+    // Fetch permissions for selected group
+    useEffect(() => {
+        const fetchGroupPermissions = async () => {
+        if (!selectedGroupId) return;
+        const perms = await GroupPermissionsController.getGroupPermissions(selectedGroupId);
+        setGroupPermissions(perms.permissions);
+        console.log(perms.permissions);
+        };
+        fetchGroupPermissions();
+    }, [selectedGroupId]);
+
+    const handleAddPermission = () => {
+        return;
+        // if (!newPermissionId) return;
+        // const perm = allPermissions.find(p => p.id === newPermissionId);
+        // if (perm && !groupPermissions.some(p => p.id === perm.id)) {
+        // setGroupPermissions(prev => [...prev, perm]);
+        // setNewPermissionId("");
+        // }
+    };
+
+    const handleRemovePermission = (id) => {
+        setGroupPermissions(prev => prev.filter(p => p.id !== id));
+    };
+
+    const handleSave = async () => {
+        return;
+        // const permission_ids = groupPermissions.map(p => p.id);
+        // await GroupController.updateGroupPermissions(selectedGroupId, { permission_ids });
+        // alert("Permissions updated successfully!");
+    };
+
+    return (
+        <div className="main-dashboard">
+        <Sidebar />
+        <main className="admin-dashboard">
+            <header className="dashboard-header">
+            <h1 className="dashboard-title">Manage Group Permissions</h1>
+            </header>
+
+            <div className="dashboard-subheader">
+                <section className="filters">
+                    <select
+                        value={selectedGroupId}
+                        onChange={(e) => setSelectedGroupId(e.target.value)}
+                        className="filter-select"
+                    >
+                        <option value="">Select Group</option>
+                        {groups.map((g) => (
+                        <option key={g.id} value={g.id}>{g.name}</option>
+                        ))}
+                    </select>
+                </section>
+
+                <div className="add-permission">
+                    <select
+                        value={newPermissionId}
+                        onChange={(e) => setNewPermissionId(Number(e.target.value))}
+                        className="filter-select"
+                    >
+                        <option value="">Add Permission</option>
+                        {allPermissions
+                        .filter(p => !groupPermissions.some(gp => gp.id === p.id))
+                        .map(p => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                    </select>
+                    <Button btn_name="Add" onClick={handleAddPermission} type="primary" />
+                </div>
+
+                <Button btn_name="Save Changes" onClick={handleSave} type="primary" />
+            </div>
+            
+
+            {selectedGroupId && (
+            <section className="permissions-section">
+                <h2>Assigned Permissions</h2>
+                {groupPermissions.length === 0 ? (
+                <p>No permissions assigned to this group.</p>
+                ) : (
+                <ul className="permission-list">
+                    {groupPermissions.map((perm) => (
+                    <li key={perm.id} className="permission-item">
+                        {perm.code}
+                        <button onClick={() => handleRemovePermission(perm.id)} className="remove-btn">❌</button>
+                    </li>
+                    ))}
+                </ul>
+                )}
+
+                
+            </section>
+            )}
+        </main>
+        </div>
+    );
+
 }
- 
+
 export default GroupPermissionsPage;
