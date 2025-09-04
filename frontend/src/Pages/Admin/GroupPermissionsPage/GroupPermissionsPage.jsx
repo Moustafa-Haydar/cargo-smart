@@ -52,6 +52,7 @@ const GroupPermissionsPage = () => {
 
     const handleAddPermission = () => {
         if (!newPermissionId) return;
+        console.log(newPermissionId);
         const perm = allPermissions.find(p => p.id === newPermissionId);
         if (perm && !groupPermissions.some(p => p.id === perm.id)) {
             setGroupPermissions(prev => [...prev, perm]);
@@ -65,8 +66,7 @@ const GroupPermissionsPage = () => {
 
     const handleSave = async () => {
         const permission_ids = groupPermissions.map(p => p.id);
-        await GroupController.setGroupPermissions(selectedGroupId, permission_ids);
-        alert("Permissions updated successfully!");
+        await GroupPermissionsController.setGroupPermissions(selectedGroupId, permission_ids);
     };
 
     return (
@@ -77,39 +77,42 @@ const GroupPermissionsPage = () => {
             <h1 className="dashboard-title">Manage Group Permissions</h1>
             </header>
 
-            <div className="dashboard-subheader">
-                <section className="filters">
-                    <select
-                        value={selectedGroupId}
-                        onChange={(e) => setSelectedGroupId(e.target.value)}
-                        className="filter-select"
-                    >
-                        <option value="">Select Group</option>
-                        {groups.map((g) => (
-                        <option key={g.id} value={g.id}>{g.name}</option>
-                        ))}
-                    </select>
-                </section>
+            <div className="dashboard-header">
+                <div className="dashboard-subheader">
+                    <section className="filters">
+                        <select
+                            value={selectedGroupId}
+                            onChange={(e) => setSelectedGroupId(e.target.value)}
+                            className="filter-select"
+                        >
+                            <option value="">Select Group</option>
+                            {groups.map((g) => (
+                            <option key={g.id} value={g.id}>{g.name}</option>
+                            ))}
+                        </select>
+                    </section>
 
-                <div className="add-permission">
-                    <select
-                        value={newPermissionId}
-                        onChange={(e) => setNewPermissionId(Number(e.target.value))}
-                        className="filter-select"
-                    >
-                        <option value="">Add Permission</option>
-                        {allPermissions
-                        .filter(p => !groupPermissions.some(gp => gp.id === p.id))
-                        .map(p => (
-                            <option key={p.id} value={p.id}>{p.name}</option>
-                        ))}
-                    </select>
-                    <Button btn_name="Add" onClick={handleAddPermission} type="primary" />
+                    <div className="add-permission">
+                        <select
+                            value={newPermissionId}
+                            onChange={(e) => setNewPermissionId(e.target.value)}
+                            className="filter-select"
+                        >
+                            <option value="">Add Permission</option>
+                            {allPermissions
+                            .filter(p => !groupPermissions.some(gp => gp.id === p.id))
+                            .map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
+                        <Button btn_name="Add" onClick={handleAddPermission} type="primary" />
+                    </div>
+
                 </div>
-
+                
                 <Button btn_name="Save Changes" onClick={handleSave} type="primary" />
             </div>
-            
+
 
             {selectedGroupId && (
             <section className="permissions-section">

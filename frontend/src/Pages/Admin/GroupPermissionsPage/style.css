@@ -35,5 +35,6 @@
 
 .dashboard-subheader {
     display: flex;
-    gap: 5vw;
+    flex-direction: row;
+    gap: 1vw;
 }

@@ -11,6 +11,7 @@
     transition: all 0.3s ease;
     border: none;
     width: fit-content;
+    height: 5vh;
 }
 
 /* Primary button */

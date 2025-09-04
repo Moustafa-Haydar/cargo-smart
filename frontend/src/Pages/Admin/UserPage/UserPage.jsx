@@ -276,11 +276,11 @@ const UserPage = () => {
                     <td>
                       {isEditing ? (
                         <>
-                          <button onClick={handleUpdateUser}>Save</button>
-                          <button onClick={cancelEditing}>Cancel</button>
+                          <button className="update-btn update-btn-save" onClick={handleUpdateUser}>Save</button>
+                          <button className="update-btn update-btn-cancel"  onClick={cancelEditing}>Cancel</button>
                         </>
                       ) : (
-                        <button onClick={() => startEditing(user)}>Edit</button>
+                        <button className="update-btn update-btn-edit"  onClick={() => startEditing(user)}>Edit</button>
                       )}
                     </td>
                   </tr>

@@ -132,3 +132,24 @@
     border: 1px solid #ccc;
     border-radius: 6px;
 }
+
+.update-btn {
+    border: none;
+    background-color: transparent;
+    font-size: 0.9vw;
+}
+
+.update-btn-save {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.update-btn-edit {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.update-btn-cancel {
+    color: red;
+    font-weight: 600;
+}
