@@ -63,6 +63,7 @@
 
 .form-input,
 .form-select {
+    width: 90%;
     padding: 0.7vw 1vw;
     border: 1px solid #ccc;
     border-radius: 10px;
@@ -95,15 +96,17 @@
 /* Password */
 .form-password-wrapper {
     position: relative;
+    display: flex;
+    align-items: center;
 }
 
 .password-input {
-    padding-right: 60px;
+    width: 100%;
 }
 
 .toggle-password-button {
     position: absolute;
-    right: 12px;
+    right: 2vw;
     top: 50%;
     transform: translateY(-50%);
     background: none;
@@ -115,14 +118,10 @@
     border-radius: 4px;
 }
 
-.toggle-password-button:hover {
-    background-color: #f0f0f0;
-}
-
 /* Checkbox & Links */
 .form-options {
     display: flex;
-    justify-content: space-between;
+    justify-content: right;
     align-items: center;
 }
 

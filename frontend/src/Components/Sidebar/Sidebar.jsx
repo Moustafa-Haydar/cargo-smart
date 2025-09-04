@@ -19,7 +19,7 @@ const Sidebar = () => {
 
     return (
         <aside className="sidebar" role="navigation">
-            <img src={logo} alt="" className="login-page-logo"/>
+            <img src={logo} alt="" className="sidebar-logo"/>
 
             <nav className="sidebar__nav">
                 <NavLink to="/AdminDashboard" className={linkClass}>

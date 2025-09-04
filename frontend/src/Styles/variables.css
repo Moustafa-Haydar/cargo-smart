@@ -3,7 +3,10 @@
 :root {
     --primary-color: #358C9C;
     --secondary-color: #F68716;
+
+    --background-color: #F8F5F5;
+
     --text-color: black;
     --secondary-text-color: #4c4b4b;
-    --background-color: #F8F5F5;
+    --font-family: "Arial",Helvetica,sans-serif;
 }

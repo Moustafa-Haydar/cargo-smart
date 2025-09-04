@@ -124,7 +124,7 @@ function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="form-input password-input"
+                  className="form-input"
                 />
                 <button
                   type="button"
@@ -139,10 +139,6 @@ function LoginPage() {
 
             {/* Remember + Forgot */}
             <div className="form-options">
-              <label className="form-checkbox-label">
-                <input type="checkbox" className="form-checkbox" />
-                Remember me
-              </label>
 
               <button
                 type="button"
