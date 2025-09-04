@@ -15,9 +15,6 @@ const GroupPermissionsPage = () => {
     const [allPermissions, setAllPermissions] = useState([]);
     const [newPermissionId, setNewPermissionId] = useState("");
 
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState("");
-
     // Fetch groups + all permissions on mount
     useEffect(() => {
         const fetchData = async () => {
@@ -28,7 +25,6 @@ const GroupPermissionsPage = () => {
                 setAllPermissions(p);
             } catch (e) {
                 console.log(e);
-                setError("Failed to load groups or permissions.")
             }
         };
         fetchData();
@@ -44,7 +40,6 @@ const GroupPermissionsPage = () => {
                 console.log(perms.permissions);
             } catch (error) {
                 console.log(error);
-                setError("Failed to load group permissions.");
             }
         };
         fetchGroupPermissions();
