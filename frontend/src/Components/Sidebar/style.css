@@ -16,7 +16,7 @@
     overflow-y: auto;
     background: var(--sidebar-bg);
     border-right: 1px solid var(--sidebar-border);
-    padding: 0vh 1vw;
+    padding: 4vh 1vw;
     width: 13vw;
     display: flex;
     flex-direction: column;
@@ -30,6 +30,7 @@
 .sidebar__nav {
     display: flex;
     flex-direction: column;
+    margin-top: 3vh;
     gap: 6px;
 }
 
@@ -97,11 +98,12 @@
 
 .sidebar__footer {
     margin-top: auto;
+    margin-bottom: 2vh;
     padding: 2vh;
 }
 
 .logout-btn {
-
+    display: ;
 }
 
 .logout-btn:hover {
