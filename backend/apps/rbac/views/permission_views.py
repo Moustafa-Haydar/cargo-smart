@@ -223,22 +223,20 @@ def group_permissions(request, group_id):
         return JsonResponse({"detail": "permission_ids cannot be empty"}, status=400)
 
     # validate permissions exist
-    found = set(
+    valid_ids  = set(
         str(pid) for pid in Permission.objects
-                    .filter(id__in=ids)
-                    .values_list("id", flat=True)
+        .filter(id__in=ids)
+        .values_list("id", flat=True)
     )
-    missing = [pid for pid in ids if pid not in found]
+    missing = [pid for pid in ids if pid not in valid_ids ]
     if missing:
         return JsonResponse({"detail": "Unknown permission ids", "missing": missing}, status=400)
 
-    # validate the group doesn't have the permissions
-    existing = set(
-        str(pid) for pid in GroupPermission.objects
-                    .filter(group=group, permission_id__in=found)
-                    .values_list("permission_id", flat=True)
-    )
-    to_add = [pid for pid in found if pid not in existing]
+    # remove all permissions
+    # add the new permissions
+    GroupPermission.objects.filter(group=group).delete()
+
+    to_add = [pid for pid in valid_ids ]
     if to_add:
         GroupPermission.objects.bulk_create(
             [GroupPermission(group=group, permission_id=pid) for pid in to_add],

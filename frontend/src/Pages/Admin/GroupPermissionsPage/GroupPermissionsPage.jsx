@@ -61,6 +61,8 @@ const GroupPermissionsPage = () => {
     };
 
     const handleRemovePermission = (id) => {
+        if (!id) return;
+        console.log(id);
         setGroupPermissions(prev => prev.filter(p => p.id !== id));
     };
 
