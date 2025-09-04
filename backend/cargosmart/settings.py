@@ -36,14 +36,26 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
+    
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware', # enable session cookies
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware', # enable CSRF protection for session auth
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "apps.accounts.middleware.RequireAdminGroupMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+RBAC_ADMIN_GROUPS = ["Admin"]   # who counts as admin
+RBAC_ADMIN_PROTECTED = [        # which endpoints to protect
+    "accounts:users",
+    "accounts:user",
+    "accounts:create_user",
+    "accounts:update_user",
+    "accounts:delete_user",
+    "rbac:*"
 ]
 
 REST_FRAMEWORK = {
@@ -57,7 +69,9 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # your Frontend dev origin
+    "http://localhost:3000",
+    "http://192.168.56.1:3000"
+        # your Frontend dev origin
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -75,12 +89,23 @@ SESSION_SAVE_EVERY_REQUEST = False
 # CSRF cookie lets clients (like Postman or your SPA) send X-CSRFToken on writes
 CSRF_COOKIE_NAME = "csrftoken"
 CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
 
 # When you deploy behind HTTPS, uncomment these:
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
 # SESSION_COOKIE_SAMESITE = "Lax"   # or "None" if a different top-level site must send cookies
-# CSRF_TRUSTED_ORIGINS = ["https://your-frontend.example"]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://192.168.56.1:3000"
+]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
 
 TEMPLATES = [
     {

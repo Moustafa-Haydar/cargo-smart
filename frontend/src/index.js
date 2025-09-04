@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import TokenProvider from './Contexts/TokenContexts';
+import {AuthProvider} from "./Contexts/AuthContext";
 
 const rootElement = document.getElementById('root');
 const root = ReactDOM.createRoot(rootElement);
 
 root.render(
-    <TokenProvider>
+    <AuthProvider>
         <App />
-    </TokenProvider>
+    </AuthProvider>
 );

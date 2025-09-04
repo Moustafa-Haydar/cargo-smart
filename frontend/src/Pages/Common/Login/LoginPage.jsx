@@ -1,18 +1,38 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import logo from '../../../Assets/Logo/Cargo-Photoroom.png';
 import AuthController from '../../../Controllers/Common/AuthController';
+import {useAuth} from "../../../Contexts/AuthContext";
 import './style.css';
-import { TokenContext } from '../../../Contexts/TokenContexts';
 
 function LoginPage() {
+  const { loggedUser } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { saveToken } = useContext(TokenContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    
+    if (loggedUser) {
+
+      const user_group = loggedUser.user.groups[0].name;
+
+      switch (user_group) {
+        case "Admin":
+          navigate("/AdminDashboard");
+          break;
+        case "ops manager":
+          navigate("/OpsManagerDashboard");
+          break;
+        default:
+          navigate("/");
+      }
+    }
+
+  }, [loggedUser, navigate]);
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -28,17 +48,15 @@ function LoginPage() {
     try {
       setLoading(true);
       const loggedUser = await AuthController.login({user});
-      saveToken(loggedUser.token);
 
-      switch (loggedUser.role) {
-        case "admin":
+      const user_group = loggedUser.groups[0].name;
+      
+      switch (user_group) {
+        case "Admin":
           navigate("/AdminDashboard");
           break;
-        case "manager":
-          navigate("/ManagerDashboard");
-          break;
-        case "analyst":
-          navigate("/AnalystDashboard");
+        case "ops manager":
+          navigate("/OpsManagerDashboard");
           break;
         default:
           navigate("/");
@@ -106,7 +124,7 @@ function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="form-input password-input"
+                  className="form-input"
                 />
                 <button
                   type="button"
@@ -121,10 +139,6 @@ function LoginPage() {
 
             {/* Remember + Forgot */}
             <div className="form-options">
-              <label className="form-checkbox-label">
-                <input type="checkbox" className="form-checkbox" />
-                Remember me
-              </label>
 
               <button
                 type="button"

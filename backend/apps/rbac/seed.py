@@ -8,17 +8,23 @@ PERMISSIONS = [
     ("core.view_dashboard", "Access dashboards"),
 
     # Accounts / users (admin-only)
-    ("accounts.view_user", "View users"),
-    ("accounts.create_user", "Create users"),
-    ("accounts.update_user", "Update users"),
-    ("accounts.delete_user", "Delete users"),
+    ("accounts.view", "View users"),
+    ("accounts.create", "Create users"),
+    ("accounts.update", "Update users"),
+    ("accounts.delete", "Delete users"),
 
-    # RBAC (groups)
-    ("rbac.view_group", "View groups"),
-    ("rbac.create_group", "Create groups"),
-    ("rbac.update_group", "Update groups"),
-    ("rbac.delete_group", "Delete groups"),
-    ("rbac.manage_group_permissions", "Manage group permissions"),
+    # Groups (admin-only)
+    ("groups.view", "View groups"),
+    ("groups.create", "Create groups"),
+    ("groups.update", "Update groups"),
+    ("groups.delete", "Delete groups"),
+    ("groups.group_permissions", "Manage group permissions"),
+
+    # Permissions (admin-only)
+    ("permissions.view", "View permissions"),
+    ("permissions.create", "Create permissions"),
+    ("permissions.update", "Update permissions"),
+    ("permissions.delete", "Delete permissions"),
 
     # Shipments
     ("shipments.view", "View shipments"),

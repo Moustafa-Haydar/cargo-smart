@@ -28,10 +28,12 @@ def _permission_payload(p: Permission):
 # ---------- GET all permissions ----------
 
 @require_GET
-def permissions(request):
-    """
-    Lists all permissions.
-    """
+def permissions(request, id=None):
+
+    if id is not None:
+        permission = Permission.objects.filter(pk=id).first()
+        return JsonResponse({"permission":_permission_payload(permission)})
+
     perms = Permission.objects.all().order_by("app_label", "codename")
     return JsonResponse({"permissions": [_permission_payload(p) for p in perms]})
 
@@ -40,13 +42,10 @@ def permissions(request):
 
 @require_POST
 @csrf_protect
-def add_permission(request):
+def create_permission(request):
     """
-    Body (either):
-      { "code": "shipments.view", "description": "..." , "name": "View Shipments"? }
-    or:
-      { "app_label": "shipments", "codename": "view", "description": "...", "name": "View Shipments"? }
-    Creates the permission if missing, updates description/name if it exists.
+    Body:
+      { "app_label": "shipments", "codename": "view", "name": "View Shipments", "description": "..." }
     """
     try:
         data = json.loads(request.body.decode() or "{}")
@@ -94,6 +93,100 @@ def add_permission(request):
     )
 
 
+@require_POST
+@csrf_protect
+@transaction.atomic
+def update_permission(request):
+    """
+    Body (PUT/PATCH):
+      {
+        "id": "uuid-or-int",
+        "app_label": "app"?,
+        "codename": "code"?,
+        "name": "Nice Name"?,
+        "description": "..."?
+      }
+    """
+    try:
+        data = json.loads(request.body.decode() or "{}")
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    perm_id = (data.get("id") or "").strip()
+    if not perm_id:
+        return HttpResponseBadRequest("'id' is required")
+
+    try:
+        perm = Permission.objects.select_for_update().get(id=perm_id)
+    except Permission.DoesNotExist:
+        return JsonResponse({"detail": "Permission not found"}, status=404)
+
+    new_app_label = (data.get("app_label") or "").strip() if "app_label" in data else None
+    new_codename  = (data.get("codename")  or "").strip() if "codename"  in data else None
+    new_name      = (data.get("name")      or "").strip() if "name"      in data else None
+    new_desc      = (data.get("description") or "").strip() if "description" in data else None
+
+    if new_app_label == perm.app_label or new_codename == perm.codename:
+        return JsonResponse({"detail": f"Permission '{new_app_label}.{new_codename}' already exists"}, status=409)
+
+    updates = {}
+    if new_app_label is not None:
+        updates["app_label"] = new_app_label
+    if new_codename is not None:
+        updates["codename"] = new_codename
+    if new_desc is not None and new_desc != perm.description:
+        updates["description"] = new_desc
+    if new_name is not None:
+        updates["name"] = new_name
+
+    if not updates:
+        return JsonResponse({"updated": False, "permission": _permission_payload(perm)})
+
+    # Apply & save
+    for k, v in updates.items():
+        setattr(perm, k, v)
+
+    try:
+        perm.save(update_fields=list(updates.keys()))
+    except:
+        return JsonResponse({"detail": "Conflict updating permission (race condition)."}, status=409)
+
+    return JsonResponse({"updated": True, "permission": _permission_payload(perm)})
+
+
+@require_POST
+@csrf_protect
+@transaction.atomic
+def delete_permission(request):
+    """
+    Body (DELETE):
+      { "id": "uuid" }   # required
+    """
+    try:
+        data = json.loads(request.body.decode() or "{}")
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    perm_id = str(data.get("id") or "").strip()
+    if not perm_id:
+        return HttpResponseBadRequest("'id' is required")
+
+    try:
+        perm = Permission.objects.get(id=perm_id)
+    except Permission.DoesNotExist:
+        return JsonResponse({"detail": "Permission not found"}, status=404)
+
+    try:
+        perm.delete()
+    except:
+        return JsonResponse(
+            {"detail": "Permission is in use and cannot be deleted"},
+            status=409
+        )
+
+    return JsonResponse({"deleted": True, "id": perm_id})
+
+
 # ---------- Group permission management ----------
 
 @require_http_methods(["GET", "POST"])
@@ -104,12 +197,12 @@ def group_permissions(request, group_id):
     POST /groups/<group_id>/permissions/     -> change permissions
       body:
         {
-          "action": "grant" | "revoke" | "set",   # default: "set"
           "permission_ids": ["uuid1", "uuid2", ...]
         }
     """
     group = get_object_or_404(Group, pk=group_id)
 
+    # GET
     if request.method == "GET":
         perms = (
             Permission.objects
@@ -125,49 +218,29 @@ def group_permissions(request, group_id):
     except json.JSONDecodeError:
         return HttpResponseBadRequest("Invalid JSON")
 
-    action = (data.get("action") or "set").lower()
-    if action not in {"grant", "revoke", "set"}:
-        return JsonResponse({"detail": "action must be 'grant', 'revoke', or 'set'."}, status=400)
-
     ids = data.get("permission_ids") or []
-    if not isinstance(ids, list):
-        return JsonResponse({"detail": "permission_ids must be a list"}, status=400)
+    if not ids:
+        return JsonResponse({"detail": "permission_ids cannot be empty"}, status=400)
 
-    # validate IDs exist
-    found = set(Permission.objects.filter(id__in=ids).values_list("id", flat=True))
-    missing = [pid for pid in ids if pid not in found]
+    # validate permissions exist
+    valid_ids  = set(
+        str(pid) for pid in Permission.objects
+        .filter(id__in=ids)
+        .values_list("id", flat=True)
+    )
+    missing = [pid for pid in ids if pid not in valid_ids ]
     if missing:
         return JsonResponse({"detail": "Unknown permission ids", "missing": missing}, status=400)
 
-    changed = {}
-    with transaction.atomic():
-        if action == "grant":
-            GroupPermission.objects.bulk_create(
-                [GroupPermission(group=group, permission_id=pid) for pid in ids],
-                ignore_conflicts=True,
-            )
-            changed = {"granted": ids}
+    # remove all permissions
+    # add the new permissions
+    GroupPermission.objects.filter(group=group).delete()
 
-        elif action == "revoke":
-            GroupPermission.objects.filter(group=group, permission_id__in=ids).delete()
-            changed = {"revoked": ids}
-
-        else:  # set (exact replace)
-            current_ids = set(
-                GroupPermission.objects.filter(group=group).values_list("permission_id", flat=True)
-            )
-            new_ids = set(ids)
-            to_add = list(new_ids - current_ids)
-            to_remove = list(current_ids - new_ids)
-
-            if to_remove:
-                GroupPermission.objects.filter(group=group, permission_id__in=to_remove).delete()
-            if to_add:
-                GroupPermission.objects.bulk_create(
-                    [GroupPermission(group=group, permission_id=pid) for pid in to_add],
-                    ignore_conflicts=True,
-                )
-            changed = {"added": to_add, "removed": to_remove}
+    to_add = [pid for pid in valid_ids ]
+    if to_add:
+        GroupPermission.objects.bulk_create(
+            [GroupPermission(group=group, permission_id=pid) for pid in to_add],
+        )
 
     # return updated list
     perms = (
@@ -176,4 +249,4 @@ def group_permissions(request, group_id):
         .order_by("app_label", "codename")
     )
     out = [_permission_payload(p) for p in perms]
-    return JsonResponse({"group_id": str(group.id), "permissions": out, **changed})
+    return JsonResponse({"group_id": str(group.id), "permissions": out})

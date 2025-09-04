@@ -6,6 +6,14 @@ from django.apps import apps
 
 USERS = [
     {
+        "first_name": "Admin",
+        "last_name": "Admin",
+        "username": "admin",
+        "password": "ssssssss",
+        "email": "programmermoustafa@gmail.com",
+        "group": "Admin"
+    },
+    {
         "first_name": "Moustafa",
         "last_name": "Haydar",
         "username": "mustish",
@@ -32,11 +40,11 @@ def seed_accounts(stdout=None):
             raise ValueError(f"Group '{u['group']}' does not exist. User '{u['username']}' not registered.")
 
         user, created = User.objects.get_or_create(
-            username=u["username"],
+            username = u["username"],
+            email = u["email"],
             defaults={
                 "first_name": u["first_name"],
-                "last_name": u["last_name"],
-                "email": u["email"],
+                "last_name": u["last_name"]
             },
         )
 
@@ -48,4 +56,4 @@ def seed_accounts(stdout=None):
 
         UserGroup.objects.get_or_create(user_id=user.id, group_id=group.id)
 
-        return users
+    return users

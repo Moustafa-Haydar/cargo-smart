@@ -11,6 +11,7 @@
     transition: all 0.3s ease;
     border: none;
     width: fit-content;
+    height: 5vh;
 }
 
 /* Primary button */
@@ -33,6 +34,12 @@
 .btn.secondary:hover {
     border: 2px solid var(--primary-color);
     background-color: var(--primary-color);
+    color: white;
+}
+
+.btn.delete {
+    font-size: 0.8vw;
+    background-color: rgb(215, 3, 3);
     color: white;
 }
 

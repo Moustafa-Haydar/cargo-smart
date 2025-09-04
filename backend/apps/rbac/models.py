@@ -50,38 +50,3 @@ class GroupPermission(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["group", "permission"], name="uniq_group_permission")
         ]
-
-
-class Operation(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.name
-
-
-class Object(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=150, unique=True)
-
-    def __str__(self):
-        return self.name
-
-
-class PermissionOperationObject(models.Model):
-    """
-    Bridges permissions to (operation, object).
-    Think: permission 'shipments.view' == (READ, Shipment).
-    """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    permission = models.ForeignKey(Permission, on_delete=models.CASCADE, related_name="op_objs")
-    operation = models.ForeignKey(Operation, on_delete=models.CASCADE, related_name="op_permissions")
-    object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name="obj_permissions")
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["permission", "operation", "object"],
-                name="uniq_permission_operation_object",
-            )
-        ]

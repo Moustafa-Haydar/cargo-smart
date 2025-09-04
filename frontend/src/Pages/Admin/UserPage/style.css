@@ -1,16 +1,11 @@
-:root {
-    --primary-color: #358C9C;
-    --secondary-color: #F68716;
-    --text-color: black;
-    --secondary-text-color: #4c4b4b;
-    --background-color: #F8F5F5;
-}
-
 .admin-dashboard {
     background: var(--background-color);
     padding: 30px;
     min-height: 100vh;
+    margin-left: 13vw;
+    padding-left: 4vw;
     font-family: sans-serif;
+    width: auto;
 }
 
 .dashboard-header {
@@ -128,4 +123,33 @@
 .modal-confirm {
     background: var(--secondary-color);
     color: white;
+}
+
+.cell-input {
+    width: 80%;
+    padding: 6px 8px;
+    font: inherit;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.update-btn {
+    border: none;
+    background-color: transparent;
+    font-size: 0.9vw;
+}
+
+.update-btn-save {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.update-btn-edit {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.update-btn-cancel {
+    color: red;
+    font-weight: 600;
 }

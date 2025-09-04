@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import login, logout, csrf, me, create_user, users, update_user, delete_user
 
+app_name = "accounts"
+
 urlpatterns = [
 
     # auth - (public endpoints)
@@ -11,8 +13,9 @@ urlpatterns = [
 
     # user management - (admin only)
     path("users/", users, name="users"),
-    path("addUser/", create_user, name="create_user"),
-    path("updateUser/", update_user, name="update_user"),
-    path("deleteUser/", delete_user, name="delete_user")
+    path("user/<uuid:id>/", users, name="user"),
+    path("users/create/", create_user, name="create_user"),
+    path("users/update/", update_user, name="update_user"),
+    path("users/delete/", delete_user, name="delete_user")
 
 ]

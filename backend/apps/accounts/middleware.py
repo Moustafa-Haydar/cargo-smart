@@ -1,28 +1,38 @@
 from django.http import JsonResponse
 from django.conf import settings
 from apps.rbac.models import Group
+from fnmatch import fnmatch
+from django.urls import resolve
+from django.db.models.functions import Lower
+
 
 class RequireAdminGroupMiddleware:
     """
-    Blocks access to selected endpoints unless the logged-in user is in an ADMIN group.
-    - Admin groups default to ["Admin"] and can be overridden via settings.RBAC_ADMIN_GROUPS = ["Admin", ...]
-    - Superusers are always allowed.
+    Allow only users in RBAC_ADMIN_GROUPS (or superusers) to access URLs
+    whose qualified name matches any pattern in RBAC_ADMIN_PROTECTED.
+    Example patterns: "accounts:*", "rbac:permissions-*"
     """
-
-    PROTECTED_PATH_PREFIXES = (
-        "/accounts/users/",
-        "/accounts/addUser/",
-        "/accounts/updateUser/",
-        "/accounts/deleteUser/",
-    )
 
     def __init__(self, get_response):
         self.get_response = get_response
-        self.admin_group_names = set(getattr(settings, "RBAC_ADMIN_GROUPS", ["Admin"]))
+        # case-insensitive set of allowed admin group names
+        self.admin_group_names = {n.casefold() for n in getattr(settings, "RBAC_ADMIN_GROUPS", ["Admin"])}
+        self.protected_patterns = list(getattr(settings, "RBAC_ADMIN_PROTECTED", []))
 
     def __call__(self, request):
-        # Only guard selected endpoints
-        if not any(request.path.startswith(p) for p in self.PROTECTED_PATH_PREFIXES):
+        # Resolve to namespaced URL name like "accounts:users" or "rbac:permission-delete"
+        try:
+            match = resolve(request.path_info)
+            parts = list(match.namespaces)
+            if match.url_name:
+                parts.append(match.url_name)
+            qualified = ":".join(parts) if parts else ""
+        except Exception:
+            # If resolution fails (404 later), don't block here
+            return self.get_response(request)
+
+        # Not a protected endpoint? let it through
+        if not any(fnmatch(qualified, pat) for pat in self.protected_patterns):
             return self.get_response(request)
 
         # Must be authenticated
@@ -30,14 +40,15 @@ class RequireAdminGroupMiddleware:
         if not user or not user.is_authenticated:
             return JsonResponse({"detail": "Authentication required"}, status=401)
 
-        # Always allow Django superusers
+        # Superusers always allowed
         if getattr(user, "is_superuser", False):
             return self.get_response(request)
 
-        # Check group membership (case-insensitive match)
+        # Case-insensitive membership in one of the admin groups
         is_admin = Group.objects.filter(
-            user_groups__user_id=user.id,
-            name__in=self.admin_group_names
+            user_groups__user_id=user.id
+        ).annotate(name_l=Lower("name")).filter(
+            name_l__in=self.admin_group_names
         ).exists()
 
         if not is_admin:
