@@ -1,10 +1,11 @@
 from django.urls import path
-from .views import shipments_list_simple
+from .views import shipments
 
 app_name = "shipments"
 
 urlpatterns = [
 
-    path("shipments/", shipments_list_simple, name="shipments-list-simple"),
+    path("shipments/", shipments, name="shipments"),
+    path("shipment/<uuid:shipment_id>/", shipments, name="detail"),
 
 ]
