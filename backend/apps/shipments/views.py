@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.db.models import Prefetch
+from apps.rbac.authz import require_view
 from .models import Shipment, ShipmentMilestone, ShipmentVehicle, ShipmentContainer
 
 MILESTONE_WEIGHTS = {
@@ -75,6 +76,7 @@ def _serialize_shipment(s: Shipment) -> dict:
     }
 
 @require_GET
+@require_view("shipments")
 def shipments(request, shipment_id=None):
     """
     GET /shipments/shipments/                 -> all shipments
