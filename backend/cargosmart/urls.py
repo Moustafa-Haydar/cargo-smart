@@ -10,6 +10,8 @@ urlpatterns = [
 
     path("shipments/", include(("apps.shipments.urls", "shipments"), namespace="shipments")),
     path("vehicles/", include(("apps.vehicles.urls", "vehicles"), namespace="vehicles")),
+    path("routes/", include(("apps.routes.urls", "routes"), namespace="routes")),
+
     
 ]
 
