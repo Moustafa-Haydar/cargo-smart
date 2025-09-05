@@ -2,50 +2,47 @@ from typing import Iterable, Dict, Any, Tuple
 from django.db import transaction
 from django.apps import apps
 
-# ---- seed data (edit to your taste) ----
-
 PERMISSIONS = [
-    ("core.view_dashboard", "Access dashboards"),
 
     # Accounts / users (admin-only)
-    ("accounts.view", "View users"),
+    ("accounts.read", "Read users"),
     ("accounts.create", "Create users"),
     ("accounts.update", "Update users"),
     ("accounts.delete", "Delete users"),
 
     # Groups (admin-only)
-    ("groups.view", "View groups"),
+    ("groups.read", "Read groups"),
     ("groups.create", "Create groups"),
     ("groups.update", "Update groups"),
     ("groups.delete", "Delete groups"),
     ("groups.group_permissions", "Manage group permissions"),
 
     # Permissions (admin-only)
-    ("permissions.view", "View permissions"),
+    ("permissions.read", "Read permissions"),
     ("permissions.create", "Create permissions"),
     ("permissions.update", "Update permissions"),
     ("permissions.delete", "Delete permissions"),
 
     # Shipments
-    ("shipments.view", "View shipments"),
+    ("shipments.read", "Read shipments"),
     ("shipments.create", "Create shipments"),
     ("shipments.update", "Update shipments"),
     ("shipments.delete", "Delete shipments"),
 
     # Vehicles
-    ("vehicles.view", "View vehicles"),
+    ("vehicles.read", "Read vehicles"),
     ("vehicles.create", "Create vehicles"),
     ("vehicles.update", "Update vehicles"),
     ("vehicles.delete", "Delete vehicles"),
 
     # Containers
-    ("containers.view", "View containers"),
+    ("containers.read", "Read containers"),
     ("containers.create", "Create containers"),
     ("containers.update", "Update containers"),
     ("containers.delete", "Delete containers"),
 
     # Alerts
-    ("alerts.view", "View alerts"),
+    ("alerts.read", "Read alerts"),
     ("alerts.resolve", "Resolve alerts"),
 ]
 
@@ -57,14 +54,14 @@ GROUPS: Dict[str, Dict[str, Any]] = {
     "Ops Manager": {
         "description": "Operate shipments & vehicles; resolve alerts.",
         "permission_codes": [
-            "core.view_dashboard",
-            "shipments.view", "shipments.create", "shipments.update",
-            "vehicles.view", "vehicles.update",
-            "containers.view",
-            "alerts.view", "alerts.resolve",
+            "core.read_dashboard",
+            "shipments.read", "shipments.create", "shipments.update",
+            "vehicles.read", "vehicles.update",
+            "containers.read",
+            "alerts.read", "alerts.resolve",
         ],
     },
-    # add more groups later (Viewer, Analyst, ...)
+    # add more groups later (reader, Analyst, ...)
 }
 
 def _split(code: str):
