@@ -4,7 +4,7 @@ from django.views.decorators.http import require_POST, require_GET, require_http
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-
+from apps.rbac.authz import require
 from ..models import Group, Permission, GroupPermission
 
 
@@ -28,6 +28,7 @@ def _permission_payload(p: Permission):
 # ---------- GET all permissions ----------
 
 @require_GET
+@require("permissions")
 def permissions(request, id=None):
 
     if id is not None:

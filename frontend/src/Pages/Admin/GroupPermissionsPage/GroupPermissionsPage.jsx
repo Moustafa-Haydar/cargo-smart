@@ -99,7 +99,7 @@ const GroupPermissionsPage = () => {
                             {allPermissions
                             .filter(p => !groupPermissions.some(gp => gp.id === p.id))
                             .map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
+                                <option key={p.id} value={p.id}>{p.description}</option>
                             ))}
                         </select>
                         <Button btn_name="Add" onClick={handleAddPermission} type="primary" />
