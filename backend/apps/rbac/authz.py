@@ -1,77 +1,61 @@
 from functools import wraps
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+import json
 
-ACTION_TO_PERM = {
-    "read" : "read",
-    "create": "create",
-    "update": "update",
-    "delete": "delete",
-}
+CRUD = {"read", "create", "update", "delete"}
 
-def _load_perm_codes_for_user(user):
-    """
-    Build codes like 'vehicles.view', 'shipments.update' from your join tables:
-    """
-    from apps.rbac.models import Permission
+def _perm_codes(user):
+    """Return a cached set like {'shipments.read', 'vehicles.update'}."""
     if not user.is_authenticated:
         return set()
-    qs = Permission.objects.filter(
-        group_permissions__group__user_groups__user=user
-    ).values_list("app_label", "codename")
-    return {f"{app}.{code}" for app, code in qs}
-
-def user_has_perm_code(user, code: str) -> bool:
-    if not user.is_authenticated:
-        return False
     cache = getattr(user, "_perm_codes_cache", None)
     if cache is None:
-        cache = _load_perm_codes_for_user(user)
+        from apps.rbac.models import Permission
+        qs = Permission.objects.filter(
+            group_permissions__group__user_groups__user=user
+        ).values_list("app_label", "codename")
+        cache = {f"{a}.{c}" for a, c in qs}
         user._perm_codes_cache = cache
-    return code in cache
+    return cache
 
-def require_perm_code(code: str):
-    """Decorator: require a specific permission code like 'shipments.view'."""
-    def deco(view_func):
+def require_code(code: str):
+    """Require an exact permission code (e.g., 'alerts.resolve')."""
+    def deco(view):
         @login_required
-        @wraps(view_func)
-        def _wrapped(request, *args, **kwargs):
-            if not user_has_perm_code(request.user, code):
+        @wraps(view)
+        def wrapped(request, *args, **kwargs):
+            if code not in _perm_codes(request.user):
                 return JsonResponse({"detail": "Forbidden"}, status=403)
-            return view_func(request, *args, **kwargs)
-        return _wrapped
+            return view(request, *args, **kwargs)
+        return wrapped
     return deco
 
-def require_view(app_label: str):
-    """For GET endpoints: require '<app>.view'."""
-    return require_perm_code(f"{app_label}.view")
+def require_read(app_label: str):
+    """For GET endpoints."""
+    return require_code(f"{app_label}.read")
 
-def require_set_for_action(app_label: str):
+def require_set(app_label: str):
     """
-    For SET endpoints: inspect body.action in {'create','update','delete'}
-    and require '<app>.<mapped action>'.
+    For POST “SET” endpoints.
+    Expects body.action in {'create','update','delete'} and checks '<app>.<action>'.
     """
-    def deco(view_func):
+    def deco(view):
         @login_required
-        @wraps(view_func)
-        def _wrapped(request, *args, **kwargs):
-            import json
+        @wraps(view)
+        def wrapped(request, *args, **kwargs):
             try:
-                payload = json.loads(request.body.decode() or "{}")
+                payload = json.loads(request.body or "{}")
             except Exception:
                 return JsonResponse({"detail": "Invalid JSON"}, status=400)
 
-            action = (payload.get("action") or "").lower().strip()
-            mapped = ACTION_TO_PERM.get(action)
-            if not mapped:
-                return JsonResponse({"detail": "Unknown action; use create/update/delete"}, status=400)
+            action = (payload.get("action") or "").lower()
+            if action not in {"create", "update", "delete"}:
+                return JsonResponse({"detail": "Unknown action"}, status=400)
 
-            code = f"{app_label}.{mapped}"
-            if not user_has_perm_code(request.user, code):
+            request._json = payload  # let the view reuse the parsed body
+            if f"{app_label}.{action}" not in _perm_codes(request.user):
                 return JsonResponse({"detail": "Forbidden"}, status=403)
-
-            # stash parsed payload so view doesn’t re-parse
-            request._json = payload
-            return view_func(request, *args, **kwargs)
-        return _wrapped
+            return view(request, *args, **kwargs)
+        return wrapped
     return deco

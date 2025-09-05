@@ -1,8 +1,8 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.db.models import Prefetch
-
 from .models import Vehicle, VehicleIdentifier, VehiclePosition, PortCall
+from apps.rbac.authz import require_read, require_set
 
 
 def _serialize_vehicle(v: Vehicle) -> dict:
@@ -83,6 +83,7 @@ def _serialize_vehicle(v: Vehicle) -> dict:
 
 
 @require_GET
+@require_read("vehicles")
 def vehicles(request, vehicle_id=None):
     """
     GET /vehicles/                 -> all vehicles

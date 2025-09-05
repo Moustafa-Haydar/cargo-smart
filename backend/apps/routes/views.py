@@ -1,10 +1,10 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.db.models import Prefetch
-
 from .models import Route, RouteSegment
 from apps.shipments.models import Shipment
 from apps.vehicles.models import Vehicle
+from apps.rbac.authz import require_read, require_set
 
 
 def _serialize_route(r: Route) -> dict:
@@ -49,6 +49,7 @@ def _serialize_route(r: Route) -> dict:
 
 
 @require_GET
+@require_GET("routes")
 def routes(request, route_id=None):
     """
     GET /routes/routes/          -> all routes

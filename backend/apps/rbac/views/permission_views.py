@@ -4,11 +4,8 @@ from django.views.decorators.http import require_POST, require_GET, require_http
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from apps.rbac.authz import require
 from ..models import Group, Permission, GroupPermission
-
-
-# ---------- helpers ----------
+from apps.rbac.authz import require_read, require_set
 
 def _split_code(code: str):
     """Split 'app.codename' -> (app, codename); default app 'core' if no dot."""
@@ -25,10 +22,7 @@ def _permission_payload(p: Permission):
     }
 
 
-# ---------- GET all permissions ----------
-
 @require_GET
-@require("permissions")
 def permissions(request, id=None):
 
     if id is not None:
@@ -38,8 +32,6 @@ def permissions(request, id=None):
     perms = Permission.objects.all().order_by("app_label", "codename")
     return JsonResponse({"permissions": [_permission_payload(p) for p in perms]})
 
-
-# ---------- Create permission (supports 'code' or app/codename) ----------
 
 @require_POST
 @csrf_protect
@@ -187,8 +179,6 @@ def delete_permission(request):
 
     return JsonResponse({"deleted": True, "id": perm_id})
 
-
-# ---------- Group permission management ----------
 
 @require_http_methods(["GET", "POST"])
 @csrf_protect
