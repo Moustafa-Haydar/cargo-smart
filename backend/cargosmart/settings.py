@@ -27,13 +27,13 @@ INSTALLED_APPS = [
 
     # apps
     'apps.accounts',
-    'apps.alerts',
     'apps.containers',
     'apps.geo',
     'apps.rbac',
     'apps.routes',
     'apps.shipments',
     'apps.vehicles',
+    'apps.alerts',
 ]
 
 AUTH_USER_MODEL = "accounts.User"
