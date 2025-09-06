@@ -1,30 +1,67 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ShipmentCardComponent } from '../../components/shipment-card/shipment-card.component';
+
+interface Shipment {
+  id: string;
+  type: string;
+  origin: string;
+  destination: string;
+  status: {
+    status: 'Delivered' | 'In Transit' | 'Delayed';
+    percentage: number;
+  };
+  eta?: string;
+  deliveryDate?: string;
+  daysRemaining?: number;
+}
 
 @Component({
   selector: 'app-shipments',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div class="page-container">
-      <h1>Shipments</h1>
-      <div class="content">
-        <!-- Shipments content will go here -->
-        <p>Shipments management dashboard</p>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .page-container {
-      padding: 2rem;
-    }
-    
-    .content {
-      background: white;
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-  `]
+  imports: [CommonModule, FormsModule, ShipmentCardComponent],
+  templateUrl: './shipments.component.html',
+  styleUrls: ['./shipments.component.css']
 })
-export class ShipmentsComponent {}
+export class ShipmentsComponent {
+  searchQuery: string = '';
+  shipments: Shipment[] = [
+    {
+      id: 'SH-2024-001',
+      type: 'Electronics',
+      origin: 'San Francisco',
+      destination: 'New York',
+      status: { status: 'Delivered', percentage: 100 },
+      deliveryDate: 'Dec 26, 2024'
+    },
+    {
+      id: 'SH-2024-002',
+      type: 'Electronics',
+      origin: 'San Francisco',
+      destination: 'New York',
+      status: { status: 'In Transit', percentage: 78 },
+      eta: 'Dec 28, 2024',
+      daysRemaining: 236
+    },
+    {
+      id: 'SH-2024-003',
+      type: 'Electronics',
+      origin: 'San Francisco',
+      destination: 'New York',
+      status: { status: 'Delayed', percentage: 45 },
+      eta: 'Dec 28, 2024',
+      daysRemaining: 236
+    }
+  ];
+
+  onSearch() {
+    // Implement search logic here
+    console.log('Searching for:', this.searchQuery);
+  }
+
+  toggleFilters() {
+    // Implement filter toggle logic here
+    console.log('Toggle filters');
+  }
+}

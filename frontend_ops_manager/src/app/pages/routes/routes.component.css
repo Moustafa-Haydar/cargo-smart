@@ -1,0 +1,106 @@
+.page-container {
+    padding: 2rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    color: var(--text-color);
+    font-size: 1.75rem;
+    margin: 0;
+}
+
+.content {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.routes-grid {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    text-align: left;
+    padding: 1rem;
+    background-color: var(--background-color);
+    color: var(--secondary-text-color);
+    font-weight: 600;
+}
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--background-color);
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background-color: rgba(53, 140, 156, 0.1);
+    color: var(--primary-color);
+}
+
+.status-badge.completed {
+    background-color: rgba(39, 174, 96, 0.1);
+    color: #27AE60;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+}
+
+.btn-icon {
+    padding: 0.5rem;
+    background: none;
+    color: var(--secondary-text-color);
+    border-radius: 0.25rem;
+}
+
+.btn-icon:hover {
+    background-color: var(--background-color);
+    color: var(--primary-color);
+}
+
+/* Additional styles for route-specific features */
+.table td:nth-child(4) {
+    color: var(--secondary-text-color);
+    font-size: 0.9rem;
+}
+
+.table td:nth-child(5) {
+    font-weight: 500;
+}

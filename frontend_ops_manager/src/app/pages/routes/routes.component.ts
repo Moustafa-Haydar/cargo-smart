@@ -5,26 +5,9 @@ import { CommonModule } from '@angular/common';
   selector: 'app-routes',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="page-container">
-      <h1>Routes</h1>
-      <div class="content">
-        <!-- Routes content will go here -->
-        <p>Routes management dashboard</p>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .page-container {
-      padding: 2rem;
-    }
-    
-    .content {
-      background: white;
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-  `]
+  templateUrl: './routes.component.html',
+  styleUrls: ['./routes.component.css']
 })
-export class RoutesComponent {}
+export class RoutesComponent {
+  // Component logic will go here
+}
