@@ -12,26 +12,16 @@
 
 .logo {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0 0.5rem;
+    align-items: lef    ;
+    justify-content: center;
     margin-bottom: 2.5rem;
+    padding: 0 0.5rem;
 }
 
 .logo img {
-    width: 40px;
-    height: 40px;
-}
-
-.logo h2 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.logo h2 span {
-    font-weight: 400;
+    max-width: 150px;
+    height: auto;
+    object-fit: contain;
 }
 
 .nav-menu {
