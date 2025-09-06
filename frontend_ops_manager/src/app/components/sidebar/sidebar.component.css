@@ -59,8 +59,8 @@
 }
 
 .nav-link.active {
-    color: var(--primary-color);
-    background-color: rgba(53, 140, 156, 0.1);
+    color: var(--secondary-color);
+    background-color: rgba(192, 142, 77, 0.1);
 }
 
 .nav-link.active i {
