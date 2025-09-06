@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './pages/home/home';
-import { ShipmentsPage } from './pages/shipments/shipments';
+import { ShipmentsComponent } from './pages/shipments/shipments.component';
+import { VehiclesComponent } from './pages/vehicles/vehicles.component';
+import { RoutesComponent } from './pages/routes/routes.component';
 
 export const routes: Routes = [
-
-  { path: '', component: HomeComponent }, // default page
-  { path: 'shipments', component: ShipmentsPage }
-  
+  { path: '', redirectTo: 'shipments', pathMatch: 'full' },
+  { path: 'shipments', component: ShipmentsComponent },
+  { path: 'vehicles', component: VehiclesComponent },
+  { path: 'routes', component: RoutesComponent }
 ];
