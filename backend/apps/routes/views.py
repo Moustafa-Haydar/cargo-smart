@@ -49,7 +49,7 @@ def _serialize_route(r: Route) -> dict:
 
 
 @require_GET
-@require_GET("routes")
+@require_read("routes")
 def routes(request, route_id=None):
     """
     GET /routes/routes/          -> all routes
