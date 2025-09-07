@@ -13,4 +13,8 @@
     --sidebar-text: white;
     --content-bg: var(--background-color);
     --shadow-color: rgba(0, 0, 0, 0.1);
+
+    --green: #28EA70;
+    --blue: #5F95E4;
+    --orange: #EB651B;
 }

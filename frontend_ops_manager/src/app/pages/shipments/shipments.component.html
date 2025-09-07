@@ -2,7 +2,6 @@
     <header class="page-header">
         <h1>Shipment Tracking</h1>
         <div class="user-info">
-            <i class="fas fa-bell"></i>
             <div class="user">
                 <img src="assets/user-avatar.png" alt="User Avatar">
                 <span>John Doe</span>
@@ -10,19 +9,19 @@
         </div>
     </header>
 
-    <div class="search-section">
-        <div class="search-bar">
+    <div class="search-section ">
+        <div class="search-bar border">
             <i class="fas fa-search"></i>
             <input type="text" placeholder="Search shipments by tracking number, location, or cargo type..."
                 [(ngModel)]="searchQuery" (input)="onSearch()">
         </div>
-        <button class="btn-filter" (click)="toggleFilters()">
+        <button class="btn-filter border" (click)="toggleFilters()">
             <i class="fas fa-filter"></i>
             Filters
         </button>
     </div>
 
-    <div class="shipments-list">
+    <div class="shipments-list border">
         <app-shipment-card *ngFor="let shipment of shipments" [shipmentId]="shipment.id" [type]="shipment.type"
             [origin]="shipment.origin" [destination]="shipment.destination" [status]="shipment.status"
             [eta]="shipment.eta" [deliveryDate]="shipment.deliveryDate"

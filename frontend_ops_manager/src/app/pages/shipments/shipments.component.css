@@ -2,10 +2,14 @@
     padding: 2rem;
     background-color: white;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
 }
 
 .page-header {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
@@ -49,6 +53,7 @@ h1 {
 
 .search-section {
     display: flex;
+    flex-direction: row;
     gap: 1rem;
     margin-bottom: 2rem;
 }
@@ -56,6 +61,7 @@ h1 {
 .search-bar {
     flex: 1;
     display: flex;
+    flex-direction: row;
     align-items: center;
     background: var(--background-color);
     border-radius: 8px;
@@ -69,6 +75,7 @@ h1 {
 
 .search-bar input {
     flex: 1;
+    width: auto;
     border: none;
     outline: none;
     font-size: 0.9rem;
@@ -86,7 +93,6 @@ h1 {
     gap: 0.5rem;
     padding: 0 1.25rem;
     background: var(--background-color);
-    border: none;
     border-radius: 8px;
     color: var(--text-color);
     font-weight: 500;

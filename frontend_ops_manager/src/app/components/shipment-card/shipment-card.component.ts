@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface ShipmentStatus {
-    status: 'Delivered' | 'In Transit' | 'Delayed';
+    status: 'Delivered' | 'In-Transit' | 'Delayed';
     percentage: number;
 }
 
@@ -19,7 +19,7 @@ export class ShipmentCardComponent {
     @Input() origin: string = '';
     @Input() destination: string = '';
     @Input() status: ShipmentStatus = {
-        status: 'In Transit',
+        status: 'In-Transit',
         percentage: 0
     };
     @Input() eta?: string;
@@ -29,11 +29,13 @@ export class ShipmentCardComponent {
     getStatusColor(): string {
         switch (this.status.status) {
             case 'Delivered':
-                return 'var(--success-color, #27AE60)';
+                return 'var(--green)';
             case 'Delayed':
-                return 'var(--warning-color, #F68716)';
+                return 'var(--orange)';
+            case 'In-Transit':
+                return 'var(--blue)';
             default:
-                return 'var(--primary-color, #358C9C)';
+                return 'var(--blue)';
         }
     }
 

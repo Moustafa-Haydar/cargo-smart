@@ -108,7 +108,7 @@
 }
 
 .progress-bar {
-    height: 4px;
+    height: 1vh;
     background-color: #E5E7EB;
     border-radius: 2px;
     overflow: hidden;
@@ -120,15 +120,15 @@
 }
 
 .progress.delayed {
-    background-color: #F68716;
+    background-color: var(--orange);
 }
 
 .progress.in-transit {
-    background-color: #358C9C;
+    background-color: var(--blue);
 }
 
 .progress.delivered {
-    background-color: #27AE60;
+    background-color: var(--green);
 }
 
 .card-footer {

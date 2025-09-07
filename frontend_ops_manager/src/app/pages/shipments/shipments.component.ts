@@ -9,7 +9,7 @@ interface Shipment {
   origin: string;
   destination: string;
   status: {
-    status: 'Delivered' | 'In Transit' | 'Delayed';
+    status: 'Delivered' | 'In-Transit' | 'Delayed';
     percentage: number;
   };
   eta?: string;
@@ -24,6 +24,7 @@ interface Shipment {
   templateUrl: './shipments.component.html',
   styleUrls: ['./shipments.component.css']
 })
+
 export class ShipmentsComponent {
   searchQuery: string = '';
   shipments: Shipment[] = [
@@ -40,7 +41,7 @@ export class ShipmentsComponent {
       type: 'Electronics',
       origin: 'San Francisco',
       destination: 'New York',
-      status: { status: 'In Transit', percentage: 78 },
+      status: { status: 'In-Transit', percentage: 78 },
       eta: 'Dec 28, 2024',
       daysRemaining: 236
     },
