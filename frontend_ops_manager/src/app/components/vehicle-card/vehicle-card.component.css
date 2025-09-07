@@ -1,0 +1,114 @@
+.vehicle-card {
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--background-color);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vehicle-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.icon-container {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 2px solid white;
+}
+
+.icon-container.excellent {
+    background-color: rgba(40, 234, 112, 0.1);
+}
+
+.icon-container.attention {
+    background-color: rgba(235, 101, 27, 0.1);
+}
+
+.icon-container.critical {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.icon-container i {
+    font-size: 1.5rem;
+}
+
+.icon-container.excellent i {
+    color: #28EA70;
+}
+
+.icon-container.attention i {
+    color: #EB651B;
+}
+
+.icon-container.critical i {
+    color: #EF4444;
+}
+
+.vehicle-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.vehicle-info h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.vehicle-info p {
+    font-size: 0.875rem;
+    color: var(--secondary-text-color);
+    margin: 0.25rem 0 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: white;
+}
+
+.status-badge.excellent {
+    background-color: #28EA70;
+}
+
+.status-badge.attention {
+    background-color: #EB651B;
+}
+
+.status-badge.critical {
+    background-color: #EF4444;
+}
+
+.health-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.health-percentage {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--secondary-text-color);
+}

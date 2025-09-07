@@ -1,44 +1,28 @@
 <div class="page-container">
     <header class="page-header">
-        <h1>Vehicles</h1>
-        <div class="actions">
-            <button class="btn btn-primary">
-                <i class="fas fa-plus"></i>
-                Add Vehicle
-            </button>
+        <h1>Vehicle Health</h1>
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <span class="user-name">John Doe</span>
         </div>
     </header>
-    
-    <div class="content">
-        <div class="vehicles-grid">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Vehicle ID</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Current Location</th>
-                        <th>Driver</th>
-                        <th>Last Maintenance</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Sample data - replace with actual data -->
-                    <tr>
-                        <td>#VH001</td>
-                        <td>Truck</td>
-                        <td><span class="status-badge active">Active</span></td>
-                        <td>Chicago, IL</td>
-                        <td>John Doe</td>
-                        <td>2024-02-01</td>
-                        <td>
-                            <button class="btn btn-icon"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-icon"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+
+    <div class="search-filter-section">
+        <div class="search-bar">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" placeholder="Search vehicles by number, type, route, or location..."
+                [(ngModel)]="searchQuery" (input)="onSearch()" class="search-input">
         </div>
+        <button class="filters-btn">
+            <i class="fas fa-filter"></i>
+            Filters
+        </button>
+    </div>
+
+    <div class="vehicles-grid">
+        <app-vehicle-card *ngFor="let vehicle of filteredVehicles" [vehicle]="vehicle">
+        </app-vehicle-card>
     </div>
 </div>
