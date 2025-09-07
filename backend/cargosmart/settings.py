@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders', 
     'rest_framework',
+    'rest_framework.authtoken',  # For token authentication
 
     # apps
     'apps.accounts',
@@ -64,6 +65,7 @@ RBAC_ADMIN_PROTECTED = [        # which endpoints to protect
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",  # sessions + CSRF
+        "apps.accounts.authentication.BearerTokenAuthentication",  # Bearer token auth for mobile
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",           # default

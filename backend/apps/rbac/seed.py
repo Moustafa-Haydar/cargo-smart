@@ -3,7 +3,6 @@ from django.db import transaction
 from django.apps import apps
 
 PERMISSIONS = [
-
     # Accounts / users (admin-only)
     ("accounts.read", "Read users"),
     ("accounts.create", "Create users"),
@@ -44,6 +43,10 @@ PERMISSIONS = [
     # Alerts
     ("alerts.read", "Read alerts"),
     ("alerts.resolve", "Resolve alerts"),
+
+    # Notifications
+    ("notifications.read", "Read notifications"),
+    ("notifications.create", "Create notifications"),
 ]
 
 GROUPS: Dict[str, Dict[str, Any]] = {
@@ -59,6 +62,13 @@ GROUPS: Dict[str, Dict[str, Any]] = {
             "vehicles.read", "vehicles.update",
             "containers.read",
             "alerts.read", "alerts.resolve",
+        ],
+    },
+    "Driver": {
+        "description": "Track shipments & Get Notifications.",
+        "permission_codes": [
+            "shipments.read", "shipments.update",
+            "notifications.read"
         ],
     },
     # add more groups later (reader, Analyst, ...)

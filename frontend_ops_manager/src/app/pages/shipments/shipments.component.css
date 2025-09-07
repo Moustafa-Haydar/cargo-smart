@@ -1,0 +1,125 @@
+.page-container {
+    padding: 2rem;
+    background-color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+}
+
+.page-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    color: var(--text-color);
+    font-size: 1.75rem;
+    margin: 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-info i {
+    font-size: 1.25rem;
+    color: var(--secondary-text-color);
+    cursor: pointer;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user span {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.search-section {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.search-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: var(--background-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+
+.search-bar i {
+    color: var(--secondary-text-color);
+    margin-right: 0.75rem;
+}
+
+.search-bar input {
+    flex: 1;
+    width: auto;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    background: transparent;
+}
+
+.search-bar input::placeholder {
+    color: var(--secondary-text-color);
+}
+
+.btn-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 1.25rem;
+    background: var(--background-color);
+    border-radius: 8px;
+    color: var(--text-color);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-filter:hover {
+    background: #E5E7EB;
+}
+
+.shipments-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    padding: 1rem 0;
+}
+
+/* Responsive design */
+@media (max-width: 1400px) {
+    .shipments-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .shipments-list {
+        grid-template-columns: 1fr;
+    }
+}

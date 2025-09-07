@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timezone as tz, timedelta
 from django.utils import timezone
 
-from app.models import (  # <-- change 'app' to your Django app label
+from app.models import (
     Location, Facility, Route, RouteSegment,
     Shipment, ShipmentMilestone,
     Vehicle, ShipmentVehicle, VehicleIdentifier, VehiclePosition, PortCall,
@@ -247,4 +247,3 @@ ContainerEvent.objects.get_or_create(
     ingested_at=datetime(2023, 11, 28, 11, 24, 59, tzinfo=tz.utc)
 )
 
-print("✅ Seed complete: 3 examples per model created (or found).")

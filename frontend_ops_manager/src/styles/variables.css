@@ -1,0 +1,20 @@
+/* Global variables */
+:root {
+    --primary-color: #358C9C;
+    --secondary-color: #F68716;
+    --background-color: #F8F5F5;
+    --text-color: black;
+    --secondary-text-color: #4c4b4b;
+    --font-family: "Arial", Helvetica, sans-serif;
+
+    /* Additional theme variables */
+    --sidebar-width: 250px;
+    --sidebar-bg: var(--primary-color);
+    --sidebar-text: white;
+    --content-bg: var(--background-color);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+
+    --green: #28EA70;
+    --blue: #5F95E4;
+    --orange: #EB651B;
+}

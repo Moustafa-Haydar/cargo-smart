@@ -1,0 +1,142 @@
+.shipment-card {
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--background-color);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.icon-container {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.icon-container.delayed {
+    background-color: rgba(246, 135, 22, 0.1);
+}
+
+.icon-container.in-transit {
+    background-color: rgba(53, 140, 156, 0.1);
+}
+
+.icon-container.delivered {
+    background-color: rgba(39, 174, 96, 0.1);
+}
+
+.icon-container i {
+    font-size: 1.5rem;
+}
+
+.icon-container.delayed i {
+    color: #F68716;
+}
+
+.icon-container.in-transit i {
+    color: #358C9C;
+}
+
+.icon-container.delivered i {
+    color: #27AE60;
+}
+
+.shipment-info {
+    flex: 1;
+    min-width: 0;
+    /* Allows text to wrap properly */
+}
+
+.shipment-info h3 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.shipment-info p {
+    font-size: 1rem;
+    color: var(--text-color);
+    margin: 0.25rem 0 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.status-badge.delayed {
+    background-color: rgba(246, 135, 22, 0.1);
+    color: #F68716;
+}
+
+.status-badge.in-transit {
+    background-color: rgba(53, 140, 156, 0.1);
+    color: #358C9C;
+}
+
+.status-badge.delivered {
+    background-color: rgba(39, 174, 96, 0.1);
+    color: #27AE60;
+}
+
+.percentage {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-left: 1rem;
+    white-space: nowrap;
+}
+
+.progress-container {
+    margin: 0.75rem 0;
+}
+
+.progress-bar {
+    height: 1vh;
+    background-color: #E5E7EB;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.progress.delayed {
+    background-color: var(--orange);
+}
+
+.progress.in-transit {
+    background-color: var(--blue);
+}
+
+.progress.delivered {
+    background-color: var(--green);
+}
+
+.card-footer {
+    margin-top: 0.75rem;
+}
+
+.eta-info {
+    font-size: 0.875rem;
+    color: var(--secondary-text-color);
+    margin: 0;
+}
