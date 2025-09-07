@@ -1,5 +1,7 @@
 .page-container {
     padding: 2rem;
+    background-color: var(--background-color);
+    min-height: 100vh;
 }
 
 .page-header {
@@ -12,80 +14,138 @@
 h1 {
     color: var(--text-color);
     font-size: 1.75rem;
+    font-weight: 600;
     margin: 0;
 }
 
-.content {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 4px var(--shadow-color);
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-.vehicles-grid {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table th {
-    text-align: left;
-    padding: 1rem;
-    background-color: var(--background-color);
+.notification-icon {
+    font-size: 1.25rem;
     color: var(--secondary-text-color);
-    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
 }
 
-.table td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--background-color);
-}
-
-.status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.status-badge.active {
-    background-color: rgba(53, 140, 156, 0.1);
+.notification-icon:hover {
     color: var(--primary-color);
 }
 
-.btn {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    border: none;
-    cursor: pointer;
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.user-name {
     font-weight: 500;
+    color: var(--text-color);
+}
+.search-section {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.search-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: white;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+
+.search-bar i {
+    color: var(--secondary-text-color);
+    margin-right: 0.75rem;
+}
+
+.search-bar input {
+    flex: 1;
+    width: auto;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    background: transparent;
+}
+
+.search-bar input::placeholder {
+    color: var(--secondary-text-color);
+}
+
+.btn-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 1.25rem;
+    background: var(--background-color);
+    border-radius: 8px;
+    color: var(--text-color);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-filter:hover {
+    background: #E5E7EB;
+}
+.filters-btn {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.5rem;
+    background-color: white;
+    color: var(--text-color);
+    font-weight: 500;
+    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     transition: all 0.2s;
 }
 
-.btn-primary {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: var(--secondary-color);
-}
-
-.btn-icon {
-    padding: 0.5rem;
-    background: none;
-    color: var(--secondary-text-color);
-    border-radius: 0.25rem;
-}
-
-.btn-icon:hover {
-    background-color: var(--background-color);
+.filters-btn:hover {
+    border-color: var(--primary-color);
     color: var(--primary-color);
+}
+
+.vehicles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .page-container {
+        padding: 1rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .search-filter-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vehicles-grid {
+        grid-template-columns: 1fr;
+    }
 }
