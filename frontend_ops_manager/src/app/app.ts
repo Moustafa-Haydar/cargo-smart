@@ -6,7 +6,6 @@ import { SelectModule } from 'primeng/select';
 
 @Component({
     selector: 'app-root',
-    standalone: true,
     imports: [CommonModule, RouterOutlet, SidebarComponent, SelectModule],
     templateUrl: './app.html',
     styleUrl: './app.css'

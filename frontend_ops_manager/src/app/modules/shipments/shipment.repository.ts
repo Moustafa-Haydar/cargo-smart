@@ -11,10 +11,9 @@ interface ShipmentsResponse {
 @Injectable({ providedIn: 'root' })
 export class ShipmentRepository {
   private http = inject(HttpClient);
-  private base = `${API_BASE_URL}/shipments/shipments`;
+  private base = `${API_BASE_URL}/shipments`;
 
   getShipments(): Observable<Shipment[]> {
-    // Your backend list endpoint looked like /shipments/shipments/
     return this.http.get<ShipmentsResponse>(`${this.base}/shipments/`)
       .pipe(map(res => res.shipments)); // map if your API wraps the array
     // If the API already returns Shipment[] directly, just:
