@@ -1,5 +1,5 @@
 .shipment-card {
-    padding: 1.5rem;
+    padding: 4vh;
     background: white;
     border-radius: 12px;
     border: 1px solid #E5E7EB;
@@ -10,13 +10,13 @@
 .card-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 5vh;
     margin-bottom: 0.75rem;
 }
 
 .icon-container {
-    width: 48px;
-    height: 48px;
+    width: 6vh;
+    height: 6vh;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -63,19 +63,20 @@
 .shipment-info {
     flex: 1;
     min-width: 0;
+    font-weight: bold;
     /* Allows text to wrap properly */
 }
 
 .shipment-info h3 {
-    font-size: 1.25rem;
+    font-size: 1.1vw;
     font-weight: 500;
     margin: 0;
     color: var(--text-color);
 }
 
 .shipment-info p {
-    font-size: 1rem;
-    color: var(--text-color);
+    font-size: 0.9vw;
+    color: var(--secondary-text-color);
     margin: 0.25rem 0 0 0;
     white-space: nowrap;
     overflow: hidden;
@@ -111,9 +112,9 @@
 }
 
 .percentage {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-color);
+    font-size: 1vw;
+    color: var(--secondary-text-color);
+    font-weight: 550;
     white-space: nowrap;
 }
 
