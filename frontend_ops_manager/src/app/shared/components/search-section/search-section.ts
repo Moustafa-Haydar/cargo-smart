@@ -16,6 +16,7 @@ export interface SelectOption {
   templateUrl: './search-section.html',
   styleUrls: ['./search-section.css']
 })
+
 export class SearchSection {
   // Two-way bound text
   @Input() searchQuery = '';

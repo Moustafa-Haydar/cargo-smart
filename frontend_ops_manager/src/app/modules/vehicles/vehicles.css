@@ -1,7 +1,10 @@
 .page-container {
     padding: 2rem;
-    background-color: var(--background-color);
+    background-color: white;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 .page-header {
@@ -13,7 +16,7 @@
 
 h1 {
     color: var(--text-color);
-    font-size: 1.75rem;
+    font-size: 2rem;
     font-weight: 600;
     margin: 0;
 }
@@ -21,7 +24,7 @@ h1 {
 .user-info {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .notification-icon {
@@ -39,7 +42,7 @@ h1 {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: var(--primary-color);
+    background-color: var(--text-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -47,17 +50,79 @@ h1 {
     font-size: 1rem;
 }
 
-.user-name {
-    font-weight: 500;
-    color: var(--text-color);
+.user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
+.user span {
+    color: var(--text-color);
+    font-weight: 500;
+}
 
+.search-filter-section {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: center;
+}
+
+.search-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+
+.search-bar i {
+    color: var(--secondary-text-color);
+    margin-right: 0.75rem;
+}
+
+.search-bar input {
+    flex: 1;
+    width: auto;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    background: transparent;
+}
+
+.search-bar input::placeholder {
+    color: var(--secondary-text-color);
+}
+
+.btn-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    color: var(--text-color);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: fit-content;
+}
+
+.btn-filter:hover {
+    background: #E5E7EB;
+}
 
 .vehicles-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(400px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
+    padding: 1rem 0;
 }
 
 /* Responsive design */

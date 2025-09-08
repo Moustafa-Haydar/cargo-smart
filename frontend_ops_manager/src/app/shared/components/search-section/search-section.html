@@ -5,7 +5,6 @@
             [(ngModel)]="searchQuery" (ngModelChange)="onSearchInput($event)" />
     </div>
 
-    <!-- PrimeNG dropdown (works with DropdownModule) -->
     <p-select class="w-full md:w-56" [options]="options" [placeholder]="placeHolder" [showClear]="true"
         optionLabel="label" optionValue="value" [(ngModel)]="selected"
         (ngModelChange)="onSelectChange($event)"></p-select>

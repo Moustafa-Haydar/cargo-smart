@@ -1,31 +1,27 @@
 <div class="shipment-card">
-
     <div class="card-header">
-        <div class="icon-container" [ngClass]="status.status.toLowerCase()">
+        <div class="icon-container" [ngClass]="uiStatus.toLowerCase()">
             <i class="fas fa-cube"></i>
         </div>
         <div class="shipment-info">
             <h3>{{ shipmentId }}</h3>
             <p>{{ type }} • {{ origin }} → {{ destination }}</p>
         </div>
-        <div class="status-badge" [ngClass]="status.status.toLowerCase()">
-            {{ status.status }}
-        </div>
-        <div class="percentage">
-            {{ status.percentage }}%
+        <div class="status-badge" [ngClass]="uiStatus.toLowerCase()">
+            {{ uiStatus }}
         </div>
     </div>
 
     <div class="progress-container">
         <div class="progress-bar">
-            <div class="progress" [style.width.%]="status.percentage" [ngClass]="status.status.toLowerCase()"></div>
+            <div class="progress" [style.width.%]="progressPercentage" [ngClass]="uiStatus.toLowerCase()"></div>
         </div>
+        <span class="percentage">{{ progressPercentage }}%</span>
     </div>
 
     <div class="card-footer">
         <p class="eta-info">
-            ETA: {{ eta }} • {{ daysRemaining }} days remaining
+            {{ eta }} • {{ daysRemaining }} days remaining
         </p>
     </div>
-
 </div>

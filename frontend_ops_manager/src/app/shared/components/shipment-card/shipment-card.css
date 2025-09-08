@@ -2,8 +2,8 @@
     padding: 1.5rem;
     background: white;
     border-radius: 12px;
-    border: 1px solid var(--background-color);
-    box-shadow: 0 2px 4px var(--shadow-color);
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -29,11 +29,15 @@
 }
 
 .icon-container.in-transit {
-    background-color: rgba(53, 140, 156, 0.1);
+    background-color: rgba(59, 130, 246, 0.1);
 }
 
 .icon-container.delivered {
-    background-color: rgba(39, 174, 96, 0.1);
+    background-color: rgba(34, 197, 94, 0.1);
+}
+
+.icon-container.planned {
+    background-color: rgba(107, 114, 128, 0.1);
 }
 
 .icon-container i {
@@ -45,11 +49,15 @@
 }
 
 .icon-container.in-transit i {
-    color: #358C9C;
+    color: #3B82F6;
 }
 
 .icon-container.delivered i {
-    color: #27AE60;
+    color: #22C55E;
+}
+
+.icon-container.planned i {
+    color: #6B7280;
 }
 
 .shipment-info {
@@ -88,31 +96,39 @@
 }
 
 .status-badge.in-transit {
-    background-color: rgba(53, 140, 156, 0.1);
-    color: #358C9C;
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3B82F6;
 }
 
 .status-badge.delivered {
-    background-color: rgba(39, 174, 96, 0.1);
-    color: #27AE60;
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #22C55E;
+}
+
+.status-badge.planned {
+    background-color: rgba(107, 114, 128, 0.1);
+    color: #6B7280;
 }
 
 .percentage {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 500;
     color: var(--text-color);
-    margin-left: 1rem;
     white-space: nowrap;
 }
 
 .progress-container {
     margin: 0.75rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .progress-bar {
-    height: 1vh;
+    flex: 1;
+    height: 8px;
     background-color: #E5E7EB;
-    border-radius: 2px;
+    border-radius: 4px;
     overflow: hidden;
 }
 
@@ -122,15 +138,19 @@
 }
 
 .progress.delayed {
-    background-color: var(--orange);
+    background-color: #F68716;
 }
 
 .progress.in-transit {
-    background-color: var(--blue);
+    background-color: #3B82F6;
 }
 
 .progress.delivered {
-    background-color: var(--green);
+    background-color: #22C55E;
+}
+
+.progress.planned {
+    background-color: #6B7280;
 }
 
 .card-footer {
