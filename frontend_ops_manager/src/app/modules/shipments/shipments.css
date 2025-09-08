@@ -3,7 +3,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 1vh;
+    gap: 3vh;
     background-color: transparent;
 }
 
@@ -16,7 +16,7 @@
 
 h1 {
     color: var(--text-color);
-    font-size: 1.7vw;
+    font-size: 1.6vw;
     font-weight: 600;
     margin: 0;
 }
@@ -54,13 +54,6 @@ h1 {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-}
-
-.user img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
 }
 
 .user span {

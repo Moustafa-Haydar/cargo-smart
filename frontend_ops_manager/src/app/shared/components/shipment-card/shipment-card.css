@@ -1,5 +1,5 @@
 .shipment-card {
-    padding: 4vh;
+    padding: 3vh;
     background: white;
     border-radius: 12px;
     border: 1px solid #E5E7EB;
@@ -10,7 +10,7 @@
 .card-header {
     display: flex;
     align-items: center;
-    gap: 5vh;
+    gap: 4vh;
     margin-bottom: 0.75rem;
 }
 

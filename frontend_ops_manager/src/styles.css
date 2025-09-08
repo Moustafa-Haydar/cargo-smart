@@ -1,2 +1,6 @@
 @import './styles/variables.css';
 @import './styles/my_style.css';
+
+html {
+    font-size: 1vw;
+}

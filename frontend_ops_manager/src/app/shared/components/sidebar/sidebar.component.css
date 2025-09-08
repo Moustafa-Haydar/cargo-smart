@@ -12,14 +12,14 @@
 
 .logo {
     display: flex;
-    align-items: lef    ;
-    justify-content: center;
+    align-items: center;
+    justify-content: left;
     margin-bottom: 2.5rem;
     padding: 0 0.5rem;
 }
 
 .logo img {
-    max-width: 150px;
+    width: 8vw;
     height: auto;
     object-fit: contain;
 }
@@ -27,7 +27,7 @@
 .nav-menu {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5vw;
 }
 
 .nav-link {
@@ -45,12 +45,11 @@
 .nav-link i {
     width: 20px;
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 1vw;
     opacity: 0.7;
 }
 
 .nav-link:hover {
-    background-color: rgba(53, 140, 156, 0.1);
     color: var(--primary-color);
 }
 
@@ -59,8 +58,7 @@
 }
 
 .nav-link.active {
-    color: var(--secondary-color);
-    background-color: rgba(192, 142, 77, 0.1);
+    color: var(--primary-color);
 }
 
 .nav-link.active i {
