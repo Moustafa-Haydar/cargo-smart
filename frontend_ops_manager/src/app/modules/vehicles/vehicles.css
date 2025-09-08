@@ -1,10 +1,10 @@
 .page-container {
-    padding: 2rem;
-    background-color: transparent;
+    padding: 0 2vw;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1vh;
+    background-color: transparent;
 }
 
 .page-header {

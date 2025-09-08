@@ -1,5 +1,10 @@
 .page-container {
-    padding: 2rem;
+    padding: 0 2vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    background-color: transparent;
 }
 
 .page-header {
@@ -22,26 +27,54 @@ h1 {
     padding: 1rem 0;
 }
 
-.btn {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    border: none;
-    cursor: pointer;
-    font-weight: 500;
+.user-info {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
+    gap: 1.5rem;
 }
 
-.btn-primary {
-    background-color: var(--primary-color);
+.notification-icon {
+    font-size: 1.25rem;
+    color: var(--secondary-text-color);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.notification-icon:hover {
+    color: var(--primary-color);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: white;
+    font-size: 1rem;
 }
 
-.btn-primary:hover {
-    background-color: var(--secondary-color);
+.user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
+
+.user img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user span {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+
 
 /* Responsive design */
 @media (max-width: 768px) {
