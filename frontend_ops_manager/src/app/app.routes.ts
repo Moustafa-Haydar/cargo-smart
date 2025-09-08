@@ -9,12 +9,13 @@ import { Shipments } from './modules/shipments/shipments';
 
 export const routes: Routes = [
 
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  { path: 'dashboard', component: DashboardComponent },
+  // { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'live-map', pathMatch: 'full' },
+  { path: 'live-map', component: LiveMapComponent },
+  // { path: 'dashboard', component: DashboardComponent },
   { path: 'shipments', component: Shipments },
   { path: 'vehicles', component: Vehicles },
   { path: 'routes', component: RoutesComponent },
-  { path: 'live-map', component: LiveMapComponent },
   { path: 'alerts', component: Alerts },
 
 ];

@@ -1,0 +1,50 @@
+<div class="route-card">
+    <div class="card-header">
+        <div class="icon-container">
+            <i class="fas fa-route"></i>
+        </div>
+        <div class="route-info">
+            <h3>{{ routeName }}</h3>
+            <p>{{ routeDescription }}</p>
+        </div>
+        <div class="status-badge" [ngClass]="isOptimized ? 'optimized' : 'needs-optimization'">
+            {{ optimizationStatus }}
+        </div>
+        <div class="action-buttons">
+            <button class="btn-edit">
+                <i class="fas fa-edit"></i>
+                <span>Edit</span>
+            </button>
+            <button class="btn-view">
+                <i class="fas fa-eye"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="metrics-section">
+        <div class="metric">
+            <span class="metric-value">{{ totalDistance }} miles</span>
+        </div>
+        <div class="metric">
+            <span class="metric-value">{{ estimatedTime }} hours</span>
+        </div>
+        <div class="metric">
+            <span class="metric-value">${{ fuelCost }} fuel cost</span>
+        </div>
+    </div>
+
+    <div class="cost-savings-section">
+        <div class="savings-header">
+            <h4>Cost Savings</h4>
+            <p>Monthly optimization impact</p>
+        </div>
+        <div class="savings-content">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress" [style.width.%]="savingsPercentage"></div>
+                </div>
+                <span class="savings-amount">${{ monthlySavings }}</span>
+            </div>
+        </div>
+    </div>
+</div>
