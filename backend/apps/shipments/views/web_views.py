@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from apps.routes.models import Route
 from apps.rbac.authz import require_read, require_set
 from ..models import Shipment, ShipmentMilestone, ShipmentVehicle, ShipmentContainer
+import json
 
 
 def _serialize_shipment(s: Shipment) -> dict:
@@ -123,18 +124,21 @@ def shipments(request, shipment_id=None):
     return JsonResponse({"shipments": [_serialize_shipment(s) for s in qs]})
 
 
+
+# @permission_classes([IsAuthenticated])
 @require_POST
-@permission_classes([IsAuthenticated])
 def change_shipment_route(request, shipment_id):
     """
     Change the route of a shipment
     """
+
     try:
         # Get the shipment
         shipment = get_object_or_404(Shipment, id=shipment_id)
         
         # Get route_id from request data
-        route_id = request.data.get('route_id')
+        data = json.loads(request.body.decode() or "{}")
+        route_id = (data.get("route_id") or "").strip()
         if not route_id:
             return JsonResponse(
                 {'error': 'route_id is required'}, 
@@ -162,6 +166,4 @@ def change_shipment_route(request, shipment_id):
 
     except Exception as e:
         return JsonResponse(
-            {'error': str(e)}, 
-            status=500
-        )
+            {'error': str(e)}, status=500)

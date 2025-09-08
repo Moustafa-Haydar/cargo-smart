@@ -17,4 +17,9 @@
     --green: #28EA70;
     --blue: #5F95E4;
     --orange: #EB651B;
+
+    /* Additional color variables */
+    --primary-color-dark: #2a6b75;
+    --error-color: #dc2626;
+    --error-color-dark: #b91c1c;
 }

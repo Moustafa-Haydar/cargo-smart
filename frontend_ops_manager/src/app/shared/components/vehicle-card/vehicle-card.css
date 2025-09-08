@@ -1,27 +1,13 @@
-.vehicle-card {
-    padding: 1.5rem;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid var(--background-color);
-    box-shadow: 0 2px 4px var(--shadow-color);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.vehicle-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
 .card-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 2rem;
+    margin: 1vh 1vw;
 }
 
 .icon-container {
-    width: 48px;
-    height: 48px;
+    width: 3vw;
+    height: 3vw;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -59,7 +45,10 @@
 }
 
 .vehicle-info {
-    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    width: 10vw;
     min-width: 0;
 }
 
@@ -79,27 +68,6 @@
     text-overflow: ellipsis;
 }
 
-.status-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    white-space: nowrap;
-    color: white;
-}
-
-.status-badge.excellent {
-    background-color: #28EA70;
-}
-
-.status-badge.attention {
-    background-color: #EB651B;
-}
-
-.status-badge.critical {
-    background-color: #EF4444;
-}
-
 .health-info {
     display: flex;
     justify-content: center;
@@ -111,4 +79,10 @@
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--secondary-text-color);
+}
+
+.vehicle-info2 {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
 }

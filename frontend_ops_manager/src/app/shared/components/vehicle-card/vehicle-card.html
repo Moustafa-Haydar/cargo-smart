@@ -1,18 +1,19 @@
-<div class="vehicle-card">
+<p-card>
     <div class="card-header">
         <div class="icon-container" [ngClass]="vehicle.health.status">
             <i class="fas" [ngClass]="vehicleIcon"></i>
         </div>
+
         <div class="vehicle-info">
             <h3>{{ vehicle.type === 'truck' ? 'Truck' : 'Container' }} {{ vehicle.id }}</h3>
             <p>{{ vehicle.route }} • {{ formattedMileage }} miles</p>
         </div>
-        <div class="status-badge" [ngClass]="vehicle.health.status">
-            {{ statusText }}
+
+        <div class="vehicle-info2">
+            <p-tag [value]="vehicle.health.status" [severity]="getTagSeverity(vehicle.health.status)"></p-tag>
+            <div class="health-info">
+                <span class="health-percentage">Health: {{ vehicle.health.percentage }}%</span>
+            </div>
         </div>
     </div>
-
-    <div class="health-info">
-        <span class="health-percentage">Health: {{ vehicle.health.percentage }}%</span>
-    </div>
-</div>
+</p-card>

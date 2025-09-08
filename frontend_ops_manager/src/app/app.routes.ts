@@ -1,19 +1,18 @@
 import { Routes } from '@angular/router';
-import { ShipmentsComponent } from './pages/shipments/shipments.component';
-import { VehiclesComponent } from './pages/vehicles/vehicles.component';
-import { RoutesComponent } from './pages/routes/routes.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { LiveMapComponent } from './pages/live-map/live-map.component';
-import { AlertsComponent } from './pages/alerts/alerts.component';
+import { DashboardComponent } from './modules/dashboard/dashboard.component';
+import { LiveMapComponent } from './modules/live-map/live-map.component';
+import { RoutesComponent } from './modules/routes/routes.component';
+import { Alerts } from './modules/alerts/alerts';
+import { Vehicles } from './modules/vehicles/vehicles';
+
 
 export const routes: Routes = [
 
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent },
-  { path: 'shipments', component: ShipmentsComponent },
-  { path: 'vehicles', component: VehiclesComponent },
+  { path: 'vehicles', component: Vehicles },
   { path: 'routes', component: RoutesComponent },
   { path: 'live-map', component: LiveMapComponent },
-  { path: 'alerts', component: AlertsComponent },
+  { path: 'alerts', component: Alerts },
 
 ];

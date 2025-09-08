@@ -9,17 +9,9 @@
         </div>
     </header>
 
-    <div class="search-filter-section">
-        <div class="search-bar">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" placeholder="Search vehicles by number, type, route, or location..."
-                [(ngModel)]="searchQuery" (input)="onSearch()" class="search-input">
-        </div>
-        <button class="filters-btn">
-            <i class="fas fa-filter"></i>
-            Filters
-        </button>
-    </div>
+    <search-section [options]="vehicleTypeOptions" [placeHolder]="'Filter by type'" [(searchQuery)]="searchQuery"
+        [(selected)]="selectedType" (search)="applySearch($event)"
+        (filterChange)="applyFilter($event)"></search-section>
 
     <div class="vehicles-grid">
         <app-vehicle-card *ngFor="let vehicle of filteredVehicles" [vehicle]="vehicle">
