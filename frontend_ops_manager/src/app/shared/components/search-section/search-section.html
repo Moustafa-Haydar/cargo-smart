@@ -1,11 +1,10 @@
-<div class="search-section">
-    <div class="search-bar">
-        <i class="fas fa-search search-icon"></i>
-        <input type="text" class="search-input" [placeholder]="'Search vehicles by number, type, route, or location...'"
-            [(ngModel)]="searchQuery" (ngModelChange)="onSearchInput($event)" />
-    </div>
+<form [formGroup]="searchForm" class="search-section">
+    <p-iconfield class="w-100">
+        <p-inputicon class="fas fa-search" />
+        <input class="w-100" [formControlName]="'search'" pInputText
+            [placeholder]="'Search vehicles by number, type, route, or location...'" />
+    </p-iconfield>
 
-    <p-select class="w-full md:w-56" [options]="options" [placeholder]="placeHolder" [showClear]="true"
-        optionLabel="label" optionValue="value" [(ngModel)]="selected"
-        (ngModelChange)="onSelectChange($event)"></p-select>
-</div>
+    <p-select [formControlName]="'category'" class="w-full md:w-56" [options]="options" [placeholder]="placeHolder"
+        [showClear]="true" optionLabel="label" optionValue="value"></p-select>
+</form>

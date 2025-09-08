@@ -6,11 +6,9 @@
     margin-bottom: 0.75rem;
 }
 
-
-
 .icon-container {
-    width: 48px;
-    height: 48px;
+    width: 7vh;
+    height: 7vh;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -62,12 +60,13 @@
 }
 
 .vehicle-info p {
-    font-size: 0.875rem;
+    font-size: 0.9vw;
     color: var(--secondary-text-color);
     margin: 0.25rem 0 0 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: bold;
 }
 
 .status-badge {

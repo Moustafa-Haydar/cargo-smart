@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouteCard } from '../../shared/components/route-card/route-card';
 import { Route, RouteSegment, RouteType, TransportMode } from '../../shared/models/logistics.model';
+import { SearchSection } from '../../shared/components/search-section/search-section';
 
 @Component({
   selector: 'app-routes',
   standalone: true,
-  imports: [CommonModule, RouteCard],
+  imports: [CommonModule, RouteCard, SearchSection],
   templateUrl: './routes.html',
   styleUrls: ['./routes.css']
 })
@@ -101,6 +102,96 @@ export class RoutesPage {
       ],
       vehicles: [],
       shipments: []
+    },
+    {
+      id: 'rt-transpacific',
+      name: 'Trans-Pacific Sea Route',
+      geometry: 'LINESTRING(-122.4194 37.7749, 139.6917 35.6895)',
+      segments: [
+        {
+          id: 'seg-6',
+          seq: 1,
+          route_type: 'SEA' as RouteType,
+          geometry: 'LINESTRING(-122.4194 37.7749, 139.6917 35.6895)',
+          mode: 'VESSEL' as TransportMode,
+          eta_start: '2025-01-20T00:00:00Z',
+          eta_end: '2025-01-30T12:00:00Z'
+        }
+      ],
+      vehicles: [],
+      shipments: []
+    },
+    {
+      id: 'rt-europe-air',
+      name: 'Europe Air Express',
+      geometry: 'LINESTRING(-74.0060 40.7128, 2.3522 48.8566)',
+      segments: [
+        {
+          id: 'seg-7',
+          seq: 1,
+          route_type: 'AIR' as RouteType,
+          geometry: 'LINESTRING(-74.0060 40.7128, 2.3522 48.8566)',
+          mode: 'PLANE' as TransportMode,
+          eta_start: '2025-01-18T14:00:00Z',
+          eta_end: '2025-01-18T22:00:00Z'
+        }
+      ],
+      vehicles: [],
+      shipments: []
     }
   ];
+
+  // state
+  searchQuery = '';
+  selectedType: RouteType | null = null;
+
+  routeTypeOptions = [
+    { label: 'All', value: null },
+    { label: 'Land', value: 'LAND' as RouteType },
+    { label: 'Sea', value: 'SEA' as RouteType },
+    { label: 'Air', value: 'AIR' as RouteType },
+  ];
+
+  filteredRoutes: Route[] = [...this.routes];
+
+  constructor() {
+    this.filterRoutes();
+  }
+
+  applySearch(q: string) {
+    this.searchQuery = q ?? '';
+    this.filterRoutes();
+  }
+
+  applyFilter(type: RouteType | null) {
+    this.selectedType = type ?? null;
+    this.filterRoutes();
+  }
+
+  private filterRoutes() {
+    const q = this.searchQuery.trim().toLowerCase();
+
+    this.filteredRoutes = this.routes.filter(route => {
+      const matchesType = !this.selectedType || this.hasRouteType(route, this.selectedType);
+
+      const haystack = [
+        route.id,
+        route.name,
+        ...route.segments.map(seg => seg.route_type),
+        ...route.segments.map(seg => seg.mode),
+        ...(route.vehicles || []).map(v => v.name),
+        ...(route.vehicles || []).map(v => v.type)
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+      const matchesQuery = !q || haystack.includes(q);
+      return matchesType && matchesQuery;
+    });
+  }
+
+  private hasRouteType(route: Route, type: RouteType): boolean {
+    return route.segments.some(segment => segment.route_type === type);
+  }
 }

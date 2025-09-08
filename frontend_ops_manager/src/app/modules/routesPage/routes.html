@@ -11,7 +11,11 @@
         </div>
     </header>
 
+    <search-section [options]="routeTypeOptions" [placeHolder]="'Filter by type'" [(searchQuery)]="searchQuery"
+        [(selected)]="selectedType" (search)="applySearch($event)"
+        (filterChange)="applyFilter($event)"></search-section>
+
     <div class="routes-grid">
-        <app-route-card *ngFor="let route of routes" [route]="route"></app-route-card>
+        <app-route-card *ngFor="let route of filteredRoutes" [route]="route"></app-route-card>
     </div>
 </div>

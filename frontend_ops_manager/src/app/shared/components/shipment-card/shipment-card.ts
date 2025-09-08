@@ -2,11 +2,12 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 // ✅ Adjust the path to match your actual file name (logistics.model vs logistics.models)
 import { Shipment, Milestone } from '../../models/logistics.model';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'shipment-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Card],
   templateUrl: './shipment-card.html',
   styleUrls: ['./shipment-card.css']
 })

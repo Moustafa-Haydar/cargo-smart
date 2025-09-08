@@ -3,20 +3,21 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 1vh;
+    gap: 3vh;
     background-color: transparent;
 }
 
 .page-header {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
 }
 
 h1 {
     color: var(--text-color);
-    font-size: 1.75rem;
+    font-size: 1.6vw;
+    font-weight: 600;
     margin: 0;
 }
 

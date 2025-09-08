@@ -12,6 +12,7 @@ import { date } from '@primeuix/themes/aura/datepicker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideHttpClient(),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),

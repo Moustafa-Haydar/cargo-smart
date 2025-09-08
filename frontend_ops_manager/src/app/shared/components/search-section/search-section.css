@@ -1,9 +1,10 @@
-.search-section {
+ .search-section {
+    width: 100%;
     display: flex;
     flex-direction: row;
     gap: 1rem;
 }
-
+/*
 .search-bar {
     display: flex;
     flex: 1;
@@ -32,4 +33,4 @@
 
 .search-bar input::placeholder {
     color: var(--secondary-text-color);
-}
+} */

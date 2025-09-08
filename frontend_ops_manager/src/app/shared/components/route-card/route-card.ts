@@ -1,11 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Route } from '../../models/logistics.model';
+import { Card } from 'primeng/card';
 
 @Component({
     selector: 'app-route-card',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, Card],
     templateUrl: './route-card.html',
     styleUrls: ['./route-card.css']
 })
