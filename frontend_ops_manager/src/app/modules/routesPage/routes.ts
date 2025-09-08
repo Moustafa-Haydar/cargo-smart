@@ -7,10 +7,10 @@ import { Route, RouteSegment, RouteType, TransportMode } from '../../shared/mode
   selector: 'app-routes',
   standalone: true,
   imports: [CommonModule, RouteCard],
-  templateUrl: './routes.component.html',
-  styleUrls: ['./routes.component.css']
+  templateUrl: './routes.html',
+  styleUrls: ['./routes.css']
 })
-export class RoutesComponent {
+export class RoutesPage {
   routes: Route[] = [
     {
       id: 'rt-sf-nyc',

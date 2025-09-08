@@ -6,6 +6,6 @@ import { Component } from '@angular/core';
   templateUrl: './live-map.html',
   styleUrl: './live-map.css'
 })
-export class LiveMapComponent {
+export class LiveMap {
 
 }

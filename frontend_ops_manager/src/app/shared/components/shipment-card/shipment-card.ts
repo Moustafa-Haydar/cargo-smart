@@ -31,6 +31,7 @@ export class ShipmentCard {
     switch (this.shipment.status) {
       case 'DELIVERED':   return 'Delivered';
       case 'IN_TRANSIT':  return 'In-Transit';
+      case 'DELAYED': return 'Delayed';
       case 'CREATED':     return 'Planned';
       default:            return 'In-Transit';
     }

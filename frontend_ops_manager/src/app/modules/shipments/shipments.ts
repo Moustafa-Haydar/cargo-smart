@@ -13,7 +13,6 @@ import { ShipmentCard } from '../../shared/components/shipment-card/shipment-car
   styleUrls: ['./shipments.css']
 })
 export class Shipments implements OnInit {
-  // UI state
   searchQuery = '';
   selectedType: ShipmentType | null = null;
 
@@ -46,7 +45,7 @@ export class Shipments implements OnInit {
       id: "c13d9c3f-2a2b-4f5e-9a7b-0f1e2d3c4b5a",
       ref_no: "SHP0012",
       shipment_type: "LCL",
-      status: "CREATED",
+      status: "DELIVERED",
       carrier_code: "CMA",
       carrier_name: "CMA CGM",
       origin: { id: "11097c08-d557-45aa-a705-abe4bc880b89", name: "Singapore" },
@@ -80,7 +79,7 @@ export class Shipments implements OnInit {
       id: "a0be2df6-6d2b-4f5e-a2f1-4f6b8c7d9e10",
       ref_no: "SHP0015",
       shipment_type: "LCL",
-      status: "CREATED",
+      status: "DELAYED",
       carrier_code: "CMA",
       carrier_name: "CMA CGM",
       origin: { id: "69d99cc1-32cc-4f81-9322-5f3e7dfbe794", name: "Los Angeles" },
