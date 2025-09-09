@@ -1,7 +1,10 @@
 .login-wrapper {
-    min-height: 100dvh;
-    display: grid;
-    grid-template-rows: auto 1fr;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10vh;
+    padding-top: 5vh;
 }
 
 .login-header {
@@ -17,22 +20,20 @@
 }
 
 .login-page-logo {
-    height: 36px;
-    width: auto;
+    width: 23vh;
+    height: auto;
     object-fit: contain;
     filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.05));
 }
 
-.login-container {
-    display: grid;
-    place-items: center;
-    padding: 2rem 1rem;
-}
-
 .login-card {
-    width: 100%;
-    max-width: 420px;
-    background: var(--card-bg);
+    width: 28vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    gap: 3vh;
     border: 1px solid var(--border);
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
@@ -48,8 +49,9 @@
 }
 
 .login-form {
-    display: grid;
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
 }
 
 .form-group {
@@ -169,9 +171,5 @@ p-password {
 
     .login-header {
         padding: .8rem 1rem;
-    }
-
-    .login-page-logo {
-        height: 30px;
     }
 }

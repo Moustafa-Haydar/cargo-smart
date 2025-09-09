@@ -75,8 +75,9 @@ REST_FRAMEWORK = {
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://192.168.56.1:3000"
-        # your Frontend dev origin
+    "http://192.168.56.1:3000",
+    "http://localhost:4200",
+    "http://127.0.0.1:4200",
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -107,7 +108,9 @@ SESSION_COOKIE_SECURE = False
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://192.168.56.1:3000"
+    "http://192.168.56.1:3000",
+    "http://localhost:4200",
+    "http://127.0.0.1:4200",
 ]
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 

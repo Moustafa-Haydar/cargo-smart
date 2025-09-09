@@ -16,44 +16,43 @@ import { Subject, takeUntil } from 'rxjs';
     ReactiveFormsModule,
     PasswordModule,
     InputTextModule,
-    ButtonModule
+    ButtonModule,
   ],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
 
-export class Login implements OnInit {
+export class Login {
   private destroy$ = new Subject<void>();
   
   private loginRepository = inject(LoginRepository);
   private router = inject(Router);
 
   private formBuilder = inject(FormBuilder);
-  authForm = this.formBuilder.nonNullable.group({
+  protected authForm = this.formBuilder.nonNullable.group({
     'username': ['', [Validators.required, Validators.minLength(3)]],
     'password': ['', [Validators.required, Validators.minLength(4)]],
   });
 
-    ngOnInit(): void {
-        this.authForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(v => {
-        // dev log; remove in prod
-        console.log('form:', v, 'valid:', this.authForm.valid);
-        });
+  onSubmit() {
+    if (this.authForm.invalid) {
+      this.authForm.markAllAsTouched();
+      return;
     }
 
-  onSubmit() {
     const credentials: LoginRequest = this.authForm.getRawValue();
-
     console.log('Credentials:', credentials);
 
     this.loginRepository.login(credentials)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
         next: (res) => {
-            console.log('Login response:', res);
-            // If your repo returns the body, check your own field (e.g., res.success)
-            // If your repo uses observe:'response', you can check res.ok
-            
+          const ok = (res as any)?.user || (res as any)?.success === true;
+          if (ok) {
+            this.router.navigate(['/live-map']);
+          } else {
+            console.error('Login failed: unexpected response');
+          }         
         },
         error: (error) => {
             console.error('Login failed:', error);

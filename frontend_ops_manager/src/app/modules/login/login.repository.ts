@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 export interface LoginRequest {
     username: string;
@@ -38,22 +38,25 @@ export class LoginRepository {
      * Authenticate user with username and password
      * Uses cookie-based session authentication
      */
-    login(credentials: LoginRequest): Observable<LoginResponse> {
-        const url = `${this.API_BASE_URL}/accounts/login/`;
 
-        return this.http.post<LoginResponse>(url, credentials, {
-            withCredentials: true
-        }).pipe(
-            map(response => {
-                if (response.ok && response.user) {
-                    localStorage.setItem('user', JSON.stringify(response.user));
+
+    login(credentials: LoginRequest) {
+        return this.http.get('/accounts/csrf/', { withCredentials: true }).pipe(
+            switchMap(() =>
+                this.http.post<LoginResponse>('/accounts/login/', credentials, {
+                    withCredentials: true
+                })
+                ),
+            tap((res) => {
+                if ((res as any)?.user) {
+                    localStorage.setItem('user', JSON.stringify((res as any).user));
                     localStorage.setItem('isAuthenticated', 'true');
+                    
                 }
-                console.log(response);
-                return response;
             })
         );
     }
+
 
     logout(): Observable<any> {
         const url = `${this.API_BASE_URL}/accounts/logout/`;
