@@ -71,9 +71,8 @@ export class LoginRepository {
 
 
     logout(): Observable<any> {
-        const url = `${this.API_BASE_URL}/accounts/logout/`;
 
-        return this.http.post(url, {}, {
+        return this.http.post('/api/accounts/logout/', {
             withCredentials: true
         }).pipe(
             map(() => {

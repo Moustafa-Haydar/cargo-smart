@@ -8,6 +8,8 @@
     top: 0;
     box-shadow: 1px 0 10px var(--shadow-color);
     z-index: 1000;
+    display: flex;
+    flex-direction: column;
 }
 
 .logo {
@@ -28,6 +30,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.5vw;
+    flex-grow: 1;
 }
 
 .nav-link {
@@ -63,4 +66,21 @@
 
 .nav-link.active i {
     opacity: 1;
+}
+
+.logout-section {
+    margin-top: auto;
+}
+
+.logout-section:hover {
+    cursor: pointer;;
+}
+
+.logout-link {
+    color: var(--danger-color, #d9534f);
+    /* red by default */
+}
+
+.logout-link:hover {
+    color: #b52b27;
 }
