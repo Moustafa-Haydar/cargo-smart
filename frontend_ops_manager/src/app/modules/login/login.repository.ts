@@ -41,9 +41,9 @@ export class LoginRepository {
 
 
     login(credentials: LoginRequest) {
-        return this.http.get('/accounts/csrf/', { withCredentials: true }).pipe(
+        return this.http.get('/api/accounts/csrf/', { withCredentials: true }).pipe(
             switchMap(() =>
-                this.http.post<LoginResponse>('/accounts/login/', credentials, {
+                this.http.post<LoginResponse>('/api/accounts/login/', credentials, {
                     withCredentials: true
                 })
                 ),

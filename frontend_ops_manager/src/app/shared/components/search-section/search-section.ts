@@ -13,7 +13,7 @@ export interface SelectOption {
 
 @Component({
   selector: 'search-section',
-imports: [CommonModule, Select, InputText, ReactiveFormsModule, InputIcon, IconField ],
+  imports: [CommonModule, Select, InputText, ReactiveFormsModule, InputIcon, IconField],
   templateUrl: './search-section.html',
   styleUrls: ['./search-section.css']
 })
@@ -38,15 +38,25 @@ export class SearchSection implements OnInit {
 
   private formBuilder = inject(FormBuilder);
   protected searchForm = this.formBuilder.group({
-    'search' : [''],
-    'category' : ['']
+    'search': [''],
+    'category': ['']
   });
 
   ngOnInit(): void {
-      // will be called on every initialize
-      this.searchForm.valueChanges.subscribe((value) => {
-        console.log(value);
-      })
+    // Initialize form with current values
+    this.searchForm.patchValue({
+      search: this.searchQuery,
+      category: this.selected
+    });
+
+    // Listen to form changes and emit events
+    this.searchForm.get('search')?.valueChanges.subscribe((value) => {
+      this.onSearchInput(value || '');
+    });
+
+    this.searchForm.get('category')?.valueChanges.subscribe((value) => {
+      this.onSelectChange(value);
+    });
   }
 
   onSearchInput(value: string) {

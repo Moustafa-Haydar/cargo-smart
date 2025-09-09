@@ -9,15 +9,12 @@ interface ShipmentsResponse { shipments: Shipment[]; }
 export class ShipmentRepository {
   private http = inject(HttpClient);
 
-  getShipments(): Observable<Shipment[]> {
-    return this.http
-      .get<ShipmentsResponse>('/shipments/shipments/', { withCredentials: true })
-      .pipe(
-        map(res => res.shipments ?? [])
-      );
+  getShipments() {
+    return this.http.get<ShipmentsResponse>('/api/shipments/shipments/', { withCredentials: true })
+      .pipe(map(res => res.shipments ?? []));
   }
 
-  getShipmentById(id: string): Observable<Shipment> {
-    return this.http.get<Shipment>(`/shipments/shipment/${id}/`, { withCredentials: true });
+  getShipmentById(id: string) {
+    return this.http.get<Shipment>(`http://localhost:8000/shipments/${id}/`, { withCredentials: true });
   }
 }
