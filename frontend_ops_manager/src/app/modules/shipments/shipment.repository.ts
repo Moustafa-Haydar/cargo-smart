@@ -10,8 +10,7 @@ export class ShipmentRepository {
   private http = inject(HttpClient);
 
   getShipments() {
-    return this.http.get<ShipmentsResponse>('/api/shipments/shipments/', { withCredentials: true })
-      .pipe(map(res => res.shipments ?? []));
+    return this.http.get<ShipmentsResponse>('/api/shipments/shipments/', { withCredentials: true });
   }
 
   getShipmentById(id: string) {

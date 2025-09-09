@@ -53,23 +53,16 @@ export interface Shipment {
   status: ShipmentStatus | string;
   carrier_code: string;
   carrier_name: string;
-
   origin: NamedEntity;
   destination: NamedEntity;
   current_location: NamedEntity;
-
   scheduled_at: ISODateTime;
   delivered_at: ISODateTime | null;
-
   route: NamedEntity;
-
-  // Optional fields (present in some APIs / your other mocks)
   api_updated_at?: ISODateTime;
   milestones?: Milestone[];
   vehicles: ShipmentVehicleRef[];
   containers: Container[];
-
-  // Calculated/returned by API in your examples
   progress_pct?: number;
 }
 

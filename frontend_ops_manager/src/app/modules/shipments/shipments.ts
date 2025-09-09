@@ -1,10 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, DestroyRef} from '@angular/core';
 import { SearchSection } from '../../shared/components/search-section/search-section';
 import { Shipment, ShipmentType } from '../../shared/models/logistics.model';
 import { ShipmentCard } from '../../shared/components/shipment-card/shipment-card';
 import { ShipmentRepository } from './shipment.repository';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { map, takeUntil,  } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-shipments',
@@ -15,6 +17,8 @@ import { CommonModule } from '@angular/common';
 })
 export class Shipments implements OnInit {
   private repo = inject(ShipmentRepository);
+
+  destroyRef = inject(DestroyRef);
 
   // keep a concrete array for filtering
   shipments: Shipment[] = [];
@@ -32,7 +36,8 @@ export class Shipments implements OnInit {
 
   ngOnInit(): void {
     // load data first, then filter
-    this.repo.getShipments().subscribe({
+    this.repo.getShipments().pipe(takeUntilDestroyed(this.destroyRef),map(res => res.shipments ?? []))
+      .subscribe({
       next: (data) => {
         this.shipments = data ?? [];
         this.filterShipments();

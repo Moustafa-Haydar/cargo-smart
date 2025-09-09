@@ -1,11 +1,19 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { GoogleMapsModule } from '@angular/google-maps';
+import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { GoogleMap, GoogleMapsModule, MapInfoWindow } from '@angular/google-maps';
 import { SearchSection } from '../../shared/components/search-section/search-section';
-import { Route } from '../../shared/models/logistics.model';
 import { Shipment, ShipmentType } from '../../shared/models/logistics.model';
 import { ShipmentRepository } from '../shipments/shipment.repository';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+
+type LatLng = google.maps.LatLngLiteral;
+
+interface MarkerData {
+  position: LatLng;
+  shipment: Shipment;
+}
 
 @Component({
   selector: 'app-live-map',
@@ -17,16 +25,22 @@ import { CommonModule } from '@angular/common';
 
 export class LiveMap implements OnInit {
   private repo = inject(ShipmentRepository);
+  
+  destroyRef = inject(DestroyRef);
+
+  @ViewChild(GoogleMap) googleMap!: GoogleMap;
+  @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
 
   options: google.maps.MapOptions = {
-    mapId: "DEMO_MAP_ID",
-    center: { lat: -31, lng: 147 },
-    zoom: 4,
-  }
-    
-  // keep a concrete array for filtering
+    center: { lat: 30, lng: 0 },
+    zoom: 2,
+    streetViewControl: false,
+    mapTypeControl: false,
+  };
+
   shipments: Shipment[] = [];
   filteredShipments: Shipment[] = [];
+  markers: MarkerData[] = [];
 
   searchQuery = '';
   selectedType: ShipmentType | null = null;
@@ -38,9 +52,12 @@ export class LiveMap implements OnInit {
     { label: 'CT', value: 'CT' as ShipmentType },
   ];
 
+  activeShipment: Shipment | null = null;
+
   ngOnInit(): void {
     // load data first, then filter
-    this.repo.getShipments().subscribe({
+    this.repo.getShipments().pipe(takeUntilDestroyed(this.destroyRef),map(res => res.shipments ?? []))
+      .subscribe({
       next: (data) => {
         this.shipments = data ?? [];
         this.filterShipments();
@@ -85,37 +102,62 @@ export class LiveMap implements OnInit {
       const matchesQuery = !q || haystack.includes(q);
       return matchesType && matchesQuery;
     });
+
+    this.refreshMarkers();
   }
 
+  private refreshMarkers() {
+    this.markers = [];
+    const bounds = new google.maps.LatLngBounds();
+    let hasPoints = false;
 
-  // locations on the map
-  
-  nzLocations: any[] = [
-    { lat: -36.817685, lng: 175.699196 },
-    { lat: -36.828611, lng: 175.790222 },
-    { lat: -39.927193, lng: 175.053218 },
-    { lat: -41.330162, lng: 174.865694 },
-    { lat: -43.999792, lng: 170.463352 },
-  ];
-  auLocations: any[] = [
-    { lat: -31.56391, lng: 147.154312 },
-    { lat: -33.718234, lng: 150.363181 },
-    { lat: -33.727111, lng: 150.371124 },
-    { lat: -33.848588, lng: 151.209834 },
-    { lat: -33.851702, lng: 151.216968 },
-    { lat: -34.671264, lng: 150.863657 },
-    { lat: -35.304724, lng: 148.662905 },
-    { lat: -37.75, lng: 145.116667 },
-    { lat: -37.759859, lng: 145.128708 },
-    { lat: -37.765015, lng: 145.133858 },
-    { lat: -37.770104, lng: 145.143299 },
-    { lat: -37.7737, lng: 145.145187 },
-    { lat: -37.774785, lng: 145.137978 },
-    { lat: -37.819616, lng: 144.968119 },
-    { lat: -38.330766, lng: 144.695692 },
-    { lat: -42.734358, lng: 147.439506 },
-    { lat: -42.734358, lng: 147.501315 },
-    { lat: -42.735258, lng: 147.438 },
-  ];
+    for (const s of this.filteredShipments) {
+      const pos = this.pickDisplayPosition(s);
+      if (pos) {
+        this.markers.push({ position: pos, shipment: s });
+        bounds.extend(pos as any);
+        hasPoints = true;
+      }
+    }
+
+    if (hasPoints && this.googleMap) {
+      (this.googleMap as any).fitBounds(bounds, 40);
+    } else if (this.googleMap) {
+      this.googleMap.googleMap?.setCenter(this.options.center!);
+      this.googleMap.googleMap?.setZoom(this.options.zoom!);
+    }
+  }
+
+  private pickDisplayPosition(s: Shipment): LatLng | null {
+    return this.getLatLng(s.current_location) ?? this.getLatLng(s.origin) ?? null;
+  }
+
+  private getLatLng(entity: any): LatLng | null {
+    if (!entity) return null;
+    if (typeof entity.lat === 'number' && typeof entity.lng === 'number') {
+      return { lat: entity.lat, lng: entity.lng };
+    }
+    if (typeof entity.latitude === 'number' && typeof entity.longitude === 'number') {
+      return { lat: entity.latitude, lng: entity.longitude };
+    }
+    if (entity.location && typeof entity.location.lat === 'number' && typeof entity.location.lng === 'number') {
+      return { lat: entity.location.lat, lng: entity.location.lng };
+    }
+    if (Array.isArray(entity.coordinates) && entity.coordinates.length >= 2) {
+      const [lng, lat] = entity.coordinates;
+      if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng };
+    }
+    if (entity.geojson && Array.isArray(entity.geojson.coordinates)) {
+      const [lng, lat] = entity.geojson.coordinates;
+      if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng };
+    }
+    return null;
+  }
+
+  openInfo(marker: any, m: MarkerData) {
+    this.activeShipment = m.shipment;
+    this.infoWindow.open(marker);
+  }
 
 }
+

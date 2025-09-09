@@ -42,19 +42,31 @@ export class LoginRepository {
 
     login(credentials: LoginRequest) {
         return this.http.get('/api/accounts/csrf/', { withCredentials: true }).pipe(
-            switchMap(() =>
-                this.http.post<LoginResponse>('/api/accounts/login/', credentials, {
-                    withCredentials: true
-                })
-                ),
-            tap((res) => {
-                if ((res as any)?.user) {
-                    localStorage.setItem('user', JSON.stringify((res as any).user));
-                    localStorage.setItem('isAuthenticated', 'true');
-                    
+            switchMap(() => {
+            const csrfToken = this.getCookie('csrftoken');
+            return this.http.post<LoginResponse>(
+                '/api/accounts/login/',
+                credentials,
+                {
+                withCredentials: true,
+                headers: { 'X-CSRFToken': csrfToken }
                 }
+            );
+            }),
+            tap(res => {
+            if (res?.user) {
+                localStorage.setItem('user', JSON.stringify(res.user));
+                localStorage.setItem('isAuthenticated', 'true');
+            }
             })
         );
+    }
+
+    private getCookie(name: string): string {
+        const matches = document.cookie.match(
+            new RegExp('(?:^|; )' + name + '=([^;]*)')
+        );
+        return matches ? decodeURIComponent(matches[1]) : '';
     }
 
 
