@@ -19,3 +19,7 @@
     background-color: var(--content-bg);
     min-height: 100vh;
 }
+
+.app-container.no-sidebar .main-content {
+    margin-left: 0;
+}

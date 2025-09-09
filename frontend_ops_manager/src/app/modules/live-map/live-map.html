@@ -37,7 +37,9 @@
                         <div class="title">{{ s.ref_no }} • {{ s.shipment_type }}</div>
                         <div>Status: <strong>{{ s.status }}</strong></div>
                         <div>Carrier: {{ s.carrier_name || s.carrier_code }}</div>
-                        <div>From: {{ s.origin?.name }} → To: {{ s.destination?.name }}</div>
+                        <div>
+                            From: {{ s.origin.name }} → To: {{ s.destination.name }}
+                        </div>
                         <div *ngIf="s.progress_pct != null">Progress: {{ s.progress_pct }}%</div>
                         <div *ngIf="s.scheduled_at">Scheduled: {{ s.scheduled_at | date:'medium' }}</div>
                         <div *ngIf="s.delivered_at">Delivered: {{ s.delivered_at | date:'medium' }}</div>
