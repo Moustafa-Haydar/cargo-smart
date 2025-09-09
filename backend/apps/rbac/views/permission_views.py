@@ -16,7 +16,7 @@ def _permission_payload(p: Permission):
         "id": str(p.id),
         "app_label": p.app_label,
         "codename": p.codename,
-        "code": f"{p.app_label}.{p.codename}",   # convenience for frontend
+        "code": f"{p.app_label}.{p.codename}",
         "name": p.name,
         "description": p.description,
     }
@@ -34,7 +34,6 @@ def permissions(request, id=None):
 
 
 @require_POST
-@csrf_protect
 def create_permission(request):
     """
     Body:
@@ -87,7 +86,6 @@ def create_permission(request):
 
 
 @require_POST
-@csrf_protect
 @transaction.atomic
 def update_permission(request):
     """
