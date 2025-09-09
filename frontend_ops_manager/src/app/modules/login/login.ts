@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { PasswordModule } from 'primeng/password';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -24,9 +24,10 @@ import { Subject, takeUntil } from 'rxjs';
 
 export class Login {
   private destroy$ = new Subject<void>();
-  
+
   private loginRepository = inject(LoginRepository);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   private formBuilder = inject(FormBuilder);
   protected authForm = this.formBuilder.nonNullable.group({
@@ -44,19 +45,21 @@ export class Login {
     console.log('Credentials:', credentials);
 
     this.loginRepository.login(credentials)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (res) => {
           const ok = (res as any)?.user || (res as any)?.success === true;
           if (ok) {
-            this.router.navigate(['/live-map']);
+            // Get return URL from query params, default to live-map
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/live-map';
+            this.router.navigate([returnUrl]);
           } else {
             console.error('Login failed: unexpected response');
-          }         
+          }
         },
         error: (error) => {
-            console.error('Login failed:', error);
+          console.error('Login failed:', error);
         }
-    });
+      });
   }
 }

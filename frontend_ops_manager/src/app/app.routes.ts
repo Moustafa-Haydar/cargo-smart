@@ -5,6 +5,7 @@ import { Shipments } from './modules/shipments/shipments';
 import { RoutesPage } from './modules/routesPage/routes';
 import { LiveMap } from './modules/live-map/live-map';
 import { Login } from './modules/login/login';
+import { AuthGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
 
@@ -13,9 +14,9 @@ export const routes: Routes = [
 
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: Login },
-  { path: 'live-map', component: LiveMap },
-  { path: 'shipments', component: Shipments },
-  { path: 'vehicles', component: Vehicles },
-  { path: 'routes', component: RoutesPage },
-  { path: 'alerts', component: Alerts },
+  { path: 'live-map', component: LiveMap, canActivate: [AuthGuard] },
+  { path: 'shipments', component: Shipments, canActivate: [AuthGuard] },
+  { path: 'vehicles', component: Vehicles, canActivate: [AuthGuard] },
+  { path: 'routes', component: RoutesPage, canActivate: [AuthGuard] },
+  { path: 'alerts', component: Alerts, canActivate: [AuthGuard] },
 ];

@@ -1,7 +1,7 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch, withXsrfConfiguration } from '@angular/common/http';
+import { provideHttpClient, withFetch, withXsrfConfiguration, withInterceptors } from '@angular/common/http';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { routes } from './app.routes';
@@ -10,15 +10,22 @@ import { definePreset } from '@primeuix/themes';
 import { date } from '@primeuix/themes/aura/datepicker';
 import { environment } from '../environment';
 import { API_BASE_URL } from './tokens';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './core/auth/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(withFetch(),
-    withXsrfConfiguration({
-      cookieName: 'csrftoken',
-      headerName: 'X-CSRFToken',
-    }),
+      withXsrfConfiguration({
+        cookieName: 'csrftoken',
+        headerName: 'X-CSRFToken',
+      }),
     ),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
