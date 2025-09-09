@@ -1,202 +1,177 @@
-/* Layout */
 .login-wrapper {
-    height: 100vh;
-    background-color: var(--background-color);
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+.login-header {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    gap: .75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0));
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .login-page-logo {
-    margin-top: 5vh;
-    width: 10vw;
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.05));
 }
 
-/* Card */
 .login-container {
-    width: 30vw;
-    padding: 20px;
-    margin-top: 10vh;
+    display: grid;
+    place-items: center;
+    padding: 2rem 1rem;
 }
 
 .login-card {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 1rem;
-    padding: 30px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 420px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+    padding: 2rem;
+    backdrop-filter: saturate(120%) blur(2px);
 }
 
-/* Typography */
 .login-title {
-    font-size: 1.5vw;
-    font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 3vh;
-    text-align: center;
+    margin: 0 0 1.25rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
 }
 
-.login-subtitle {
-    font-size: 1vw;
-    color: var(--secondary-text-color);
-    margin-bottom: 2vh;
-}
-
-/* Form */
 .login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 3vh;
+    display: grid;
+    gap: 1rem;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    gap: .5rem;
 }
 
 .form-label {
-    font-size: 1vw;
-    font-weight: 540;
-    margin-bottom: 5px;
-    color: var(--text-color);
+    font-size: .9rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: .25rem;
 }
 
-.form-input,
-.form-select {
-    width: 90%;
-    padding: 0.7vw 1vw;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 0.9vw;
-    color: var(--text-color);
-    background-color: white;
-    transition: border 0.2s;
-}
-
-.form-input:focus,
-.form-select:focus {
-    border-color: var(--primary-color);
+.form-input:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px var(--ring);
+    background: #0c1117;
     outline: none;
 }
 
-.form-select-wrapper {
-    position: relative;
+.form-input.invalid {
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
 }
 
-.form-select-arrow {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #aaa;
-    font-size: 0.9vw;
-    pointer-events: none;
+.form-error {
+    background: rgba(255, 107, 107, 0.08);
+    color: #ffb0b0;
+    border: 1px solid rgba(255, 107, 107, 0.25);
+    border-radius: 10px;
+    padding: .75rem .9rem;
+    font-size: .9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
-/* Password */
-.form-password-wrapper {
-    position: relative;
+.error-close {
+    background: none;
+    border: none;
+    color: #ffb0b0;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
 }
 
-.password-input {
+.error-close:hover {
+    background: rgba(255, 107, 107, 0.2);
+}
+
+.p-password,
+.p-inputtext,
+p-password {
     width: 100%;
 }
 
-.toggle-password-button {
-    position: absolute;
-    right: 2vw;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    font-size: 0.9vw;
-    color: var(--secondary-text-color);
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 4px;
+.p-password input.p-inputtext {
+    height: 44px;
+    border-radius: 10px;
+    background: #0e131a;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0 .9rem;
 }
 
-/* Checkbox & Links */
-.form-options {
-    display: flex;
-    justify-content: right;
-    align-items: center;
+.p-password input.p-inputtext:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px var(--ring);
+    background: #0c1117;
 }
 
-.form-checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.9vw;
-    color: var(--text-color);
+.p-message.p-message-error {
+    border-radius: 10px;
+    background: rgba(255, 107, 107, 0.08);
+    border: 1px solid rgba(255, 107, 107, 0.25);
+    color: #ffb0b0;
+    padding: .6rem .75rem;
 }
 
-.form-checkbox {
-    width: 16px;
-    height: 16px;
+.forgot-password {
+    text-align: center;
+    margin-top: .5rem;
 }
 
 .forgot-password-link {
-    font-size: 0.9vw;
-    color: var(--primary-color);
     background: none;
     border: none;
+    color: var(--brand);
+    font-size: .85rem;
     cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.2s;
 }
 
 .forgot-password-link:hover {
-    text-decoration: underline;
+    color: var(--brand-hover, #0891b2);
 }
 
-/* Button */
-.form-submit-button {
-    width: 100%;
-    background: var(--primary-color);
-    color: white;
-    font-weight: 500;
-    border: none;
-    border-radius: 10px;
-    padding: 12px 0;
-    font-size: 1vw;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-}
+@media (max-width: 480px) {
+    .login-card {
+        padding: 1.25rem;
+        border-radius: 14px;
+    }
 
-.form-submit-button:hover {
-    opacity: 0.95;
-}
+    .login-title {
+        font-size: 1.35rem;
+    }
 
-.form-submit-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
+    .login-header {
+        padding: .8rem 1rem;
+    }
 
-/* Error message */
-.form-error {
-    background-color: #fef2f2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
-    padding: 10px 15px;
-    font-size: 0.85rem;
-    border-radius: 10px;
-}
-
-/* Footnote */
-.form-footnote {
-    margin-top: 20px;
-    font-size: 0.75rem;
-    text-align: center;
-    color: #94a3b8;
-}
-
-.link {
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    color: inherit;
-}
-
-.link:hover {
-    text-decoration-color: var(--primary-color);
+    .login-page-logo {
+        height: 30px;
+    }
 }

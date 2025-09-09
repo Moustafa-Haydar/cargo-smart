@@ -1,10 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { SearchSection } from '../../shared/components/search-section/search-section';
 import { Shipment, ShipmentType } from '../../shared/models/logistics.model';
 import { ShipmentCard } from '../../shared/components/shipment-card/shipment-card';
 import { ShipmentRepository } from './shipment.repository';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-shipments',

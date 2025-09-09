@@ -11,7 +11,7 @@ export const routes: Routes = [
   // { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   // { path: 'dashboard', component: Dashboard },
 
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'live-map', pathMatch: 'full' },
   { path: 'login', component: Login },
   { path: 'live-map', component: LiveMap },
   { path: 'shipments', component: Shipments },

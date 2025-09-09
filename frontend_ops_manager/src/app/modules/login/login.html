@@ -1,51 +1,26 @@
-<!-- login.component.html -->
 <main class="login-wrapper">
-    <!-- Top bar brand -->
     <header class="login-header">
-        <img src="assets/logo.png" alt="" class="login-page-logo" />
+        <img src="assets/Logo/Cargo-Photoroom.png" alt="CargoSmart" class="login-page-logo" />
     </header>
 
-    <!-- Center card -->
     <section class="login-container">
         <div class="login-card">
             <h1 class="login-title">Sign in</h1>
 
-            <form (ngSubmit)="handleLogin()" class="login-form" novalidate>
-                <!-- Username -->
+            <form [formGroup]="authForm" class="login-form">
+                <!-- Username Field -->
                 <div class="form-group">
-                    <label for="username" class="form-label">Username</label>
-                    <input id="username" type="text" autocomplete="username" placeholder="e.g. john.doe"
-                        [(ngModel)]="username" name="username" class="form-input" />
+                    <input pInputText [formControlName]="'username'" [placeholder]="'Username'" />
                 </div>
 
-                <!-- Password -->
+                <!-- Password Field -->
                 <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <div class="form-password-wrapper">
-                        <input id="password" [type]="showPassword ? 'text' : 'password'" autocomplete="current-password"
-                            placeholder="••••••••" [(ngModel)]="password" name="password" class="form-input" />
-                        <button type="button" (click)="showPassword = !showPassword" class="toggle-password-button"
-                            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
-                            {{ showPassword ? 'Hide' : 'Show' }}
-                        </button>
-                    </div>
+                    <p-password [formControlName]="'password'" placeholder="Password"></p-password>
                 </div>
 
-                <!-- Remember + Forgot -->
-                <div class="form-options">
-                    <button type="button" class="forgot-password-link" (click)="handleForgotPassword()">
-                        Forgot password?
-                    </button>
-                </div>
-
-                <!-- Error Message -->
-                <div *ngIf="error" class="form-error" role="alert">
-                    {{ error }}
-                </div>
-
-                <!-- Submit -->
-                <button type="submit" [disabled]="loading" class="form-submit-button">
-                    {{ loading ? 'Signing in…' : 'Sign in' }}
+                <!-- Submit Button -->
+                <button pButton type="submit" (click)="onSubmit()">
+                    Sign in
                 </button>
             </form>
         </div>
