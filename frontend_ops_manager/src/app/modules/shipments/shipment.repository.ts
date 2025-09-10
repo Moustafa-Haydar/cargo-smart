@@ -12,8 +12,4 @@ export class ShipmentRepository {
   getShipments() {
     return this.http.get<ShipmentsResponse>('/api/shipments/shipments/', { withCredentials: true });
   }
-
-  getShipmentById(id: string) {
-    return this.http.get<Shipment>(`http://localhost:8000/shipments/${id}/`, { withCredentials: true });
-  }
 }

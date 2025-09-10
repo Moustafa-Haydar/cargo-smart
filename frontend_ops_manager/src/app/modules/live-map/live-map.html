@@ -18,15 +18,21 @@
     <div class="map-container">
 
         <google-map height="600px" width="100%" [options]="options">
+            <!-- <map-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
+                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name">
+            </map-marker> -->
+
             <map-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
                 [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name">
             </map-marker>
+
+            <!-- Vehicles -->
+            <map-marker *ngFor="let v of vehicleLocations; trackBy: trackById" [position]="{ lat: v.lat, lng: v.lng }"
+                [title]="v.name">
+            </map-marker>
+
         </google-map>
 
-        <!-- <google-map height="600px" width="800px" [options]="options">
-            <map-marker *ngFor="let location of shipments; trackBy: trackById"
-                [position]="{ lat: location.lat, lng: location.lng }" [title]="location.name">
-            </map-marker>
-        </google-map> -->
+
 
     </div>

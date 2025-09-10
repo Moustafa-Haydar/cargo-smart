@@ -1,10 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SearchSection } from '../../shared/components/search-section/search-section';
 import { VehicleCard } from '../../shared/components/vehicle-card/vehicle-card';
 import { TransportVehicle, VehicleType } from '../../shared/models/logistics.model';
 import { VehicleRepository } from './vehicles.repository';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-vehicles',
@@ -15,6 +17,8 @@ import { VehicleRepository } from './vehicles.repository';
 })
 export class Vehicles {
   private repo = inject(VehicleRepository);
+
+  destroyRef = inject(DestroyRef);
 
   vehicles: TransportVehicle[] = [];
   filteredVehicles: TransportVehicle[] = [];
@@ -31,7 +35,8 @@ export class Vehicles {
 
   ngOnInit(): void {
     // load data first, then filter
-    this.repo.getVehicles().subscribe({
+    this.repo.getVehicles().pipe(takeUntilDestroyed(this.destroyRef),map(res => res.vehicles ?? []))
+      .subscribe({
       next: (data) => {
         this.vehicles = data ?? [];
         this.filterVehicles();

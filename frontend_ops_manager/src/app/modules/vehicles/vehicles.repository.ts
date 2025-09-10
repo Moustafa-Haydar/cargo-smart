@@ -10,11 +10,7 @@ export class VehicleRepository {
   private http = inject(HttpClient);
 
   getVehicles() {
-    return this.http.get<VehiclesResponse>('/api/vehicles/vehicles/', { withCredentials: true })
-      .pipe(map(res => res.vehicles ?? []));
+    return this.http.get<VehiclesResponse>('/api/vehicles/vehicles/', { withCredentials: true });
   }
 
-  getVehicleById(id: string) {
-    return this.http.get<TransportVehicle>(`/api/vehicles/vehicle/${id}/`, { withCredentials: true });
-  }
 }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GoogleMap, GoogleMapsModule, MapInfoWindow } from '@angular/google-maps';
 import { SearchSection } from '../../shared/components/search-section/search-section';
-import { GeoLocation, Shipment } from '../../shared/models/logistics.model';
+import { GeoLocation, Shipment, TransportVehicle } from '../../shared/models/logistics.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ShipmentRepository } from '../shipments/shipment.repository';
@@ -26,6 +26,14 @@ interface ShipmentLocation {
   shipment: Shipment;
 }
 
+interface VehicleLocation {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  vehicle: TransportVehicle;
+}
+
 @Component({
   selector: 'app-live-map',
   standalone: true,
@@ -36,6 +44,7 @@ interface ShipmentLocation {
 export class LiveMap implements OnInit {
   private repo = inject(ShipmentRepository);
   private geoRepo = inject(LocationRepository);
+  private vehicleRepo = inject(VehicleRepository);
   destroyRef = inject(DestroyRef);
 
   @ViewChild(GoogleMap) googleMap!: GoogleMap;
@@ -50,6 +59,8 @@ export class LiveMap implements OnInit {
 
   shipments: Shipment[] = [];
   locations: GeoLocation[] = [];
+  vehicles: TransportVehicle[] = [];
+  vehicleLocations: VehicleLocation[] = [];
   shipmentLocations: ShipmentLocation[] = [];
   filteredShipments: Shipment[] = [];
 
@@ -78,6 +89,21 @@ export class LiveMap implements OnInit {
           console.error('Failed to load shipments', err);
           this.shipments = [];
           this.filteredShipments = [];
+        }
+      });
+
+    // load vehicles
+    this.vehicleRepo.getVehicles()
+      .pipe(takeUntilDestroyed(this.destroyRef), map(res => res.vehicles ?? []))
+      .subscribe({
+        next: (data) => {
+          this.vehicles = data ?? [];
+          this.filterData();
+          console.log(this.vehicles);
+        },
+        error: (err) => {
+          console.error('Failed to load vehicles', err);
+          this.vehicles = [];
         }
       });
 
@@ -153,6 +179,41 @@ export class LiveMap implements OnInit {
 
     console.log('Markers:', this.shipmentLocations);
   }
-}
+
+  if (this.selectedTypeOption === 'Vehicles') {
+    this.vehicleLocations = this.vehicles.flatMap(v => {
+      const markers: VehicleLocation[] = [];
+
+      // Prefer last_position if it exists
+      if (v.last_position?.lat && v.last_position?.lng) {
+        markers.push({
+          id: `${v.id}-lastpos`,
+          name: v.last_position.location || v.name,
+          lat: v.last_position.lat,
+          lng: v.last_position.lng,
+          vehicle: v,
+        });
+      }
+
+      // Or fallback to current_location linked with your locations array
+      const current = this.locations.find(loc => loc.id === v.current_location?.id);
+      if (current) {
+        markers.push({
+          id: `${v.id}-current`,
+          name: current.name,
+          lat: current.lat,
+          lng: current.lng,
+          vehicle: v,
+        });
+      }
+
+      return markers;
+    });
+
+    console.log('Vehicle markers:', this.vehicleLocations);
+  }
+
+
+  }
 
 }
