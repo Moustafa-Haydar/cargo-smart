@@ -157,7 +157,7 @@ export interface RouteSegment {
 export interface RouteVehicleRef {
   id: string;
   name: string;
-  type: VehicleType;
+  type: 'VESSEL' | 'TRUCK' | 'PLANE';
   status: VehicleOperationalStatus | 'AT_PORT'; // example shows AT_PORT
 }
 
@@ -168,7 +168,6 @@ export interface Route {
   geometry: string;           // stored as stringified GeoJSON or WKT
   segments: RouteSegment[];
 
-  // The example shows empty arrays; types included for completeness:
   shipments?: Shipment[];     // may be empty or omitted
   vehicles?: RouteVehicleRef[];
 }

@@ -17,19 +17,26 @@
 
     <div class="map-container">
 
-        <google-map height="600px" width="100%" [options]="options">
+        <google-map height="75vh" width="100%" [options]="options">
+
             <!-- <map-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
-                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name">
+                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name"
+                 [content]="loc.content">
             </map-marker> -->
 
-            <map-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
-                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name">
-            </map-marker>
+            <map-advanced-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
+                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name" [content]="loc.content">
+            </map-advanced-marker>
 
             <!-- Vehicles -->
             <map-marker *ngFor="let v of vehicleLocations; trackBy: trackById" [position]="{ lat: v.lat, lng: v.lng }"
                 [title]="v.name">
             </map-marker>
+
+            <!-- Route lines -->
+            <map-polyline *ngFor="let seg of routeSegments; trackBy: trackById" [path]="seg.path"
+                [options]="{ strokeColor: seg.color, strokeWeight: 3 }">
+            </map-polyline>
 
         </google-map>
 

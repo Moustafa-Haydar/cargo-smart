@@ -63,11 +63,9 @@ h1 {
 
 
 .map-container {
-    height: 30vh;
     width: 100%;
     border-radius: 10px;
     border: 1px solid #ccc;
-    margin: 20px 0;
 }
 
 google-map {
