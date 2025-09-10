@@ -177,3 +177,15 @@ export interface Route {
 export interface RoutesResponse {
   routes: Route[];
 }
+
+export interface GeoLocation {
+  id: string;          // UUID
+  name: string;
+  state?: string;      // optional because blank=True
+  country: string;
+  country_code: string;
+  locode?: string;     // optional because blank=True
+  lat: number;
+  lng: number;
+  timezone: string;
+}

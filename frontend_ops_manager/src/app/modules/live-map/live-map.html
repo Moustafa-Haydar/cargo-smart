@@ -11,33 +11,22 @@
         </div>
     </header>
 
-    <search-section [options]="shipmentTypeOptions" [placeHolder]="'Filter by type'" [(searchQuery)]="searchQuery"
-        [(selected)]="selectedType" (search)="applySearch($event)"
-        (filterChange)="applyFilter($event)"></search-section>
+    <search-section [options]="typeOptions" [placeHolder]="'Filter by type'" [(searchQuery)]="searchQuery"
+        [(selected)]="selectedTypeOption" (search)="applySearch($event)"
+        (filterChange)="applyTypeFilter($event)"></search-section>
 
     <div class="map-container">
+
+        <google-map height="600px" width="100%" [options]="options">
+            <map-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
+                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name">
+            </map-marker>
+        </google-map>
+
         <!-- <google-map height="600px" width="800px" [options]="options">
-            @for (location of nzLocations; track location) {
-            <map-advanced-marker #markerElem="mapAdvancedMarker"
-                [position]="{ lat: location.lat, lng: location.lng }" />
-            } @for (location of auLocations; track location) {
-            <map-advanced-marker #markerElem="mapAdvancedMarker"
-                [position]="{ lat: location.lat, lng: location.lng }" />
-            }
+            <map-marker *ngFor="let location of shipments; trackBy: trackById"
+                [position]="{ lat: location.lat, lng: location.lng }" [title]="location.name">
+            </map-marker>
         </google-map> -->
 
-        <google-map [options]="options">
-            <map-advanced-marker *ngFor="let m of markers" #markerRef="mapAdvancedMarker" [position]="m.position"
-                (mapClick)="openInfo(markerRef, m)">
-            </map-advanced-marker>
-
-
-            <google-map height="600px" width="800px" [options]="options">
-                @for (location of filteredShipments; track location) {
-                <map-advanced-marker #markerElem="mapAdvancedMarker"
-                    [position]="{ lat: location.lat, lng: location.lng }" />
-                }
-            </google-map>
-
-        </google-map>
     </div>

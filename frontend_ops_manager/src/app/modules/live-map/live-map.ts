@@ -3,15 +3,26 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GoogleMap, GoogleMapsModule, MapInfoWindow } from '@angular/google-maps';
 import { SearchSection } from '../../shared/components/search-section/search-section';
-import { Shipment, ShipmentType } from '../../shared/models/logistics.model';
-import { ShipmentRepository } from '../shipments/shipment.repository';
+import { GeoLocation, Shipment } from '../../shared/models/logistics.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
+import { ShipmentRepository } from '../shipments/shipment.repository';
+import { VehicleRepository } from '../vehicles/vehicles.repository';
+import { LocationRepository } from './live-map.repository';
 
 type LatLng = google.maps.LatLngLiteral;
+type TypeOption = 'Shipments' | 'Vehicles' | 'Routes' | null;
 
 interface MarkerData {
   position: LatLng;
+  shipment?: Shipment;
+}
+
+interface ShipmentLocation {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
   shipment: Shipment;
 }
 
@@ -22,10 +33,9 @@ interface MarkerData {
   templateUrl: './live-map.html',
   styleUrl: './live-map.css'
 })
-
 export class LiveMap implements OnInit {
   private repo = inject(ShipmentRepository);
-  
+  private geoRepo = inject(LocationRepository);
   destroyRef = inject(DestroyRef);
 
   @ViewChild(GoogleMap) googleMap!: GoogleMap;
@@ -39,53 +49,71 @@ export class LiveMap implements OnInit {
   };
 
   shipments: Shipment[] = [];
+  locations: GeoLocation[] = [];
+  shipmentLocations: ShipmentLocation[] = [];
   filteredShipments: Shipment[] = [];
-  markers: MarkerData[] = [];
 
   searchQuery = '';
-  selectedType: ShipmentType | null = null;
+  selectedTypeOption: TypeOption = 'Shipments';
 
-  shipmentTypeOptions = [
+  typeOptions = [
     { label: 'All', value: null },
-    { label: 'BBK', value: 'BBK' as ShipmentType },
-    { label: 'LCL', value: 'LCL' as ShipmentType },
-    { label: 'CT', value: 'CT' as ShipmentType },
+    { label: 'Shipments', value: 'Shipments' as TypeOption },
+    { label: 'Vehicles', value: 'Vehicles' as TypeOption },
+    { label: 'Routes', value: 'Routes' as TypeOption },
   ];
 
-  activeShipment: Shipment | null = null;
-
+  // fetch all data (shipments, locations, routes, vehicles, ...)
   ngOnInit(): void {
-    // load data first, then filter
-    this.repo.getShipments().pipe(takeUntilDestroyed(this.destroyRef),map(res => res.shipments ?? []))
+    // load shipments
+    this.repo.getShipments()
+      .pipe(takeUntilDestroyed(this.destroyRef), map(res => res.shipments ?? []))
       .subscribe({
-      next: (data) => {
-        this.shipments = data ?? [];
-        this.filterShipments();
-      },
-      error: (err) => {
-        console.error('Failed to load shipments', err);
-        this.shipments = [];
-        this.filteredShipments = [];
-      }
-    });
+        next: (data) => {
+          this.shipments = data ?? [];
+          this.filterData();
+          console.log(this.shipments);
+        },
+        error: (err) => {
+          console.error('Failed to load shipments', err);
+          this.shipments = [];
+          this.filteredShipments = [];
+        }
+      });
+
+    // load locations
+    this.geoRepo.getLocations()
+      .pipe(takeUntilDestroyed(this.destroyRef), map(res => res.locations ?? []))
+      .subscribe({
+        next: (data) => {
+          this.locations = data ?? [];
+        },
+        error: (err) => {
+          console.error('Failed to load locations', err);
+          this.locations = [];
+        }
+      });
+  }
+
+  trackById(index: number, item: { id: string }) {
+    return item.id;
   }
 
   applySearch(q: string) {
     this.searchQuery = q ?? '';
-    this.filterShipments();
+    this.filterData();
   }
 
-  applyFilter(type: ShipmentType | null) {
-    this.selectedType = type ?? null;
-    this.filterShipments();
+  applyTypeFilter(type: TypeOption) {
+    this.selectedTypeOption = type ?? null;
+    this.filterData();
   }
 
-  private filterShipments() {
-    const q = this.searchQuery.trim().toLowerCase();
+  private filterData() {
+  const q = this.searchQuery.trim().toLowerCase();
 
+  if (this.selectedTypeOption === 'Shipments') {
     this.filteredShipments = this.shipments.filter(s => {
-      const matchesType = !this.selectedType || s.shipment_type === this.selectedType;
-
       const haystack = [
         s.id,
         s.ref_no,
@@ -99,65 +127,32 @@ export class LiveMap implements OnInit {
         s.route?.name,
       ].filter(Boolean).join(' ').toLowerCase();
 
-      const matchesQuery = !q || haystack.includes(q);
-      return matchesType && matchesQuery;
+      return !q || haystack.includes(q);
     });
 
-    this.refreshMarkers();
-  }
+    this.shipmentLocations = this.filteredShipments.flatMap(s => {
+      const markers: ShipmentLocation[] = [];
 
-  private refreshMarkers() {
-    this.markers = [];
-    const bounds = new google.maps.LatLngBounds();
-    let hasPoints = false;
+      // helper to resolve a location by id
+      const resolveLoc = (id?: string) =>
+        this.locations.find(loc => loc.id === id);
 
-    for (const s of this.filteredShipments) {
-      const pos = this.pickDisplayPosition(s);
-      if (pos) {
-        this.markers.push({ position: pos, shipment: s });
-        bounds.extend(pos as any);
-        hasPoints = true;
+      const current = resolveLoc(s.current_location?.id);
+      if (current) {
+        markers.push({
+          id: `${s.id}-current`,
+          name: current.name,
+          lat: current.lat,
+          lng: current.lng,
+          shipment: s,
+        });
       }
-    }
 
-    if (hasPoints && this.googleMap) {
-      (this.googleMap as any).fitBounds(bounds, 40);
-    } else if (this.googleMap) {
-      this.googleMap.googleMap?.setCenter(this.options.center!);
-      this.googleMap.googleMap?.setZoom(this.options.zoom!);
-    }
+      return markers;
+    });
+
+    console.log('Markers:', this.shipmentLocations);
   }
-
-  private pickDisplayPosition(s: Shipment): LatLng | null {
-    return this.getLatLng(s.current_location) ?? this.getLatLng(s.origin) ?? null;
-  }
-
-  private getLatLng(entity: any): LatLng | null {
-    if (!entity) return null;
-    if (typeof entity.lat === 'number' && typeof entity.lng === 'number') {
-      return { lat: entity.lat, lng: entity.lng };
-    }
-    if (typeof entity.latitude === 'number' && typeof entity.longitude === 'number') {
-      return { lat: entity.latitude, lng: entity.longitude };
-    }
-    if (entity.location && typeof entity.location.lat === 'number' && typeof entity.location.lng === 'number') {
-      return { lat: entity.location.lat, lng: entity.location.lng };
-    }
-    if (Array.isArray(entity.coordinates) && entity.coordinates.length >= 2) {
-      const [lng, lat] = entity.coordinates;
-      if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng };
-    }
-    if (entity.geojson && Array.isArray(entity.geojson.coordinates)) {
-      const [lng, lat] = entity.geojson.coordinates;
-      if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng };
-    }
-    return null;
-  }
-
-  openInfo(marker: any, m: MarkerData) {
-    this.activeShipment = m.shipment;
-    this.infoWindow.open(marker);
-  }
-
 }
 
+}
