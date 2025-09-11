@@ -33,14 +33,16 @@ def haversine_km(lat1, lon1, lat2, lon2):
     a = sin(dlat/2)**2 + cos(radians(lat1))*cos(radians(lat2))*sin(dlon/2)**2
     return 2 * R * asin(sqrt(a))
 
-
 class Command(BaseCommand):
     help = "Train a simple delay classifier and save the model to models/delay_classifier.joblib"
 
     def handle(self, *args, **options):
         # 1) Load data
-        data_path = os.path.join(settings.BASE_DIR, "data", "delivery_truck_data_with_delay.xlsx")
-        df = pd.read_excel(data_path)
+        data_path = os.path.join(settings.BASE_DIR, "data", "delivery_truck_data.xlsx")
+        # df = pd.read_excel(data_path)
+        # only the first 800 record are ready
+        df = pd.read_excel(data_path, nrows=800)
+
 
         # 2) Parse times (best effort)
         for col in ["BookingID_Date", "Planned_ETA"]:

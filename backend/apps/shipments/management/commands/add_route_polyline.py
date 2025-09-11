@@ -50,11 +50,9 @@ class Command(BaseCommand):
             except Exception:
                 return None, None
 
-
-
         def get_route(origin, destination):
             try:
-                coords = [(origin[1], origin[0]), (destination[1], destination[0])]  # (lon,lat)
+                coords = [(origin[1], origin[0]), (destination[1], destination[0])]
                 route = client.directions(
                     coords,
                     profile="driving-car",
@@ -64,15 +62,27 @@ class Command(BaseCommand):
                 )
                 polyline = route["features"][0]["geometry"]["coordinates"]
                 polyline = [(lat, lon) for lon, lat in polyline]  # back to (lat,lon)
+
+                # ✅ Downsample polyline (max 50 points)
+                if len(polyline) > 50:
+                    step = len(polyline) // 50
+                    polyline = polyline[::step]
+                    if polyline[-1] != destination:
+                        polyline.append(destination)
+
+                # ✅ Ensure start and end match input
+                polyline[0] = origin
+                polyline[-1] = destination
+
+                # ✅ Keep segments short (origin → middle → destination)
                 segments = [
-                    f"{polyline[i]} -> {polyline[i+1]}"
-                    for i in range(len(polyline) - 1)
+                    f"{polyline[0]} -> {polyline[len(polyline)//2]} -> {polyline[-1]}"
                 ]
+
                 return polyline, segments
             except Exception as e:
                 self.stdout.write(self.style.WARNING(f"Route error: {e}"))
                 return None, None
-
 
 
 
@@ -86,7 +96,7 @@ class Command(BaseCommand):
         cache = {}
 
         rows = len(df)
-        max_per_minute = 20
+        max_per_minute = 35
         calls_done = 0
 
 
@@ -99,8 +109,8 @@ class Command(BaseCommand):
             for idx, row in batch.iterrows():
 
                 # limit api calls for testing
-                if calls_done >= 10:
-                    break
+                # if calls_done >= 5:
+                #     break
 
                 origin = parse_latlon(row["Org_lat_lon"])
                 dest = parse_latlon(row["Dest_lat_lon"])
