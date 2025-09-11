@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Load your file
         file_path = os.path.join(settings.BASE_DIR, "data", "delivery_truck_data.xlsx")
-        df = pd.read_excel(file_path, sheet_name="VTS Data 280820")
+        df = pd.read_excel(file_path, sheet_name="Sheet1")
 
         # Convert to datetime
         df["Planned_ETA"] = pd.to_datetime(df["Planned_ETA"])

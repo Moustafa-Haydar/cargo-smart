@@ -42,7 +42,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Load truck delivery dataset
         file_path = os.path.join(settings.BASE_DIR, "data", "delivery_truck_data.xlsx")
-        df = pd.read_excel(file_path, sheet_name="VTS Data 280820")
+        df = pd.read_excel(file_path, sheet_name="Sheet1")
 
         for i, row in df.head(50).iterrows():  # limit to 5 rows for testing
             try:
@@ -59,6 +59,6 @@ class Command(BaseCommand):
                 self.stderr.write(f"Error processing row {i}: {e}")
 
         # Overwrite the same Excel file with enriched data
-        df.to_excel(file_path, sheet_name="VTS Data 280820", index=False)
+        df.to_excel(file_path, sheet_name="Sheet1", index=False)
 
         self.stdout.write(self.style.SUCCESS(f"Updated Excel file with {len(df)} rows enriched"))
