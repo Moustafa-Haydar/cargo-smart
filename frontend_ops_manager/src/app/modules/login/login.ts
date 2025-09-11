@@ -6,7 +6,9 @@ import { PasswordModule } from 'primeng/password';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { LoginRepository, LoginRequest } from './login.repository';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +19,8 @@ import { Subject, takeUntil } from 'rxjs';
     PasswordModule,
     InputTextModule,
     ButtonModule,
+    ProgressSpinnerModule,
+    MessageModule
   ],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
@@ -35,17 +39,23 @@ export class Login {
     'password': ['', [Validators.required, Validators.minLength(4)]],
   });
 
+  loading = false;
+  errorMessage = "";
+
   onSubmit() {
     if (this.authForm.invalid) {
       this.authForm.markAllAsTouched();
       return;
     }
 
+    this.loading = true;
+    this.errorMessage = "";
+
     const credentials: LoginRequest = this.authForm.getRawValue();
-    console.log('Credentials:', credentials);
 
     this.loginRepository.login(credentials)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$),
+      finalize(() => this.loading = false))
       .subscribe({
         next: (res) => {
           const ok = (res as any)?.user || (res as any)?.success === true;
@@ -55,10 +65,17 @@ export class Login {
             this.router.navigate([returnUrl]);
           } else {
             console.error('Login failed: unexpected response');
+            this.errorMessage = "Invalid credentials. Please try again.";
+            this.loading = false;
           }
         },
         error: (error) => {
           console.error('Login failed:', error);
+          this.errorMessage = "Invalid username or password";
+          this.loading = false;
+        },
+        complete: () => {
+          this.loading = false;
         }
       });
   }
