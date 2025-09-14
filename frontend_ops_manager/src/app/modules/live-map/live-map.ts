@@ -25,7 +25,6 @@ interface ShipmentLocation {
   lat: number;
   lng: number;
   shipment: Shipment;
-  content: Node | null;
 }
 
 interface VehicleLocation {
@@ -62,12 +61,14 @@ export class LiveMap implements OnInit {
   @ViewChild(GoogleMap) googleMap!: GoogleMap;
   @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
 
-  options: google.maps.MapOptions = {
-    center: { lat: 40, lng: -20 },
-    zoom: 3,
+  options: any = {
+    center: { lat: 20, lng: 80 },
+    zoom: 5,
     streetViewControl: false,
-    mapTypeControl: true,  // Enable map type control to switch themes
-    mapTypeId: 'roadmap' as any,  // Use string instead of enum to avoid initialization issues
+    mapTypeControl: false,  // Disable internal map type control - use external controls only
+    zoomControl: true,      // Keep zoom controls
+    fullscreenControl: true, // Keep fullscreen control
+    mapTypeId: 'roadmap',  // Use string instead of enum to avoid initialization issues
     // mapId: '80701f24f0f842f7eba9f816'  // Commented out to use default themes
   };
 
@@ -82,7 +83,7 @@ export class LiveMap implements OnInit {
 
   searchQuery = '';
   selectedTypeOption: TypeOption = 'Shipments';
-  selectedMapTheme: string = 'roadmap';
+  selectedMapTheme: string = 'minimal';
 
   typeOptions = [
     { label: 'All', value: null },
@@ -96,9 +97,11 @@ export class LiveMap implements OnInit {
     // Wait for Google Maps to be available
     if (typeof google === 'undefined' || !google.maps) {
       console.warn('Google Maps API not loaded yet, retrying...');
-      setTimeout(() => this.ngOnInit(), 100);
+      setTimeout(() => this.ngOnInit(), 1000); // Increased timeout
       return;
     }
+
+    console.log('Google Maps API loaded successfully');
 
     // load shipments
     this.repo.getShipments()
@@ -107,7 +110,7 @@ export class LiveMap implements OnInit {
         next: (data) => {
           this.shipments = data ?? [];
           this.filterData();
-          console.log(this.shipments);
+          console.log('Shipments loaded:', this.shipments.length, this.shipments);
         },
         error: (err) => {
           console.error('Failed to load shipments', err);
@@ -137,6 +140,7 @@ export class LiveMap implements OnInit {
       .subscribe({
         next: (data) => {
           this.locations = data ?? [];
+          console.log('Locations loaded:', this.locations.length);
         },
         error: (err) => {
           console.error('Failed to load locations', err);
@@ -157,6 +161,11 @@ export class LiveMap implements OnInit {
           this.routes = [];
         }
       });
+
+    // Apply the default minimal theme after a short delay to ensure map is ready
+    setTimeout(() => {
+      this.changeMapTheme();
+    }, 500);
 
   }
 
@@ -186,102 +195,102 @@ export class LiveMap implements OnInit {
       const map = this.googleMap.googleMap;
 
       switch (this.selectedMapTheme) {
-        case 'roadmap':
-          map.setMapTypeId('roadmap' as any);
-          break;
-        case 'satellite':
-          map.setMapTypeId('satellite' as any);
-          break;
-        case 'hybrid':
-          map.setMapTypeId('hybrid' as any);
-          break;
-        case 'terrain':
-          map.setMapTypeId('terrain' as any);
-          break;
-        case 'dark':
-          // Custom dark theme
+        case 'minimal':
+          // Custom minimal theme - clean and light
           map.setOptions({
             styles: [
-              { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-              { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-              { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+              { elementType: "geometry", stylers: [{ color: "#f1ebea" }] },
+              { elementType: "labels.text.stroke", stylers: [{ color: "#ffffff" }] },
+              { elementType: "labels.text.fill", stylers: [{ color: "#666666" }] },
               {
                 featureType: "administrative.locality",
                 elementType: "labels.text.fill",
-                stylers: [{ color: "#d59563" }]
+                stylers: [{ color: "#333333" }]
               },
               {
                 featureType: "poi",
                 elementType: "labels.text.fill",
-                stylers: [{ color: "#d59563" }]
+                stylers: [{ color: "#333333" }]
               },
               {
                 featureType: "poi.park",
                 elementType: "geometry",
-                stylers: [{ color: "#263c3f" }]
+                stylers: [{ color: "#e8f5e8" }]
               },
               {
                 featureType: "poi.park",
                 elementType: "labels.text.fill",
-                stylers: [{ color: "#6b9a76" }]
+                stylers: [{ color: "#2d5a2d" }]
               },
               {
                 featureType: "road",
                 elementType: "geometry",
-                stylers: [{ color: "#38414e" }]
+                stylers: [{ color: "#ffffff" }]
               },
               {
                 featureType: "road",
                 elementType: "geometry.stroke",
-                stylers: [{ color: "#212a37" }]
+                stylers: [{ color: "#e0e0e0" }]
               },
               {
                 featureType: "road",
                 elementType: "labels.text.fill",
-                stylers: [{ color: "#9ca5b3" }]
+                stylers: [{ color: "#666666" }]
               },
               {
                 featureType: "road.highway",
                 elementType: "geometry",
-                stylers: [{ color: "#746855" }]
+                stylers: [{ color: "#f0f0f0" }]
               },
               {
                 featureType: "road.highway",
                 elementType: "geometry.stroke",
-                stylers: [{ color: "#1f2835" }]
+                stylers: [{ color: "#d0d0d0" }]
               },
               {
                 featureType: "road.highway",
                 elementType: "labels.text.fill",
-                stylers: [{ color: "#f3d19c" }]
+                stylers: [{ color: "#333333" }]
               },
               {
                 featureType: "transit",
                 elementType: "geometry",
-                stylers: [{ color: "#2f3948" }]
+                stylers: [{ color: "#f8f8f8" }]
               },
               {
                 featureType: "transit.station",
                 elementType: "labels.text.fill",
-                stylers: [{ color: "#d59563" }]
+                stylers: [{ color: "#333333" }]
               },
               {
                 featureType: "water",
                 elementType: "geometry",
-                stylers: [{ color: "#17263c" }]
+                stylers: [{ color: "#add3db" }]
               },
               {
                 featureType: "water",
                 elementType: "labels.text.fill",
-                stylers: [{ color: "#515c6d" }]
+                stylers: [{ color: "#4682B4" }]
               },
               {
                 featureType: "water",
                 elementType: "labels.text.stroke",
-                stylers: [{ color: "#17263c" }]
+                stylers: [{ color: "#ffffff" }]
               }
             ]
           });
+          break;
+        case 'roadmap':
+          map.setMapTypeId('roadmap');
+          break;
+        case 'satellite':
+          map.setMapTypeId('satellite');
+          break;
+        case 'hybrid':
+          map.setMapTypeId('hybrid');
+          break;
+        case 'terrain':
+          map.setMapTypeId('terrain');
           break;
       }
     }
@@ -290,10 +299,7 @@ export class LiveMap implements OnInit {
   private filterData() {
     const q = this.searchQuery.trim().toLowerCase();
 
-    const parser = new DOMParser();
-
-    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#358c99" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-container-icon lucide-container"><path d="M22 7.7c0-.6-.4-1.2-.8-1.5l-6.3-3.9a1.72 1.72 0 0 0-1.7 0l-10.3 6c-.5.2-.9.8-.9 1.4v6.6c0 .5.4 1.2.8 1.5l6.3 3.9a1.72 1.72 0 0 0 1.7 0l10.3-6c.5-.3.9-1 .9-1.5Z"/><path d="M10 21.9V14L2.1 9.1"/><path d="m10 14 11.9-6.9"/><path d="M14 19.8v-8.1"/><path d="M18 17.5V9.4"/></svg>`;
-    const svgNode = parser.parseFromString(svgString, "image/svg+xml").documentElement;
+    // Removed custom SVG content since we're using regular markers now
 
     // --- Shipments ---
     if (this.selectedTypeOption === 'Shipments') {
@@ -339,7 +345,7 @@ export class LiveMap implements OnInit {
         return markers;
       });
 
-      console.log('Markers:', this.shipmentLocations);
+      console.log('Shipment markers created:', this.shipmentLocations.length, this.shipmentLocations);
     }
 
     // --- Vehicles ---
@@ -395,7 +401,7 @@ export class LiveMap implements OnInit {
           );
 
           // Color by route (simplified - all routes are truck routes)
-          let color = '#4CAF50'; // green for truck routes
+          let color = '#F68716'; // secondary color for truck routes
 
           return {
             id: seg.id,

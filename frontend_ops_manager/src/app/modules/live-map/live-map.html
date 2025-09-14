@@ -19,11 +19,11 @@
         <div class="theme-selector">
             <label for="mapTheme">Map Theme:</label>
             <select id="mapTheme" [value]="selectedMapTheme" (change)="onThemeChange($event)">
+                <option value="minimal">Minimal</option>
                 <option value="roadmap">Road Map</option>
                 <option value="satellite">Satellite</option>
                 <option value="hybrid">Hybrid</option>
                 <option value="terrain">Terrain</option>
-                <option value="dark">Dark Mode</option>
             </select>
         </div>
     </div>
@@ -37,9 +37,9 @@
                  [content]="loc.content">
             </map-marker> -->
 
-            <map-advanced-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
-                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name" [content]="loc.content">
-            </map-advanced-marker>
+            <map-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
+                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name">
+            </map-marker>
 
             <!-- Vehicles -->
             <map-marker *ngFor="let v of vehicleLocations; trackBy: trackById" [position]="{ lat: v.lat, lng: v.lng }"
