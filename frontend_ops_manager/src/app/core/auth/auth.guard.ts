@@ -15,24 +15,19 @@ export class AuthGuard implements CanActivate {
         route: ActivatedRouteSnapshot,
         state: RouterStateSnapshot
     ): Observable<boolean> {
-        console.log('AuthGuard: Checking authentication for route:', state.url);
         // Check if user is authenticated by calling the backend
         return this.http.get('/api/accounts/me/', { withCredentials: true }).pipe(
             map((response: any) => {
-                console.log('AuthGuard: Me endpoint response:', response);
-                if (response && response.authenticated === true && response.user) {
-                    console.log('AuthGuard: User is authenticated');
+                if (response && response.user) {
                     return true;
                 }
-                console.log('AuthGuard: User is not authenticated, redirecting to login');
                 // If not authenticated, redirect to login
                 this.router.navigate(['/login'], {
                     queryParams: { returnUrl: state.url }
                 });
                 return false;
             }),
-            catchError((error) => {
-                console.log('AuthGuard: Error checking authentication:', error);
+            catchError(() => {
                 // If API call fails, redirect to login
                 this.router.navigate(['/login'], {
                     queryParams: { returnUrl: state.url }

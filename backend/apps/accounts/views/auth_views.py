@@ -41,9 +41,12 @@ def login(request):
 
     user = authenticate(request, username=username, password=password)
     if not user:
+        print(f"Login failed - Invalid credentials for username: {username}")
         return JsonResponse({"ok": False, "error": "Invalid credentials"}, status=401)
 
+    print(f"Login successful for user: {user.username}")
     auth_login(request, user)
+    print(f"Session created - Session key: {request.session.session_key}")
 
     # Optional: cache permission ids in session for quick checks (invalidate on group updates)
     perm_ids, _ = _user_permissions(user)
@@ -61,6 +64,10 @@ def logout(request):
 
 @require_GET
 def me(request):
+    print(f"Me endpoint called - User authenticated: {request.user.is_authenticated}")
+    print(f"Session key: {request.session.session_key}")
+    print(f"User: {request.user}")
+    
     if request.user.is_authenticated:
         return JsonResponse({"authenticated": True, "user": _user_payload(request.user)})
     return JsonResponse({"authenticated": False}, status=401)

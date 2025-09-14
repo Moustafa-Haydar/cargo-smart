@@ -181,7 +181,6 @@ export interface GeoLocation {
   state?: string;      // optional because blank=True
   country: string;
   country_code: string;
-  locode?: string;     // optional because blank=True
   lat: number;
   lng: number;
   timezone: string;
