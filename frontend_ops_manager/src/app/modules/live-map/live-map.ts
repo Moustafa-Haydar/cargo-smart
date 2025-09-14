@@ -338,7 +338,6 @@ export class LiveMap implements OnInit {
             lat: current.lat,
             lng: current.lng,
             shipment: s,
-            content: svgNode.cloneNode(true) as HTMLElement,
           } as any);
         }
 
