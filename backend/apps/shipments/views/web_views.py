@@ -37,6 +37,13 @@ def _serialize_shipment(s: Shipment) -> dict:
             "name": s.route.name
         } if s.route else None,
 
+        "vehicle": {
+            "id": str(s.vehicle.id),
+            "plate_number": s.vehicle.plate_number,
+            "model": s.vehicle.model,
+            "status": s.vehicle.status,
+        } if s.vehicle else None,
+
         "scheduled_at": s.scheduled_at.isoformat() if s.scheduled_at else None,
         "delivered_at": s.delivered_at.isoformat() if s.delivered_at else None,
 
@@ -67,7 +74,8 @@ def shipments(request, shipment_id=None):
             "origin",
             "destination",
             "current_location",
-            "route"
+            "route",
+            "vehicle"
         )
         .prefetch_related(
             Prefetch(

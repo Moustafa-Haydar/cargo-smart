@@ -35,51 +35,17 @@ export class RouteCard {
     }
 
     get estimatedTime(): number {
-        // Calculate estimated time based on distance and transport mode
+        // Calculate estimated time based on distance (simplified for trucks)
         const segments = this.route.segments || [];
-        let totalHours = 0;
-
-        segments.forEach(segment => {
-            switch (segment.mode) {
-                case 'TRUCK':
-                    totalHours += 2; // 2 hours per segment for trucks
-                    break;
-                case 'VESSEL':
-                    totalHours += 24; // 24 hours per segment for vessels
-                    break;
-                case 'PLANE':
-                    totalHours += 1; // 1 hour per segment for planes
-                    break;
-                default:
-                    totalHours += 2;
-            }
-        });
-
-        return totalHours;
+        // Assume 2 hours per segment for truck routes
+        return segments.length * 2;
     }
 
     get fuelCost(): number {
-        // Calculate fuel cost based on distance and transport mode
+        // Calculate fuel cost based on distance (simplified for trucks)
         const segments = this.route.segments || [];
-        let totalCost = 0;
-
-        segments.forEach(segment => {
-            switch (segment.mode) {
-                case 'TRUCK':
-                    totalCost += 50; // $50 per segment for trucks
-                    break;
-                case 'VESSEL':
-                    totalCost += 200; // $200 per segment for vessels
-                    break;
-                case 'PLANE':
-                    totalCost += 100; // $100 per segment for planes
-                    break;
-                default:
-                    totalCost += 50;
-            }
-        });
-
-        return totalCost;
+        // Assume $50 per segment for truck routes
+        return segments.length * 50;
     }
 
     get isOptimized(): boolean {

@@ -24,29 +24,29 @@ export class Vehicles {
   filteredVehicles: TransportVehicle[] = [];
 
   searchQuery = '';
-  selectedType: VehicleType | null = null;
+  selectedStatus: string | null = null;
 
-  vehicleTypeOptions = [
+  statusOptions = [
     { label: 'All', value: null },
-    { label: 'Truck', value: 'TRUCK' as VehicleType },
-    { label: 'Vessel', value: 'VESSEL' as VehicleType },
-    { label: 'Plane', value: 'PLANE' as VehicleType },
+    { label: 'Active', value: 'ACTIVE' },
+    { label: 'In Transit', value: 'IN_TRANSIT' },
+    { label: 'Maintenance', value: 'MAINTENANCE' },
   ];
 
   ngOnInit(): void {
     // load data first, then filter
-    this.repo.getVehicles().pipe(takeUntilDestroyed(this.destroyRef),map(res => res.vehicles ?? []))
+    this.repo.getVehicles().pipe(takeUntilDestroyed(this.destroyRef), map(res => res.vehicles ?? []))
       .subscribe({
-      next: (data) => {
-        this.vehicles = data ?? [];
-        this.filterVehicles();
-      },
-      error: (err) => {
-        console.error('Failed to load vehicles', err);
-        this.vehicles = [];
-        this.filteredVehicles = [];
-      }
-    });
+        next: (data) => {
+          this.vehicles = data ?? [];
+          this.filterVehicles();
+        },
+        error: (err) => {
+          console.error('Failed to load vehicles', err);
+          this.vehicles = [];
+          this.filteredVehicles = [];
+        }
+      });
   }
 
   applySearch(q: string) {
@@ -54,8 +54,8 @@ export class Vehicles {
     this.filterVehicles();
   }
 
-  applyFilter(type: VehicleType | null) {
-    this.selectedType = type ?? null;
+  applyFilter(status: string | null) {
+    this.selectedStatus = status ?? null;
     this.filterVehicles();
   }
 
@@ -63,19 +63,19 @@ export class Vehicles {
     const q = this.searchQuery.trim().toLowerCase();
 
     this.filteredVehicles = this.vehicles.filter(v => {
-      const matchesType = !this.selectedType || v.type === this.selectedType;
+      const matchesStatus = !this.selectedStatus || v.status === this.selectedStatus;
 
       const haystack = [
         v.id,
-        v.name,
-        v.type,
+        v.plate_number,
+        v.model,
         v.status,
         v.current_location?.name,
         v.route?.name
       ].filter(Boolean).join(' ').toLowerCase();
 
       const matchesQuery = !q || haystack.includes(q);
-      return matchesType && matchesQuery;
+      return matchesStatus && matchesQuery;
     });
   }
 }

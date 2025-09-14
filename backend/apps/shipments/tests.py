@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from apps.shipments.models import Shipment, ShipmentMilestone
 from apps.geo.models import Location
 from apps.routes.models import Route
+from apps.vehicles.models import Vehicle
 from datetime import datetime, timezone
 import json
 
@@ -30,6 +31,13 @@ class ShipmentViewsTestCase(TestCase):
             destination=self.destination
         )
         
+        # Create test vehicle
+        self.vehicle = Vehicle.objects.create(
+            plate_number="TEST-001",
+            model="Test Truck",
+            status="ACTIVE"
+        )
+        
         # Create test shipment
         self.shipment = Shipment.objects.create(
             ref_no="TEST001",
@@ -38,6 +46,7 @@ class ShipmentViewsTestCase(TestCase):
             origin=self.origin,
             destination=self.destination,
             route=self.route,
+            vehicle=self.vehicle,
             scheduled_at=datetime.now(timezone.utc)
         )
         
@@ -68,6 +77,10 @@ class ShipmentViewsTestCase(TestCase):
         self.assertIsNotNone(shipment_data['origin'])
         self.assertIsNotNone(shipment_data['destination'])
         self.assertIsNotNone(shipment_data['route'])
+        self.assertIsNotNone(shipment_data['vehicle'])
+        self.assertEqual(shipment_data['vehicle']['plate_number'], 'TEST-001')
+        self.assertEqual(shipment_data['vehicle']['model'], 'Test Truck')
+        self.assertEqual(shipment_data['vehicle']['status'], 'ACTIVE')
         self.assertEqual(len(shipment_data['milestones']), 1)
 
     def test_shipment_detail_view(self):

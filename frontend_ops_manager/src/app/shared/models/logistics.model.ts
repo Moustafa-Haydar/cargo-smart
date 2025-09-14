@@ -31,6 +31,13 @@ export interface Milestone {
 
 export type VehicleRole = 'MAIN' | 'FEEDER';
 
+export interface VehicleInfo {
+  id: string;
+  plate_number: string;
+  model: string;
+  status: string;
+}
+
 export interface ShipmentVehicleRef {
   id: string;
   name: string;
@@ -49,9 +56,7 @@ export interface Container {
 export interface Shipment {
   id: string;
   ref_no: string;
-  shipment_type: ShipmentType | string;
   status: ShipmentStatus | string;
-  carrier_code: string;
   carrier_name: string;
   origin: NamedEntity;
   destination: NamedEntity;
@@ -59,10 +64,9 @@ export interface Shipment {
   scheduled_at: ISODateTime;
   delivered_at: ISODateTime | null;
   route: NamedEntity;
+  vehicle: VehicleInfo | null;  // Direct vehicle assignment
   api_updated_at?: ISODateTime;
   milestones?: Milestone[];
-  vehicles: ShipmentVehicleRef[];
-  containers: Container[];
   progress_pct?: number;
 }
 
@@ -109,18 +113,12 @@ export interface PortCall {
   facility?: NamedEntity;       // e.g., terminal
 }
 
-// Full vehicle entity (from your "vehicle" example)
+// Full vehicle entity (updated to match backend)
 export interface TransportVehicle {
   id: string;
-  name: string;
-  type: VehicleType;                  // e.g., "VESSEL"
-  status: VehicleOperationalStatus;   // e.g., "IDLE"
-
-  // Maritime identifiers (present for vessels)
-  imo?: number;
-  mmsi?: number;
-  call_sign?: string;
-  flag?: string;                      // e.g., "BE"
+  plate_number: string;
+  model: string;
+  status: string;                     // e.g., "ACTIVE", "IN_TRANSIT", "MAINTENANCE"
 
   current_location: NamedEntity;
   route: NamedEntity;
@@ -146,9 +144,7 @@ export type TransportMode = 'VESSEL' | 'TRUCK' | 'PLANE';
 export interface RouteSegment {
   id: string;
   seq: number;
-  route_type: RouteType;     // e.g., "LAND", "SEA"
   geometry: string;          // WKT/GeoJSON string (as in your example)
-  mode: TransportMode;       // e.g., "VESSEL", "TRUCK"
   eta_start: ISODateTime | null;
   eta_end: ISODateTime | null;
 }
@@ -156,9 +152,9 @@ export interface RouteSegment {
 // In the route example, `vehicles` inside a route are small refs
 export interface RouteVehicleRef {
   id: string;
-  name: string;
-  type: 'VESSEL' | 'TRUCK' | 'PLANE';
-  status: VehicleOperationalStatus | 'AT_PORT'; // example shows AT_PORT
+  plate_number: string;
+  model: string;
+  status: string;
 }
 
 // Full Route entity
@@ -168,8 +164,20 @@ export interface Route {
   geometry: string;           // stored as stringified GeoJSON or WKT
   segments: RouteSegment[];
 
-  shipments?: Shipment[];     // may be empty or omitted
+  shipments?: RouteShipmentRef[];     // may be empty or omitted
   vehicles?: RouteVehicleRef[];
+}
+
+// Route shipment reference (simplified shipment info in routes)
+export interface RouteShipmentRef {
+  id: string;
+  ref_no: string;
+  status: string;
+  carrier_name: string;
+  origin_id: string;
+  destination_id: string;
+  scheduled_at: ISODateTime;
+  vehicle: VehicleInfo | null;
 }
 
 // Envelope if your API returns { routes: [...] }

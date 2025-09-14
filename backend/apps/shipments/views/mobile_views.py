@@ -25,7 +25,8 @@ def driver_shipments(request):
             "origin",
             "destination", 
             "current_location",
-            "route"
+            "route",
+            "vehicle"
         )
         .prefetch_related(
             Prefetch(
@@ -55,7 +56,8 @@ def driver_shipment_detail(request, shipment_id):
                 "origin",
                 "destination",
                 "current_location", 
-                "route"
+                "route",
+                "vehicle"
             )
             .prefetch_related(
                 Prefetch(

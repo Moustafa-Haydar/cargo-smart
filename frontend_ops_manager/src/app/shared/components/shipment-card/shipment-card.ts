@@ -16,9 +16,14 @@ export class ShipmentCard {
 
   // --- Convenience getters to keep your existing template props working ---
   get shipmentId(): string { return this.shipment.ref_no ?? this.shipment.id; }
-  get type(): string { return this.shipment.shipment_type; }
+  get type(): string { return this.shipment.carrier_name; }
   get origin(): string { return this.shipment.origin?.name ?? '-'; }
   get destination(): string { return this.shipment.destination?.name ?? '-'; }
+  get vehicle(): string {
+    return this.shipment.vehicle ?
+      `${this.shipment.vehicle.plate_number} (${this.shipment.vehicle.model})` :
+      'No vehicle assigned';
+  }
 
   // --- Status mapping (domain -> UI) ---
   get isDelayed(): boolean {
@@ -30,11 +35,11 @@ export class ShipmentCard {
   get uiStatus(): 'Delivered' | 'In-Transit' | 'Planned' | 'Delayed' {
     if (this.isDelayed) return 'Delayed';
     switch (this.shipment.status) {
-      case 'DELIVERED':   return 'Delivered';
-      case 'IN_TRANSIT':  return 'In-Transit';
+      case 'DELIVERED': return 'Delivered';
+      case 'IN_TRANSIT': return 'In-Transit';
       case 'DELAYED': return 'Delayed';
-      case 'CREATED':     return 'Planned';
-      default:            return 'In-Transit';
+      case 'CREATED': return 'Planned';
+      default: return 'In-Transit';
     }
   }
 
@@ -42,10 +47,10 @@ export class ShipmentCard {
   getStatusColor(): string {
     if (this.uiStatus === 'Delayed') return 'var(--orange)';
     switch (this.shipment.status) {
-      case 'DELIVERED':  return 'var(--green)';
+      case 'DELIVERED': return 'var(--green)';
       case 'IN_TRANSIT': return 'var(--blue)';
-      case 'CREATED':    return 'var(--slate-400)'; // fallback color for planned
-      default:           return 'var(--blue)';
+      case 'CREATED': return 'var(--slate-400)'; // fallback color for planned
+      default: return 'var(--blue)';
     }
   }
 
@@ -53,10 +58,10 @@ export class ShipmentCard {
   get progressPercentage(): number {
     if (typeof this.shipment.progress_pct === 'number') return this.shipment.progress_pct;
     switch (this.shipment.status) {
-      case 'DELIVERED':  return 100;
+      case 'DELIVERED': return 100;
       case 'IN_TRANSIT': return 50;
-      case 'CREATED':    return 0;
-      default:           return 0;
+      case 'CREATED': return 0;
+      default: return 0;
     }
   }
 

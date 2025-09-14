@@ -11,8 +11,8 @@
         </div>
     </header>
 
-    <search-section [options]="shipmentTypeOptions" [placeHolder]="'Filter by type'" [(searchQuery)]="searchQuery"
-        [(selected)]="selectedType" (search)="applySearch($event)"
+    <search-section [options]="carrierOptions" [placeHolder]="'Filter by carrier'" [(searchQuery)]="searchQuery"
+        [(selected)]="selectedCarrier" (search)="applySearch($event)"
         (filterChange)="applyFilter($event)"></search-section>
 
     <div class="shipments-grid">

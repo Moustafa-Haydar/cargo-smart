@@ -1,11 +1,11 @@
-import { Component, inject, OnInit, DestroyRef} from '@angular/core';
+import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { SearchSection } from '../../shared/components/search-section/search-section';
 import { Shipment, ShipmentType } from '../../shared/models/logistics.model';
 import { ShipmentCard } from '../../shared/components/shipment-card/shipment-card';
 import { ShipmentRepository } from './shipment.repository';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { map, takeUntil,  } from 'rxjs';
+import { map, takeUntil, } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -25,29 +25,31 @@ export class Shipments implements OnInit {
   filteredShipments: Shipment[] = [];
 
   searchQuery = '';
-  selectedType: ShipmentType | null = null;
+  selectedCarrier: string | null = null;
 
-  shipmentTypeOptions = [
+  carrierOptions = [
     { label: 'All', value: null },
-    { label: 'BBK', value: 'BBK' as ShipmentType },
-    { label: 'LCL', value: 'LCL' as ShipmentType },
-    { label: 'CT', value: 'CT' as ShipmentType },
+    { label: 'VRL Logistics', value: 'VRL Logistics' },
+    { label: 'Delhivery', value: 'Delhivery' },
+    { label: 'GATI', value: 'GATI' },
+    { label: 'BlueDart', value: 'BlueDart' },
+    { label: 'TCI Express', value: 'TCI Express' },
   ];
 
   ngOnInit(): void {
     // load data first, then filter
-    this.repo.getShipments().pipe(takeUntilDestroyed(this.destroyRef),map(res => res.shipments ?? []))
+    this.repo.getShipments().pipe(takeUntilDestroyed(this.destroyRef), map(res => res.shipments ?? []))
       .subscribe({
-      next: (data) => {
-        this.shipments = data ?? [];
-        this.filterShipments();
-      },
-      error: (err) => {
-        console.error('Failed to load shipments', err);
-        this.shipments = [];
-        this.filteredShipments = [];
-      }
-    });
+        next: (data) => {
+          this.shipments = data ?? [];
+          this.filterShipments();
+        },
+        error: (err) => {
+          console.error('Failed to load shipments', err);
+          this.shipments = [];
+          this.filteredShipments = [];
+        }
+      });
   }
 
   applySearch(q: string) {
@@ -55,8 +57,8 @@ export class Shipments implements OnInit {
     this.filterShipments();
   }
 
-  applyFilter(type: ShipmentType | null) {
-    this.selectedType = type ?? null;
+  applyFilter(carrier: string | null) {
+    this.selectedCarrier = carrier ?? null;
     this.filterShipments();
   }
 
@@ -64,23 +66,23 @@ export class Shipments implements OnInit {
     const q = this.searchQuery.trim().toLowerCase();
 
     this.filteredShipments = this.shipments.filter(s => {
-      const matchesType = !this.selectedType || s.shipment_type === this.selectedType;
+      const matchesCarrier = !this.selectedCarrier || s.carrier_name === this.selectedCarrier;
 
       const haystack = [
         s.id,
         s.ref_no,
-        s.shipment_type,
         s.status,
-        s.carrier_code,
         s.carrier_name,
         s.origin?.name,
         s.destination?.name,
         s.current_location?.name,
         s.route?.name,
+        s.vehicle?.plate_number,
+        s.vehicle?.model,
       ].filter(Boolean).join(' ').toLowerCase();
 
       const matchesQuery = !q || haystack.includes(q);
-      return matchesType && matchesQuery;
+      return matchesCarrier && matchesQuery;
     });
   }
 }

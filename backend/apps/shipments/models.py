@@ -14,6 +14,7 @@ class Shipment(models.Model):
         "geo.Location", on_delete=models.SET_NULL, null=True, blank=True, related_name="current_shipments"
     )
     route = models.ForeignKey("routes.Route", on_delete=models.SET_NULL, null=True, blank=True, related_name="shipments")
+    vehicle = models.ForeignKey("vehicles.Vehicle", on_delete=models.SET_NULL, null=True, blank=True, related_name="shipments")
 
     scheduled_at = models.DateTimeField()
     delivered_at = models.DateTimeField(null=True, blank=True)

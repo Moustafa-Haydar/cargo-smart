@@ -67,7 +67,7 @@ export class LiveMap implements OnInit {
     zoom: 3,
     streetViewControl: false,
     mapTypeControl: false,
-    mapId: '80701f24f0f842f7eba9f816'  
+    mapId: '80701f24f0f842f7eba9f816'
   };
 
   shipments: Shipment[] = [];
@@ -169,7 +169,7 @@ export class LiveMap implements OnInit {
     const q = this.searchQuery.trim().toLowerCase();
 
     const parser = new DOMParser();
-    
+
     const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#358c99" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-container-icon lucide-container"><path d="M22 7.7c0-.6-.4-1.2-.8-1.5l-6.3-3.9a1.72 1.72 0 0 0-1.7 0l-10.3 6c-.5.2-.9.8-.9 1.4v6.6c0 .5.4 1.2.8 1.5l6.3 3.9a1.72 1.72 0 0 0 1.7 0l10.3-6c.5-.3.9-1 .9-1.5Z"/><path d="M10 21.9V14L2.1 9.1"/><path d="m10 14 11.9-6.9"/><path d="M14 19.8v-8.1"/><path d="M18 17.5V9.4"/></svg>`;
     const svgNode = parser.parseFromString(svgString, "image/svg+xml").documentElement;
 
@@ -182,14 +182,14 @@ export class LiveMap implements OnInit {
         const haystack = [
           s.id,
           s.ref_no,
-          s.shipment_type,
           s.status,
-          s.carrier_code,
           s.carrier_name,
           s.origin?.name,
           s.destination?.name,
           s.current_location?.name,
           s.route?.name,
+          s.vehicle?.plate_number,
+          s.vehicle?.model,
         ].filter(Boolean).join(' ').toLowerCase();
 
         return !q || haystack.includes(q);
@@ -232,7 +232,7 @@ export class LiveMap implements OnInit {
         if (v.last_position?.lat && v.last_position?.lng) {
           markers.push({
             id: `${v.id}-lastpos`,
-            name: v.last_position.location || v.name,
+            name: v.last_position.location || v.plate_number,
             lat: v.last_position.lat,
             lng: v.last_position.lng,
             vehicle: v,
@@ -272,11 +272,8 @@ export class LiveMap implements OnInit {
             (c: [number, number]) => ({ lat: c[1], lng: c[0] })
           );
 
-          // Color by route type
-          let color = '#000';
-          if (seg.route_type === 'LAND') color = '#4CAF50'; // green
-          if (seg.route_type === 'SEA') color = '#2196F3';  // blue
-          if (seg.route_type === 'AIR') color = '#FF9800';  // orange
+          // Color by route (simplified - all routes are truck routes)
+          let color = '#4CAF50'; // green for truck routes
 
           return {
             id: seg.id,

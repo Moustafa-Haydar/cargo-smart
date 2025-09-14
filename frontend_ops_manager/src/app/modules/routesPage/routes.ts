@@ -21,9 +21,7 @@ export class RoutesPage {
         {
           id: 'seg-1',
           seq: 1,
-          route_type: 'LAND' as RouteType,
           geometry: 'LINESTRING(-122.4194 37.7749, -74.0060 40.7128)',
-          mode: 'TRUCK' as TransportMode,
           eta_start: '2025-01-15T08:00:00Z',
           eta_end: '2025-01-17T10:00:00Z'
         }
@@ -39,9 +37,7 @@ export class RoutesPage {
         {
           id: 'seg-2',
           seq: 1,
-          route_type: 'LAND' as RouteType,
           geometry: 'LINESTRING(-118.2437 34.0522, -87.6298 41.8781)',
-          mode: 'TRUCK' as TransportMode,
           eta_start: '2025-01-16T06:00:00Z',
           eta_end: '2025-01-18T14:00:00Z'
         }
@@ -57,9 +53,7 @@ export class RoutesPage {
         {
           id: 'seg-3',
           seq: 1,
-          route_type: 'AIR' as RouteType,
           geometry: 'LINESTRING(-122.3321 47.6062, -74.0060 40.7128)',
-          mode: 'PLANE' as TransportMode,
           eta_start: '2025-01-15T12:00:00Z',
           eta_end: '2025-01-15T20:00:00Z'
         }
@@ -75,9 +69,7 @@ export class RoutesPage {
         {
           id: 'seg-4',
           seq: 1,
-          route_type: 'LAND' as RouteType,
           geometry: 'LINESTRING(-80.1918 25.7617, -84.3880 33.7490)',
-          mode: 'TRUCK' as TransportMode,
           eta_start: '2025-01-16T08:00:00Z',
           eta_end: '2025-01-16T18:00:00Z'
         }
@@ -93,9 +85,7 @@ export class RoutesPage {
         {
           id: 'seg-5',
           seq: 1,
-          route_type: 'LAND' as RouteType,
           geometry: 'LINESTRING(-71.0589 42.3601, -74.0060 40.7128)',
-          mode: 'TRUCK' as TransportMode,
           eta_start: '2025-01-17T06:00:00Z',
           eta_end: '2025-01-17T12:00:00Z'
         }
@@ -111,9 +101,7 @@ export class RoutesPage {
         {
           id: 'seg-6',
           seq: 1,
-          route_type: 'SEA' as RouteType,
           geometry: 'LINESTRING(-122.4194 37.7749, 139.6917 35.6895)',
-          mode: 'VESSEL' as TransportMode,
           eta_start: '2025-01-20T00:00:00Z',
           eta_end: '2025-01-30T12:00:00Z'
         }
@@ -129,9 +117,7 @@ export class RoutesPage {
         {
           id: 'seg-7',
           seq: 1,
-          route_type: 'AIR' as RouteType,
           geometry: 'LINESTRING(-74.0060 40.7128, 2.3522 48.8566)',
-          mode: 'PLANE' as TransportMode,
           eta_start: '2025-01-18T14:00:00Z',
           eta_end: '2025-01-18T22:00:00Z'
         }
@@ -143,13 +129,13 @@ export class RoutesPage {
 
   // state
   searchQuery = '';
-  selectedType: RouteType | null = null;
+  selectedStatus: string | null = null;
 
-  routeTypeOptions = [
+  statusOptions = [
     { label: 'All', value: null },
-    { label: 'Land', value: 'LAND' as RouteType },
-    { label: 'Sea', value: 'SEA' as RouteType },
-    { label: 'Air', value: 'AIR' as RouteType },
+    { label: 'Active', value: 'ACTIVE' },
+    { label: 'In Transit', value: 'IN_TRANSIT' },
+    { label: 'Maintenance', value: 'MAINTENANCE' },
   ];
 
   filteredRoutes: Route[] = [...this.routes];
@@ -163,8 +149,8 @@ export class RoutesPage {
     this.filterRoutes();
   }
 
-  applyFilter(type: RouteType | null) {
-    this.selectedType = type ?? null;
+  applyFilter(status: string | null) {
+    this.selectedStatus = status ?? null;
     this.filterRoutes();
   }
 
@@ -172,26 +158,25 @@ export class RoutesPage {
     const q = this.searchQuery.trim().toLowerCase();
 
     this.filteredRoutes = this.routes.filter(route => {
-      const matchesType = !this.selectedType || this.hasRouteType(route, this.selectedType);
+      const matchesStatus = !this.selectedStatus || this.hasVehicleStatus(route, this.selectedStatus);
 
       const haystack = [
         route.id,
         route.name,
-        ...route.segments.map(seg => seg.route_type),
-        ...route.segments.map(seg => seg.mode),
-        ...(route.vehicles || []).map(v => v.name),
-        ...(route.vehicles || []).map(v => v.type)
+        ...(route.vehicles || []).map(v => v.plate_number),
+        ...(route.vehicles || []).map(v => v.model),
+        ...(route.vehicles || []).map(v => v.status)
       ]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
 
       const matchesQuery = !q || haystack.includes(q);
-      return matchesType && matchesQuery;
+      return matchesStatus && matchesQuery;
     });
   }
 
-  private hasRouteType(route: Route, type: RouteType): boolean {
-    return route.segments.some(segment => segment.route_type === type);
+  private hasVehicleStatus(route: Route, status: string): boolean {
+    return (route.vehicles || []).some(vehicle => vehicle.status === status);
   }
 }

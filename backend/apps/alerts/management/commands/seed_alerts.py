@@ -21,7 +21,23 @@ class Command(BaseCommand):
         vehicles = list(Vehicle.objects.all())
         routes = list(Route.objects.all())
 
+        if not shipments:
+            self.stdout.write(self.style.ERROR("No shipments found. Run seed_shipments first."))
+            return
+        if not vehicles:
+            self.stdout.write(self.style.ERROR("No vehicles found. Run seed_vehicles first."))
+            return
+        if not routes:
+            self.stdout.write(self.style.ERROR("No routes found. Run seed_routes first."))
+            return
+
+        total_created = 0
         for i in range(10):
+            # Ensure we have valid references
+            shipment = shipments[i % len(shipments)]
+            vehicle = vehicles[i % len(vehicles)]
+            route = routes[i % len(routes)]
+            
             Alert.objects.create(
                 type=random.choice(["DELAY","ROUTE_DEVIATION","PORT_CONGESTION","CUSTOMS_HOLD"]),
                 severity=random.choice(["LOW","MEDIUM","HIGH"]),
@@ -32,9 +48,10 @@ class Command(BaseCommand):
                     "Port congestion reported.",
                     "Customs inspection required."
                 ]),
-                shipment=(shipments[i] if i < len(shipments) else (random.choice(shipments) if shipments else None)),
-                vehicle=(vehicles[i] if i < len(vehicles) else (random.choice(vehicles) if vehicles else None)),
-                route=(routes[i] if i < len(routes) else (random.choice(routes) if routes else None)),
+                shipment=shipment,
+                vehicle=vehicle,
+                route=route,
             )
+            total_created += 1
 
-        self.stdout.write(self.style.SUCCESS("Seeded alerts (10)."))
+        self.stdout.write(self.style.SUCCESS(f"Seeded {total_created} alerts."))

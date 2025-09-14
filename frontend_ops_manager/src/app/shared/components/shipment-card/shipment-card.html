@@ -6,6 +6,7 @@
         <div class="shipment-info">
             <h3>{{ shipmentId }}</h3>
             <p>{{ type }} • {{ origin }} → {{ destination }}</p>
+            <p class="vehicle-info">🚛 {{ vehicle }}</p>
         </div>
         <div class="status-badge" [ngClass]="uiStatus.toLowerCase()">
             {{ uiStatus }}

@@ -15,29 +15,25 @@ export class VehicleCard {
   @Input({ required: true }) vehicle!: TransportVehicle;
 
   get icon(): string {
-    return this.vehicle.type === 'TRUCK'
-      ? 'fa-truck'
-      : this.vehicle.type === 'VESSEL'
-        ? 'fa-ship'
-        : 'fa-plane';
+    // Since we don't have type field, default to truck for all vehicles
+    return 'fa-truck';
   }
 
   get statusSeverity(): 'success' | 'info' | 'warning' | 'danger' {
     switch (this.vehicle.status) {
-      case 'UNDERWAY': return 'success';
-      case 'AT_PORT':
-      case 'IDLE': return 'info';
-      case 'OUT_OF_SERVICE': return 'danger';
-      default: return 'warning';
+      case 'IN_TRANSIT': return 'success';
+      case 'ACTIVE': return 'info';
+      case 'MAINTENANCE': return 'warning';
+      default: return 'info';
     }
   }
 
   // Health status based on vehicle operational status
   get healthStatus(): 'Excellent' | 'Attention' | 'Critical' {
     switch (this.vehicle.status) {
-      case 'UNDERWAY': return 'Excellent';
-      case 'IDLE': return 'Attention';
-      case 'OUT_OF_SERVICE': return 'Critical';
+      case 'IN_TRANSIT': return 'Excellent';
+      case 'ACTIVE': return 'Excellent';
+      case 'MAINTENANCE': return 'Critical';
       default: return 'Attention';
     }
   }
@@ -45,22 +41,20 @@ export class VehicleCard {
   // Health percentage based on status
   get healthPercentage(): number {
     switch (this.vehicle.status) {
-      case 'UNDERWAY': return 96;
-      case 'AT_PORT': return 74;
-      case 'IDLE': return 42;
-      case 'OUT_OF_SERVICE': return 15;
+      case 'IN_TRANSIT': return 96;
+      case 'ACTIVE': return 85;
+      case 'MAINTENANCE': return 15;
       default: return 50;
     }
   }
 
-  // Estimated mileage based on vehicle type and status
+  // Estimated mileage based on vehicle status
   get estimatedMileage(): number {
-    const baseMileage = this.vehicle.type === 'TRUCK' ? 89432 :
-      this.vehicle.type === 'VESSEL' ? 203 : 156;
+    const baseMileage = 89432; // Default truck mileage
 
     // Add some variation based on status
-    const multiplier = this.vehicle.status === 'UNDERWAY' ? 1.1 :
-      this.vehicle.status === 'AT_PORT' ? 0.9 : 0.8;
+    const multiplier = this.vehicle.status === 'IN_TRANSIT' ? 1.1 :
+      this.vehicle.status === 'ACTIVE' ? 1.0 : 0.8;
 
     return Math.round(baseMileage * multiplier);
   }

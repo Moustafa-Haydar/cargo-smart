@@ -9,8 +9,8 @@ SEED_COMMANDS = [
     "seed_accounts",
     "seed_geo",
     "seed_routes",
-    "seed_shipments",
     "seed_vehicles",
+    "seed_shipments",
     "seed_alerts",
 ]
 

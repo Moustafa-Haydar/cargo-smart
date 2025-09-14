@@ -60,6 +60,7 @@ class Command(BaseCommand):
                 destination=destination,
                 current_location=random.choice([origin, destination, random.choice(locations)]),
                 route=route,
+                vehicle=vehicle,
                 scheduled_at=scheduled_time,
                 delivered_at=delivered_time if random.random() > 0.3 else None,
             )
