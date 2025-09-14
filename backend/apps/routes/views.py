@@ -3,7 +3,7 @@ from django.views.decorators.http import require_GET
 from django.db.models import Prefetch
 from .models import Route, RouteSegment
 from apps.shipments.models import Shipment
-from apps.vehicles.models import Vehicle
+# from apps.vehicles.models import Vehicle  # Removed vehicle-route relationship
 from apps.rbac.authz import require_read, require_set
 
 
@@ -41,15 +41,7 @@ def _serialize_route(r: Route) -> dict:
             }
             for s in getattr(r, 'shipments', []).all()
         ] if hasattr(r, 'shipments') else [],
-        "vehicles": [
-            {
-                "id": str(v.id),
-                "plate_number": getattr(v, 'plate_number', None),
-                "model": getattr(v, 'model', None),
-                "status": getattr(v, 'status', None),
-            }
-            for v in getattr(r, 'vehicles', []).all()
-        ] if hasattr(r, 'vehicles') else [],
+               # vehicles relationship removed
     }
 
 
@@ -70,7 +62,6 @@ def routes(request, route_id=None):
         try:
             qs = qs.prefetch_related(
                 Prefetch("shipments", queryset=Shipment.objects.select_related("vehicle").only("id", "ref_no", "status", "carrier_name", "origin_id", "destination_id", "scheduled_at", "vehicle_id")),
-                Prefetch("vehicles", queryset=Vehicle.objects.only("id", "plate_number", "model", "status")),
             )
         except Exception:
             # If relationships don't exist, continue without them

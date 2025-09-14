@@ -11,9 +11,8 @@
         </div>
     </header>
 
-    <search-section [options]="statusOptions" [placeHolder]="'Filter by status'" [(searchQuery)]="searchQuery"
-        [(selected)]="selectedStatus" (search)="applySearch($event)"
-        (filterChange)="applyFilter($event)"></search-section>
+    <search-section [options]="emptyOptions" [placeHolder]="'Search routes'" [(searchQuery)]="searchQuery"
+        (search)="applySearch($event)"></search-section>
 
     <div class="routes-grid">
         <app-route-card *ngFor="let route of filteredRoutes" [route]="route"></app-route-card>

@@ -20,10 +20,6 @@ def _serialize_vehicle(v: Vehicle) -> dict:
             {"id": str(v.current_location.id), "name": v.current_location.name}
             if v.current_location else None
         ),
-        "route": (
-            {"id": str(v.route.id), "name": v.route.name} 
-            if v.route else None
-        ),
 
         "identifiers": [
             {"scheme": ident.scheme, "value": ident.value}
@@ -65,7 +61,7 @@ def vehicles(request, vehicle_id=None):
     try:
         qs = (
             Vehicle.objects
-            .select_related("current_location", "route")
+            .select_related("current_location")
             .prefetch_related(
                 Prefetch("identifiers", queryset=VehicleIdentifier.objects.all()),
                 Prefetch(

@@ -11,9 +11,22 @@
         </div>
     </header>
 
-    <search-section [options]="typeOptions" [placeHolder]="'Filter by type'" [(searchQuery)]="searchQuery"
-        [(selected)]="selectedTypeOption" (search)="applySearch($event)"
-        (filterChange)="applyTypeFilter($event)"></search-section>
+    <div class="controls-row">
+        <search-section [options]="typeOptions" [placeHolder]="'Filter by type'" [(searchQuery)]="searchQuery"
+            [(selected)]="selectedTypeOption" (search)="applySearch($event)"
+            (filterChange)="applyTypeFilter($event)"></search-section>
+
+        <div class="theme-selector">
+            <label for="mapTheme">Map Theme:</label>
+            <select id="mapTheme" [value]="selectedMapTheme" (change)="onThemeChange($event)">
+                <option value="roadmap">Road Map</option>
+                <option value="satellite">Satellite</option>
+                <option value="hybrid">Hybrid</option>
+                <option value="terrain">Terrain</option>
+                <option value="dark">Dark Mode</option>
+            </select>
+        </div>
+    </div>
 
     <div class="map-container">
 

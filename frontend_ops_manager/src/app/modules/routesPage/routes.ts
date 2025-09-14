@@ -26,7 +26,6 @@ export class RoutesPage {
           eta_end: '2025-01-17T10:00:00Z'
         }
       ],
-      vehicles: [],
       shipments: []
     },
     {
@@ -42,7 +41,6 @@ export class RoutesPage {
           eta_end: '2025-01-18T14:00:00Z'
         }
       ],
-      vehicles: [],
       shipments: []
     },
     {
@@ -58,7 +56,6 @@ export class RoutesPage {
           eta_end: '2025-01-15T20:00:00Z'
         }
       ],
-      vehicles: [],
       shipments: []
     },
     {
@@ -74,7 +71,6 @@ export class RoutesPage {
           eta_end: '2025-01-16T18:00:00Z'
         }
       ],
-      vehicles: [],
       shipments: []
     },
     {
@@ -90,7 +86,6 @@ export class RoutesPage {
           eta_end: '2025-01-17T12:00:00Z'
         }
       ],
-      vehicles: [],
       shipments: []
     },
     {
@@ -106,7 +101,6 @@ export class RoutesPage {
           eta_end: '2025-01-30T12:00:00Z'
         }
       ],
-      vehicles: [],
       shipments: []
     },
     {
@@ -122,21 +116,13 @@ export class RoutesPage {
           eta_end: '2025-01-18T22:00:00Z'
         }
       ],
-      vehicles: [],
       shipments: []
     }
   ];
 
   // state
   searchQuery = '';
-  selectedStatus: string | null = null;
-
-  statusOptions = [
-    { label: 'All', value: null },
-    { label: 'Active', value: 'ACTIVE' },
-    { label: 'In Transit', value: 'IN_TRANSIT' },
-    { label: 'Maintenance', value: 'MAINTENANCE' },
-  ];
+  emptyOptions = []; // Empty options array for search-section
 
   filteredRoutes: Route[] = [...this.routes];
 
@@ -149,34 +135,21 @@ export class RoutesPage {
     this.filterRoutes();
   }
 
-  applyFilter(status: string | null) {
-    this.selectedStatus = status ?? null;
-    this.filterRoutes();
-  }
 
   private filterRoutes() {
     const q = this.searchQuery.trim().toLowerCase();
 
     this.filteredRoutes = this.routes.filter(route => {
-      const matchesStatus = !this.selectedStatus || this.hasVehicleStatus(route, this.selectedStatus);
-
       const haystack = [
         route.id,
-        route.name,
-        ...(route.vehicles || []).map(v => v.plate_number),
-        ...(route.vehicles || []).map(v => v.model),
-        ...(route.vehicles || []).map(v => v.status)
+        route.name
       ]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
 
       const matchesQuery = !q || haystack.includes(q);
-      return matchesStatus && matchesQuery;
+      return matchesQuery;
     });
-  }
-
-  private hasVehicleStatus(route: Route, status: string): boolean {
-    return (route.vehicles || []).some(vehicle => vehicle.status === status);
   }
 }

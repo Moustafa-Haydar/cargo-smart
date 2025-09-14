@@ -43,21 +43,22 @@ export class LoginRepository {
     login(credentials: LoginRequest) {
         return this.http.get('/api/accounts/csrf/', { withCredentials: true }).pipe(
             switchMap(() => {
-            const csrfToken = this.getCookie('csrftoken');
-            return this.http.post<LoginResponse>(
-                '/api/accounts/login/',
-                credentials,
-                {
-                withCredentials: true,
-                headers: { 'X-CSRFToken': csrfToken }
-                }
-            );
+                const csrfToken = this.getCookie('csrftoken');
+                return this.http.post<LoginResponse>(
+                    '/api/accounts/login/',
+                    credentials,
+                    {
+                        withCredentials: true,
+                        headers: { 'X-CSRFToken': csrfToken }
+                    }
+                );
             }),
             tap(res => {
-            if (res?.user) {
-                localStorage.setItem('user', JSON.stringify(res.user));
-                localStorage.setItem('isAuthenticated', 'true');
-            }
+                console.log('Login repository response:', res);
+                if (res?.ok === true && res?.user) {
+                    localStorage.setItem('user', JSON.stringify(res.user));
+                    localStorage.setItem('isAuthenticated', 'true');
+                }
             })
         );
     }

@@ -70,8 +70,7 @@ export class Vehicles {
         v.plate_number,
         v.model,
         v.status,
-        v.current_location?.name,
-        v.route?.name
+        v.current_location?.name
       ].filter(Boolean).join(' ').toLowerCase();
 
       const matchesQuery = !q || haystack.includes(q);

@@ -6,9 +6,8 @@
         </div>
 
         <div class="vehicle-info">
-            <h3>{{ vehicle.plate_number }}</h3>
-            <p>{{ vehicle.model }} • {{ estimatedMileage }} miles</p>
-            <p class="route-info">{{ vehicle.route.name || 'No route assigned' }}</p>
+            <h3>{{ vehicle.plate_number || 'Unknown Vehicle' }}</h3>
+            <p>{{ vehicle.model || 'Unknown Model' }} • {{ estimatedMileage }} miles</p>
         </div>
 
         <div>

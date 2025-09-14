@@ -120,8 +120,7 @@ export interface TransportVehicle {
   model: string;
   status: string;                     // e.g., "ACTIVE", "IN_TRANSIT", "MAINTENANCE"
 
-  current_location: NamedEntity;
-  route: NamedEntity;
+  current_location: NamedEntity | null;
 
   identifiers: Identifier[];
   last_position?: Position;
@@ -149,14 +148,6 @@ export interface RouteSegment {
   eta_end: ISODateTime | null;
 }
 
-// In the route example, `vehicles` inside a route are small refs
-export interface RouteVehicleRef {
-  id: string;
-  plate_number: string;
-  model: string;
-  status: string;
-}
-
 // Full Route entity
 export interface Route {
   id: string;
@@ -165,7 +156,6 @@ export interface Route {
   segments: RouteSegment[];
 
   shipments?: RouteShipmentRef[];     // may be empty or omitted
-  vehicles?: RouteVehicleRef[];
 }
 
 // Route shipment reference (simplified shipment info in routes)

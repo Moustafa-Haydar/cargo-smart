@@ -55,16 +55,25 @@ export class Login {
 
     this.loginRepository.login(credentials)
       .pipe(takeUntil(this.destroy$),
-      finalize(() => this.loading = false))
+        finalize(() => this.loading = false))
       .subscribe({
         next: (res) => {
-          const ok = (res as any)?.user || (res as any)?.success === true;
+          console.log('Login response:', res);
+          const ok = (res as any)?.ok === true && (res as any)?.user;
           if (ok) {
             // Get return URL from query params, default to live-map
             const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/live-map';
-            this.router.navigate([returnUrl]);
+            console.log('Login successful, redirecting to:', returnUrl);
+
+            // Use Angular router navigation
+            this.router.navigateByUrl(returnUrl).then(success => {
+              if (!success) {
+                console.error('Navigation failed, trying window.location');
+                window.location.href = returnUrl;
+              }
+            });
           } else {
-            console.error('Login failed: unexpected response');
+            console.error('Login failed: unexpected response', res);
             this.errorMessage = "Invalid credentials. Please try again.";
             this.loading = false;
           }
