@@ -1,77 +1,70 @@
-import random, uuid
-from datetime import timedelta
-from django.core.management.base import BaseCommand, CommandError
-from django.utils import timezone as tz
-from apps.vehicles.models import Vehicle, VehicleIdentifier, VehiclePosition, PortCall
-from apps.geo.models import Location, Facility
-from apps.routes.models import Route
+import random
+import uuid
+from django.core.management.base import BaseCommand
+from apps.vehicles.models import Vehicle, VehicleIdentifier
+from apps.geo.models import Location
+
 
 class Command(BaseCommand):
-    help = "Seed 10 Vehicles + 10 Identifiers + 10 Positions + 10 PortCalls. Requires geo & routes."
+    help = "Seed demo trucks (vehicles) for India. Use --fresh to delete existing first."
 
     def add_arguments(self, parser):
         parser.add_argument("--fresh", action="store_true")
+        parser.add_argument("--count", type=int, default=30, help="Number of vehicles to create")
 
     def handle(self, *args, **opts):
         if opts["fresh"]:
-            PortCall.objects.all().delete()
-            VehiclePosition.objects.all().delete()
             VehicleIdentifier.objects.all().delete()
             Vehicle.objects.all().delete()
-            self.stdout.write(self.style.WARNING("Cleared vehicles data"))
-
-        if Location.objects.count() == 0 or Route.objects.count() == 0:
-            raise CommandError("Need Locations and Routes. Run: seed_geo, seed_routes.")
+            self.stdout.write(self.style.WARNING("Cleared vehicle data"))
 
         random.seed(42)
-        locs = list(Location.objects.all())
-        routes = list(Route.objects.all())
+        locations = list(Location.objects.all())
+        if not locations:
+            self.stdout.write(self.style.ERROR("No locations found. Run seed_geo first."))
+            return
 
-        vehicles = []
-        for i in range(1, 11):
-            v = Vehicle.objects.create(
-                name=f"MAERSK DEMO {i:02d}",
-                type="VESSEL",
-                status=random.choice(["IDLE","IN_TRANSIT","AT_PORT"]),
-                current_location=random.choice(locs),
-                route=random.choice(routes),
-                imo=9298000+i,
-                mmsi=367770000+i,
-                call_sign=f"CALL{i:03d}",
-                flag=random.choice(["US","DE","NL","BE","SG","CN","AE","BR"]),
-            )
-            vehicles.append(v)
+        truck_models = [
+            "Tata 407",
+            "Ashok Leyland Dost",
+            "Eicher Pro 3015",
+            "Mahindra Blazo X",
+            "BharatBenz 1617R",
+            "Tata Signa 4825.T",
+            "Eicher Pro 2049",
+            "Mahindra Furio 14",
+        ]
 
-        # identifiers
-        for v in vehicles:
-            VehicleIdentifier.objects.create(vehicle=v, scheme="IMO", value=str(v.imo))
+        statuses = ["ACTIVE", "IN_TRANSIT", "MAINTENANCE"]
 
-        # positions
-        for i in range(10):
-            l = random.choice(locs)
-            VehiclePosition.objects.create(
-                vehicle=random.choice(vehicles),
-                recorded_at=tz.now() - timedelta(hours=48 - i*4),
-                location=l,
-                lat=l.lat + random.uniform(-0.2, 0.2),
-                lng=l.lng + random.uniform(-0.2, 0.2),
-                source="SEED",
+        total_created = 0
+        for i in range(opts["count"]):
+            plate_number = f"{random.choice(['TN','MH','KA','DL','GJ','UP'])}{random.randint(10,99)}" \
+                           f"{random.choice(['A','B','C','D','E'])}{random.randint(1000,9999)}"
+
+            vehicle = Vehicle.objects.create(
+                id=uuid.uuid4(),
+                plate_number=plate_number,
+                model=random.choice(truck_models),
+                status=random.choice(statuses),
+                current_location=random.choice(locations),
+                route=None,
             )
 
-        # port calls
-        facs = list(Facility.objects.all())
-        for i in range(10):
-            v = vehicles[i]
-            l = random.choice(locs)
-            f = random.choice([None] + facs)
-            PortCall.objects.create(
-                vehicle=v,
-                port_location=l,
-                facility=f,
-                voyage=f"{300+i}E",
-                event=random.choice(["ARRIVAL","DEPARTURE","BERTH"]),
-                label=random.choice(["Vessel arrival","Vessel departure","Alongside"]),
-                status=random.choice(["PLANNED","CONFIRMED","COMPLETED"]),
+            # Add identifiers (e.g., VIN, RFID)
+            VehicleIdentifier.objects.create(
+                id=uuid.uuid4(),
+                vehicle=vehicle,
+                scheme="VIN",
+                value=f"VIN{random.randint(100000,999999)}"
+            )
+            VehicleIdentifier.objects.create(
+                id=uuid.uuid4(),
+                vehicle=vehicle,
+                scheme="RFID",
+                value=f"RFID{random.randint(100000,999999)}"
             )
 
-        self.stdout.write(self.style.SUCCESS("Seeded vehicles (+identifiers, positions, port calls)."))
+            total_created += 1
+
+        self.stdout.write(self.style.SUCCESS(f"Seeded {total_created} vehicles with identifiers."))

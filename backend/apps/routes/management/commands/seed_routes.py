@@ -1,46 +1,73 @@
-import json, random, uuid
-from django.core.management.base import BaseCommand, CommandError
-from apps.routes.models import Route, RouteSegment
+import random, uuid, json, os
+from django.core.management.base import BaseCommand
 from apps.geo.models import Location
+from apps.routes.models import Route, RouteSegment
+import openrouteservice
+
 
 class Command(BaseCommand):
-    help = "Seed 10 Routes and 10 RouteSegments. Requires geo."
+    help = "Seed truck routes with minimal ORS API calls."
 
     def add_arguments(self, parser):
         parser.add_argument("--fresh", action="store_true")
-
-    def _line(self, a, b):
-        return json.dumps({"type":"LineString","coordinates":[[a.lng,a.lat],[b.lng,b.lat]]})
+        parser.add_argument("--count", type=int, default=20)
 
     def handle(self, *args, **opts):
         if opts["fresh"]:
             RouteSegment.objects.all().delete()
             Route.objects.all().delete()
-            self.stdout.write(self.style.WARNING("Cleared routes data"))
+            self.stdout.write(self.style.WARNING("Cleared routes."))
 
-        if Location.objects.count() < 2:
-            raise CommandError("Need at least 2 Locations. Run: python manage.py seed_geo")
+        api_key = os.getenv("ORS_API_KEY")
+        client = openrouteservice.Client(key=api_key)
 
-        random.seed(42)
-        routes = []
-        locs = list(Location.objects.all())
+        locations = list(Location.objects.all())
+        if len(locations) < 2:
+            self.stdout.write(self.style.ERROR("Seed geo first."))
+            return
 
-        for i in range(1, 11):
-            a, b = random.sample(locs, 2)
-            r = Route.objects.create(name=f"Route {i:02d}", geometry=self._line(a, b))
-            routes.append(r)
+        used_pairs = set()
+        total_routes, total_segments = 0, 0
 
-        # segments with unique (route, seq)
-        seq_map = {r.id: 0 for r in routes}
-        for _ in range(10):
-            r = random.choice(routes[:4])
-            seq_map[r.id] += 1
-            a, b = random.sample(locs, 2)
-            RouteSegment.objects.create(
-                route=r, seq=seq_map[r.id],
-                route_type=random.choice(["SEA","LAND"]),
-                geometry=self._line(a, b),
-                mode=random.choice(["VESSEL","TRUCK"])
+        for i in range(opts["count"]):
+            origin, destination = random.sample(locations, 2)
+            pair = tuple(sorted([origin.id, destination.id]))
+
+            if pair in used_pairs:  # already seeded this corridor
+                continue
+            used_pairs.add(pair)
+
+            # Check if already in DB
+            existing = Route.objects.filter(name=f"{origin.name} → {destination.name}").first()
+            if existing:
+                continue
+
+            # One ORS API call
+            coords = [(origin.lng, origin.lat), (destination.lng, destination.lat)]
+            result = client.directions(coordinates=coords, profile="driving-hgv", format="geojson")
+
+            geometry = result["features"][0]["geometry"]["coordinates"]
+
+            route = Route.objects.create(
+                id=uuid.uuid4(),
+                name=f"{origin.name} → {destination.name}",
+                geometry=json.dumps({"type": "LineString", "coordinates": geometry}),
             )
+            total_routes += 1
 
-        self.stdout.write(self.style.SUCCESS("Seeded routes (10 Routes, 10 RouteSegments)."))
+            # Split into 5 chunks manually
+            step = max(1, len(geometry) // 5)
+            for seq, idx in enumerate(range(0, len(geometry), step), start=1):
+                coords_chunk = geometry[idx: idx + step + 1]
+                if len(coords_chunk) < 2:
+                    continue
+
+                RouteSegment.objects.create(
+                    id=uuid.uuid4(),
+                    route=route,
+                    seq=seq,
+                    geometry=json.dumps({"type": "LineString", "coordinates": coords_chunk}),
+                )
+                total_segments += 1
+
+        self.stdout.write(self.style.SUCCESS(f"Created {total_routes} routes with {total_segments} segments (fewer ORS calls)."))

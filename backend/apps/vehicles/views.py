@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.db.models import Prefetch
-from .models import Vehicle, VehicleIdentifier, VehiclePosition, PortCall
+from .models import Vehicle, VehicleIdentifier, VehiclePosition
 from apps.rbac.authz import require_read, require_set
 
 

@@ -8,7 +8,7 @@ from rest_framework import status
 from django.db.models import Prefetch
 from django.utils import timezone
 from .web_views import _serialize_shipment
-from ..models import Shipment, ShipmentMilestone, ShipmentVehicle, ShipmentContainer
+from ..models import Shipment, ShipmentMilestone
 
 
 @api_view(['GET'])

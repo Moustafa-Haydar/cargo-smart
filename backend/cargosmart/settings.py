@@ -28,7 +28,6 @@ INSTALLED_APPS = [
 
     # apps
     'apps.accounts',
-    'apps.containers',
     'apps.geo',
     'apps.rbac',
     'apps.routes',

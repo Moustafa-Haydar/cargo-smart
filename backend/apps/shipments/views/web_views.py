@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from apps.routes.models import Route
 from apps.rbac.authz import require_read, require_set
-from ..models import Shipment, ShipmentMilestone, ShipmentVehicle, ShipmentContainer
+from ..models import Shipment, ShipmentMilestone
 import json
 
 
