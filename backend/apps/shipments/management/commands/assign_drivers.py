@@ -1,45 +1,23 @@
-import random
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User, Group
 from apps.shipments.models import Shipment
 
 class Command(BaseCommand):
-    help = 'Assigns drivers to shipments randomly'
+    help = 'Lists all shipments (driver assignment not supported in current model)'
 
     def handle(self, *args, **options):
-        # Get the drivers group
-        try:
-            drivers_group = Group.objects.get(name='Driver')
-        except Group.DoesNotExist:
-            self.stdout.write(self.style.ERROR('Drivers group does not exist'))
-            return
-
-        # Get all users in the drivers group
-        drivers = User.objects.filter(groups=drivers_group)
+        # Get all shipments
+        shipments = Shipment.objects.all()
         
-        if not drivers.exists():
-            self.stdout.write(self.style.ERROR('No drivers found in the drivers group'))
+        if not shipments.exists():
+            self.stdout.write(self.style.WARNING('No shipments found'))
             return
 
-        # Get all unassigned shipments
-        unassigned_shipments = Shipment.objects.filter(driver__isnull=True)
-        
-        if not unassigned_shipments.exists():
-            self.stdout.write(self.style.SUCCESS('No unassigned shipments found'))
-            return
-
-        drivers_list = list(drivers)
-        assigned_count = 0
-
-        # Assign drivers randomly to shipments
-        for shipment in unassigned_shipments:
-            driver = random.choice(drivers_list)
-            shipment.driver = driver
-            shipment.save()
-            assigned_count += 1
+        self.stdout.write(f'Found {shipments.count()} shipments:')
+        for shipment in shipments:
+            self.stdout.write(f'  - {shipment.ref_no} ({shipment.status}) - {shipment.carrier_name}')
 
         self.stdout.write(
             self.style.SUCCESS(
-                f'Successfully assigned {assigned_count} shipments to {len(drivers_list)} drivers'
+                f'Total shipments: {shipments.count()}'
             )
         )

@@ -14,11 +14,8 @@ def _serialize_shipment(s: Shipment) -> dict:
     return {
         "id": str(s.id),
         "ref_no": s.ref_no,
-        "shipment_type": s.shipment_type,
         "status": s.status,
-        "carrier_code": s.carrier_code,
         "carrier_name": s.carrier_name,
-        "api_updated_at": s.api_updated_at.isoformat() if s.api_updated_at else None,
 
         "origin": {
             "id": str(s.origin.id),
@@ -40,11 +37,6 @@ def _serialize_shipment(s: Shipment) -> dict:
             "name": s.route.name
         } if s.route else None,
 
-        "driver": {
-            "id": str(s.driver.id),
-            "name": f"{s.driver.first_name} {s.driver.last_name}"
-        } if s.driver else None,
-
         "scheduled_at": s.scheduled_at.isoformat() if s.scheduled_at else None,
         "delivered_at": s.delivered_at.isoformat() if s.delivered_at else None,
 
@@ -58,28 +50,7 @@ def _serialize_shipment(s: Shipment) -> dict:
             "date": m.date.isoformat(),
             "actual": m.actual,
             "predictive_eta": m.predictive_eta.isoformat() if m.predictive_eta else None
-        } for m in s.milestones.all()],
-
-        "vehicles": [{
-            "id": str(sv.id),
-            "vehicle": {
-                "id": str(sv.vehicle.id),
-                "name": sv.vehicle.name
-            },
-            "voyage": sv.voyage,
-            "role": sv.role
-        } for sv in s.shipment_vehicles.all()],
-
-        "containers": [{
-            "id": str(sc.id),
-            "container": {
-                "id": str(sc.container.id),
-                "number": sc.container.number
-            },
-            "is_active": sc.is_active,
-            "loaded_at": sc.loaded_at.isoformat() if sc.loaded_at else None,
-            "discharged_at": sc.discharged_at.isoformat() if sc.discharged_at else None
-        } for sc in s.shipment_containers.all()]
+        } for m in s.milestones.all()]
     }
 
 
@@ -96,21 +67,12 @@ def shipments(request, shipment_id=None):
             "origin",
             "destination",
             "current_location",
-            "route",
-            "driver"
+            "route"
         )
         .prefetch_related(
             Prefetch(
                 "milestones",
                 queryset=ShipmentMilestone.objects.select_related("location")
-            ),
-            Prefetch(
-                "shipment_vehicles",
-                queryset=ShipmentVehicle.objects.select_related("vehicle")
-            ),
-            Prefetch(
-                "shipment_containers",
-                queryset=ShipmentContainer.objects.select_related("container")
             )
         )
     )

@@ -16,31 +16,21 @@ from ..models import Shipment, ShipmentMilestone
 @permission_classes([IsAuthenticated])
 def driver_shipments(request):
     """
-    Get all shipments assigned to the authenticated driver
+    Get all shipments
     """
-    # Get shipments assigned to the current driver
+    # Get all shipments (since there's no driver field in the current model)
     shipments = (
         Shipment.objects
-        .filter(driver=request.user)
         .select_related(
             "origin",
             "destination", 
             "current_location",
-            "route",
-            "driver"
+            "route"
         )
         .prefetch_related(
             Prefetch(
                 "milestones",
                 queryset=ShipmentMilestone.objects.select_related("location")
-            ),
-            Prefetch(
-                "shipment_vehicles",
-                queryset=ShipmentVehicle.objects.select_related("vehicle")
-            ),
-            Prefetch(
-                "shipment_containers",
-                queryset=ShipmentContainer.objects.select_related("container")
             )
         )
         .order_by('-scheduled_at')
@@ -56,7 +46,7 @@ def driver_shipments(request):
 @permission_classes([IsAuthenticated])
 def driver_shipment_detail(request, shipment_id):
     """
-    Get details of a specific shipment assigned to the authenticated driver
+    Get details of a specific shipment
     """
     try:
         shipment = get_object_or_404(
@@ -65,25 +55,15 @@ def driver_shipment_detail(request, shipment_id):
                 "origin",
                 "destination",
                 "current_location", 
-                "route",
-                "driver"
+                "route"
             )
             .prefetch_related(
                 Prefetch(
                     "milestones",
                     queryset=ShipmentMilestone.objects.select_related("location")
-                ),
-                Prefetch(
-                    "shipment_vehicles",
-                    queryset=ShipmentVehicle.objects.select_related("vehicle")
-                ),
-                Prefetch(
-                    "shipment_containers",
-                    queryset=ShipmentContainer.objects.select_related("container")
                 )
             ),
-            id=shipment_id,
-            driver=request.user  # Ensure the shipment belongs to this driver
+            id=shipment_id
         )
         
         return Response({
@@ -102,13 +82,11 @@ def driver_shipment_detail(request, shipment_id):
 def mark_shipment_delivered(request, shipment_id):
     """
     Mark a shipment as delivered
-    Only the assigned driver can mark their shipments as delivered
     """
     try:
         shipment = get_object_or_404(
             Shipment,
-            id=shipment_id,
-            driver=request.user  # Ensure the shipment belongs to this driver
+            id=shipment_id
         )
         
         # Check if shipment is not already delivered
@@ -139,7 +117,6 @@ def mark_shipment_delivered(request, shipment_id):
 def update_shipment_status(request, shipment_id):
     """
     Update shipment status (for other status changes besides delivered)
-    Only the assigned driver can update their shipments
     """
     try:
         data = request.data
@@ -152,8 +129,7 @@ def update_shipment_status(request, shipment_id):
         
         shipment = get_object_or_404(
             Shipment,
-            id=shipment_id,
-            driver=request.user  # Ensure the shipment belongs to this driver
+            id=shipment_id
         )
         
         # Update shipment status
