@@ -85,6 +85,10 @@ export class LiveMap implements OnInit {
   selectedTypeOption: TypeOption = 'Shipments';
   selectedMapTheme: string = 'minimal';
 
+  // Custom icons for markers
+  shipmentIcon: any;
+  vehicleIcon: any;
+
   typeOptions = [
     { label: 'All', value: null },
     { label: 'Shipments', value: 'Shipments' as TypeOption },
@@ -102,6 +106,9 @@ export class LiveMap implements OnInit {
     }
 
     console.log('Google Maps API loaded successfully');
+
+    // Initialize custom icons
+    this.initializeIcons();
 
     // load shipments
     this.repo.getShipments()
@@ -167,6 +174,36 @@ export class LiveMap implements OnInit {
       this.changeMapTheme();
     }, 500);
 
+  }
+
+  private initializeIcons() {
+    // Use simple icon URLs without Google Maps constructors
+    this.shipmentIcon = {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#358C9C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 7.7c0-.6-.4-1.2-.8-1.5l-6.3-3.9a1.72 1.72 0 0 0-1.7 0l-10.3 6c-.5.2-.9.8-.9 1.4v6.6c0 .5.4 1.2.8 1.5l6.3 3.9a1.72 1.72 0 0 0 1.7 0l10.3-6c.5-.3.9-1 .9-1.5Z"/>
+          <path d="M10 21.9V14L2.1 9.1"/>
+          <path d="m10 14 11.9-6.9"/>
+          <path d="M14 19.8v-8.1"/>
+          <path d="M18 17.5V9.4"/>
+        </svg>
+      `),
+      scaledSize: { width: 24, height: 24 },
+      anchor: { x: 12, y: 12 }
+    };
+
+    this.vehicleIcon = {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F68716" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18.7 9.2c-.3-.8-1-1.2-1.7-1.2H5c-.7 0-1.4.4-1.7 1.2L2.5 11.1C1.7 11.3 1 12.1 1 13v3c0 .6.4 1 1 1h2"/>
+          <circle cx="7" cy="17" r="2"/>
+          <path d="M9 17h6"/>
+          <circle cx="17" cy="17" r="2"/>
+        </svg>
+      `),
+      scaledSize: { width: 24, height: 24 },
+      anchor: { x: 12, y: 12 }
+    };
   }
 
   trackById(index: number, item: { id: string }) {

@@ -38,12 +38,12 @@
             </map-marker> -->
 
             <map-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
-                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name">
+                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name" [options]="{ icon: shipmentIcon }">
             </map-marker>
 
             <!-- Vehicles -->
             <map-marker *ngFor="let v of vehicleLocations; trackBy: trackById" [position]="{ lat: v.lat, lng: v.lng }"
-                [title]="v.name">
+                [title]="v.name" [options]="{ icon: vehicleIcon }">
             </map-marker>
 
             <!-- Route lines -->
