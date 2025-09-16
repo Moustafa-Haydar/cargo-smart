@@ -40,6 +40,23 @@ services:
       - WATCHPACK_POLLING=true
       - FAST_REFRESH=false
 
+  frontend-ops:
+    build:
+      context: ./frontend_ops_manager
+      dockerfile: Dockerfile
+    container_name: frontend-ops
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend_ops_manager:/app:delegated
+    working_dir: /app
+    command: npm start
+    stdin_open: true
+    tty: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+
 
   db:
     image: postgres:16

@@ -135,7 +135,7 @@ TEMPLATES = [
 ]
 
 ROUTE_AI = {
-    "P_DELAY_THRESHOLD": 0.65,
+    "P_DELAY_THRESHOLD": 0.3,  # Lowered from 0.65 to be more sensitive to delays
     "SCORE_WEIGHTS": {
         "eta_minutes": 0.6,
         "p_delay": 0.3,

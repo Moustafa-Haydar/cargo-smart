@@ -1,10 +1,13 @@
 .page-container {
-    padding: 0 1vw;
+    padding: 0 1rem;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 3vh;
+    gap: 2rem;
     background-color: transparent;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .page-header {
@@ -64,10 +67,12 @@ h1 {
 .shipments-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5vw;
-    row-gap: 2vh;
-    padding: 0 0;
+    gap: 1rem;
+    row-gap: 1.5rem;
+    padding: 0;
     max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Responsive design */
@@ -105,11 +110,12 @@ h1 {
 .skeleton-cards {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5vw;
-    row-gap: 2vh;
-    padding: 0 0;
+    gap: 1rem;
+    row-gap: 1.5rem;
+    padding: 0;
     width: 100%;
     max-width: 100%;
+    box-sizing: border-box;
 }
 
 .skeleton-card {

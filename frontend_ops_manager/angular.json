@@ -51,6 +51,15 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "docker": {
+              "outputMode": "static",
+              "prerender": false,
+              "ssr": false,
+              "optimization": true,
+              "extractLicenses": true,
+              "sourceMap": false,
+              "outputHashing": "all"
             }
           },
           "defaultConfiguration": "production"
@@ -91,5 +100,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

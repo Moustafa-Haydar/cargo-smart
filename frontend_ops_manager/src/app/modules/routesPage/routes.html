@@ -15,7 +15,98 @@
         [(selected)]="selectedCarrier" (search)="applySearch($event)"
         (filterChange)="applyFilter($event)"></search-section>
 
-    <div class="routes-grid">
-        <app-route-card *ngFor="let route of filteredRoutes" [route]="route"></app-route-card>
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading shipments with AI route proposals...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="error-container">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>{{ error }}</p>
+        <button class="btn-retry" (click)="loadShipmentsWithProposals()">Retry</button>
+    </div>
+
+    <!-- Shipments Grid -->
+    <div *ngIf="!loading && !error" class="shipments-grid">
+        <div *ngFor="let shipment of filteredShipments" class="shipment-card">
+            <!-- Shipment Header -->
+            <div class="shipment-header">
+                <div class="shipment-info">
+                    <h3>{{ shipment.ref_no }}</h3>
+                    <span class="status-badge" [ngClass]="'status-' + shipment.status.toLowerCase()">
+                        {{ shipment.status }}
+                    </span>
+                </div>
+                <div class="shipment-details">
+                    <p><strong>Carrier:</strong> {{ shipment.carrier_name }}</p>
+                    <p><strong>Origin:</strong> {{ shipment.origin?.name }}</p>
+                    <p><strong>Destination:</strong> {{ shipment.destination?.name }}</p>
+                </div>
+            </div>
+
+            <!-- Current Route -->
+            <div class="route-section">
+                <h4>Current Route</h4>
+                <div class="route-card current-route">
+                    <div class="route-info">
+                        <p><strong>Route ID:</strong> {{ shipment.route?.id || 'No route assigned' }}</p>
+                        <p *ngIf="shipment.proposal?.current"><strong>ETA:</strong> {{
+                            shipment.proposal?.current?.eta_minutes }} minutes</p>
+                        <p *ngIf="shipment.proposal?.current"><strong>Cost:</strong> ${{
+                            shipment.proposal?.current?.toll_cost_usd }}</p>
+                        <p *ngIf="shipment.proposal?.current"><strong>Delay Risk:</strong> {{
+                            ((shipment.proposal?.current?.p_delay || 0) * 100).toFixed(1) }}%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Proposal Route -->
+            <div *ngIf="shipment.proposal && shipment.proposal.action === 'propose_switch'" class="route-section">
+                <h4>AI Proposal <span class="proposal-badge">NEW</span></h4>
+                <div class="route-card proposal-route">
+                    <div class="route-info">
+                        <p><strong>Route ID:</strong> {{ shipment.proposal?.proposal?.route_id }}</p>
+                        <p><strong>ETA:</strong> {{ shipment.proposal?.proposal?.eta_minutes }} minutes</p>
+                        <p><strong>Cost:</strong> ${{ shipment.proposal?.proposal?.toll_cost_usd }}</p>
+                        <p><strong>Delay Risk:</strong> {{ ((shipment.proposal?.proposal?.p_delay || 0) *
+                            100).toFixed(1) }}%
+                        </p>
+                    </div>
+
+                    <div class="proposal-details">
+                        <p><strong>Improvement:</strong> {{ shipment.proposal.rationale }}</p>
+                    </div>
+
+                    <div class="proposal-actions">
+                        <button class="btn-accept" (click)="acceptProposal(shipment)">
+                            <i class="fas fa-check"></i>
+                            Accept Proposal
+                        </button>
+                        <button class="btn-reject" (click)="rejectProposal(shipment)">
+                            <i class="fas fa-times"></i>
+                            Reject
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Proposal -->
+            <div *ngIf="shipment.proposal && shipment.proposal.action === 'stick'" class="route-section">
+                <div class="no-proposal">
+                    <i class="fas fa-check-circle"></i>
+                    <p>Current route is optimal - no changes needed</p>
+                    <p class="rationale">{{ shipment.proposal.rationale }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && filteredShipments.length === 0" class="empty-state">
+        <i class="fas fa-route"></i>
+        <h3>No shipments found</h3>
+        <p>Try adjusting your search or filter criteria.</p>
     </div>
 </div>

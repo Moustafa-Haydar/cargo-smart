@@ -133,8 +133,30 @@ def predict_p_delay(shipment, current_option):
         # Return a default probability based on simple heuristics
         snap, _ = build_features_from_shipment(shipment, current_option)
         
-        # Simple heuristic: higher delay probability for longer distances and bad weather
+        # Enhanced heuristic: detect delays based on shipment status and timing
         base_prob = 0.1
+        
+        # Check if shipment is actually delayed based on our realistic data
+        from django.utils import timezone
+        now = timezone.now()
+        
+        # If shipment is PLANNED but scheduled time has passed, it's delayed
+        if shipment.status == "PLANNED" and shipment.scheduled_at < now:
+            base_prob += 0.4  # High delay probability for overdue planned shipments
+            
+        # If shipment is ENROUTE and taking too long, it's delayed
+        elif shipment.status == "ENROUTE":
+            # Check if it's been enroute for too long (more than 2 days)
+            if shipment.scheduled_at < now - timezone.timedelta(days=2):
+                base_prob += 0.3  # Medium delay probability for long enroute shipments
+                
+        # If shipment is DELIVERED but was delivered late, it was delayed
+        elif shipment.status == "DELIVERED" and shipment.delivered_at:
+            # Check if delivery was significantly late (more than 24 hours after scheduled)
+            if shipment.delivered_at > shipment.scheduled_at + timezone.timedelta(hours=24):
+                base_prob += 0.5  # High delay probability for late deliveries
+        
+        # Add weather and distance factors
         if snap.get("haversine_km", 0) > 500:
             base_prob += 0.2
         if snap.get("precipitation", 0) > 5:
@@ -142,4 +164,4 @@ def predict_p_delay(shipment, current_option):
         if snap.get("condition", 0) > 1:  # Not clear weather
             base_prob += 0.1
             
-        return min(base_prob, 0.8), snap
+        return min(base_prob, 0.9), snap
