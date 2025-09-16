@@ -134,6 +134,19 @@ TEMPLATES = [
     },
 ]
 
+ROUTE_AI = {
+    "P_DELAY_THRESHOLD": 0.65,
+    "SCORE_WEIGHTS": {
+        "eta_minutes": 0.6,
+        "p_delay": 0.3,
+        "toll_cost_usd": 0.1,
+    },
+    "IMPROVEMENT_EPS": 0.05,
+    "MAX_ALTERNATIVES": 3,
+    "MODEL_PATH": BASE_DIR / "models" / "delay_classifier.joblib",
+}
+
+
 WSGI_APPLICATION = 'cargosmart.wsgi.application'
 
 import os

@@ -1,14 +1,32 @@
 import joblib, numpy as np
 import pandas as pd
 from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 _model = None
+_model_loaded = False
+_model_error = None
 
 def get_model():
-    global _model
-    if _model is None:
+    global _model, _model_loaded, _model_error
+    
+    if _model_loaded:
+        if _model_error:
+            raise _model_error
+        return _model
+    
+    try:
         _model = joblib.load(settings.ROUTE_AI["MODEL_PATH"])
-    return _model
+        _model_loaded = True
+        logger.info("ML model loaded successfully")
+        return _model
+    except Exception as e:
+        _model_error = e
+        _model_loaded = True
+        logger.error(f"Failed to load ML model: {e}")
+        raise e
 
 def build_features_from_shipment(shipment, current_option):
     """
@@ -105,7 +123,23 @@ def build_features_from_shipment(shipment, current_option):
     return snap, X
 
 def predict_p_delay(shipment, current_option):
-    model = get_model()
-    snap, X = build_features_from_shipment(shipment, current_option)
-    p = float(model.predict_proba(X)[0, 1]) if hasattr(model, "predict_proba") else float(model.predict(X)[0])
-    return p, snap
+    try:
+        model = get_model()
+        snap, X = build_features_from_shipment(shipment, current_option)
+        p = float(model.predict_proba(X)[0, 1]) if hasattr(model, "predict_proba") else float(model.predict(X)[0])
+        return p, snap
+    except Exception as e:
+        logger.error(f"ML prediction failed: {e}")
+        # Return a default probability based on simple heuristics
+        snap, _ = build_features_from_shipment(shipment, current_option)
+        
+        # Simple heuristic: higher delay probability for longer distances and bad weather
+        base_prob = 0.1
+        if snap.get("haversine_km", 0) > 500:
+            base_prob += 0.2
+        if snap.get("precipitation", 0) > 5:
+            base_prob += 0.3
+        if snap.get("condition", 0) > 1:  # Not clear weather
+            base_prob += 0.1
+            
+        return min(base_prob, 0.8), snap
