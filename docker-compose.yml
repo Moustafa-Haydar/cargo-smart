@@ -2,26 +2,6 @@ version: '3.8'
 
 services:
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-    networks:
-      - app-network
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-
   backend:
     build:
       context: ./backend
@@ -75,38 +55,48 @@ services:
     networks:
       - app-network
 
-  # n8n:
-  #   image: n8nio/n8n:latest
-  #   ports:
-  #     - "5678:5678"
-  #   environment:
-  #     - N8N_HOST=${N8N_HOST:-localhost}
-  #     - N8N_PORT=5678
-  #     - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
-  #     - NODE_ENV=production
-  #     - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL:-http://localhost:5678}
-  #     - DB_TYPE=mongodb
-  #     - DB_MONGODB_CONNECTION_URL=mongodb://mongodb:27017/n8n
-  #   volumes:
-  #     - n8n_data:/home/node/.n8n
-  #   networks:
-  #     - app-network
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
-  #     interval: 30s
-  #     timeout: 3s
-  #     retries: 3
+  n8n:
+    build:
+      context: ./n8n
+      dockerfile: Dockerfile
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - NODE_ENV=production
+      - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL:-http://localhost:5678}
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=postgres
+      - DB_POSTGRESDB_PASSWORD=password
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
 
 volumes:
   pg_data:
     driver: local
-  # n8n_data:
-  #   driver: local
-  # mongodb_data:
-  #   driver: local
+  n8n_data:
+    driver: local
 
 networks:
   app-network:
