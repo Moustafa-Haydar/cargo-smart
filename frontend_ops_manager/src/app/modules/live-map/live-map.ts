@@ -86,13 +86,14 @@ export class LiveMap implements OnInit {
   selectedTypeOption: TypeOption = 'Shipments';
   selectedMapTheme: string = 'light';
 
+  // Data type selection
+  selectedDataType: 'routes' | 'shipments' | 'vehicles' = 'routes';
+
   // New filter properties
   selectedShipment: string | null = null;
   selectedVehicle: string | null = null;
   selectedRoute: string | null = null;
 
-  // Filter status tracking
-  hasActiveFilters = false;
 
   // Custom icons for markers
   shipmentIcon: any;
@@ -104,6 +105,13 @@ export class LiveMap implements OnInit {
     { label: 'Dark Theme', value: 'dark' },
     { label: 'Satellite', value: 'satellite' },
     { label: 'Terrain', value: 'terrain' }
+  ];
+
+  // Data type options
+  dataTypeOptions = [
+    { label: 'Routes', value: 'routes' },
+    { label: 'Shipments', value: 'shipments' },
+    { label: 'Vehicles', value: 'vehicles' }
   ];
 
   // Filter options
@@ -251,43 +259,28 @@ export class LiveMap implements OnInit {
     this.changeMapTheme();
   }
 
-  onShipmentFilterChange(selectedShipment: any) {
-    // Clear other filters when selecting a shipment
-    this.selectedShipment = selectedShipment;
+  onDataTypeChange(selectedDataType: any) {
+    this.selectedDataType = selectedDataType;
+    // Clear all specific filters when changing data type
+    this.selectedShipment = null;
     this.selectedVehicle = null;
     this.selectedRoute = null;
-    this.updateFilterStatus();
+    this.filterData();
+  }
+
+  onShipmentFilterChange(selectedShipment: any) {
+    this.selectedShipment = selectedShipment;
     this.filterData();
   }
 
   onVehicleFilterChange(selectedVehicle: any) {
-    // Clear other filters when selecting a vehicle
     this.selectedVehicle = selectedVehicle;
-    this.selectedShipment = null;
-    this.selectedRoute = null;
-    this.updateFilterStatus();
     this.filterData();
   }
 
   onRouteFilterChange(selectedRoute: any) {
-    // Clear other filters when selecting a route
     this.selectedRoute = selectedRoute;
-    this.selectedShipment = null;
-    this.selectedVehicle = null;
-    this.updateFilterStatus();
     this.filterData();
-  }
-
-  clearAllFilters() {
-    this.selectedShipment = null;
-    this.selectedVehicle = null;
-    this.selectedRoute = null;
-    this.updateFilterStatus();
-    this.filterData();
-  }
-
-  private updateFilterStatus() {
-    this.hasActiveFilters = !!(this.selectedShipment || this.selectedVehicle || this.selectedRoute);
   }
 
   changeMapTheme() {
@@ -468,120 +461,133 @@ export class LiveMap implements OnInit {
   private filterData() {
     const q = this.searchQuery.trim().toLowerCase();
 
-    // Determine what to show based on active filters
-    if (this.selectedShipment) {
-      // Show selected shipment + its route
-      this.filterByShipment(q);
-    } else if (this.selectedVehicle) {
-      // Show selected vehicle + its route + shipments using this vehicle
-      this.filterByVehicle(q);
-    } else if (this.selectedRoute) {
-      // Show selected route + all shipments and vehicles using this route
-      this.filterByRoute(q);
-    } else {
-      // Show everything (default view)
-      this.showAllData(q);
+    // Clear all data first
+    this.shipmentLocations = [];
+    this.vehicleLocations = [];
+    this.routeSegments = [];
+    this.filteredShipments = [];
+
+    // Show data based on selected data type
+    switch (this.selectedDataType) {
+      case 'routes':
+        this.showRoutesData(q);
+        break;
+      case 'shipments':
+        this.showShipmentsData(q);
+        break;
+      case 'vehicles':
+        this.showVehiclesData(q);
+        break;
     }
 
     console.log('Filtered data:', {
+      dataType: this.selectedDataType,
       shipments: this.shipmentLocations.length,
       vehicles: this.vehicleLocations.length,
-      routes: this.routeSegments.length,
-      activeFilters: this.hasActiveFilters
+      routes: this.routeSegments.length
     });
   }
 
-  private filterByShipment(q: string) {
-    const selectedShipment = this.shipments.find(s => s.id === this.selectedShipment);
-    if (!selectedShipment) return;
+  private showRoutesData(q: string) {
+    // Filter routes based on search query and selected route
+    let filteredRoutes = this.routes.filter(r => {
+      const haystack = [r.id, r.name].filter(Boolean).join(' ').toLowerCase();
+      const matchesQuery = !q || haystack.includes(q);
+      const matchesRoute = !this.selectedRoute || r.id === this.selectedRoute;
+      return matchesQuery && matchesRoute;
+    });
 
-    // Show only the selected shipment
-    this.filteredShipments = [selectedShipment];
-    this.shipmentLocations = this.createShipmentMarkers([selectedShipment]);
+    // Show route segments
+    this.routeSegments = this.createRouteSegments(filteredRoutes);
 
-    // Show the route associated with this shipment
-    if (selectedShipment.route) {
-      const route = this.routes.find(r => r.id === selectedShipment.route?.id);
-      if (route) {
-        this.routeSegments = this.createRouteSegments([route]);
-      } else {
-        this.routeSegments = [];
+    // If a specific route is selected, show related shipments and vehicles
+    if (this.selectedRoute) {
+      const selectedRoute = this.routes.find(r => r.id === this.selectedRoute);
+      if (selectedRoute) {
+        // Show shipments using this route
+        const shipmentsUsingRoute = this.shipments.filter(s =>
+          s.route && s.route.id === this.selectedRoute
+        );
+        this.filteredShipments = shipmentsUsingRoute;
+        this.shipmentLocations = this.createShipmentMarkers(shipmentsUsingRoute);
+
+        // Show vehicles used by these shipments
+        const vehicleIds = new Set(shipmentsUsingRoute.map(s => s.vehicle?.id).filter(Boolean));
+        const associatedVehicles = this.vehicles.filter(v => vehicleIds.has(v.id));
+        this.vehicleLocations = this.createVehicleMarkers(associatedVehicles);
       }
-    } else {
-      this.routeSegments = [];
     }
-
-    // Don't show other vehicles
-    this.vehicleLocations = [];
   }
 
-  private filterByVehicle(q: string) {
-    const selectedVehicle = this.vehicles.find(v => v.id === this.selectedVehicle);
-    if (!selectedVehicle) return;
-
-    // Show the selected vehicle
-    this.vehicleLocations = this.createVehicleMarkers([selectedVehicle]);
-
-    // Find shipments using this vehicle
-    const shipmentsUsingVehicle = this.shipments.filter(s =>
-      s.vehicle && s.vehicle.id === this.selectedVehicle
-    );
-    this.filteredShipments = shipmentsUsingVehicle;
-    this.shipmentLocations = this.createShipmentMarkers(shipmentsUsingVehicle);
-
-    // Show routes associated with these shipments
-    const routeIds = new Set(shipmentsUsingVehicle.map(s => s.route?.id).filter(Boolean));
-    const associatedRoutes = this.routes.filter(r => routeIds.has(r.id));
-    this.routeSegments = this.createRouteSegments(associatedRoutes);
-  }
-
-  private filterByRoute(q: string) {
-    const selectedRoute = this.routes.find(r => r.id === this.selectedRoute);
-    if (!selectedRoute) return;
-
-    // Show the selected route
-    this.routeSegments = this.createRouteSegments([selectedRoute]);
-
-    // Find shipments using this route
-    const shipmentsUsingRoute = this.shipments.filter(s =>
-      s.route && s.route.id === this.selectedRoute
-    );
-    this.filteredShipments = shipmentsUsingRoute;
-    this.shipmentLocations = this.createShipmentMarkers(shipmentsUsingRoute);
-
-    // Find vehicles used by these shipments
-    const vehicleIds = new Set(shipmentsUsingRoute.map(s => s.vehicle?.id).filter(Boolean));
-    const associatedVehicles = this.vehicles.filter(v => vehicleIds.has(v.id));
-    this.vehicleLocations = this.createVehicleMarkers(associatedVehicles);
-  }
-
-  private showAllData(q: string) {
-    // Show all shipments
-    this.filteredShipments = this.shipments.filter(s => {
+  private showShipmentsData(q: string) {
+    // Filter shipments based on search query and selected shipment
+    let filteredShipments = this.shipments.filter(s => {
       const haystack = [
         s.id, s.ref_no, s.status, s.carrier_name,
         s.origin?.name, s.destination?.name, s.current_location?.name,
         s.route?.name, s.vehicle?.plate_number, s.vehicle?.model,
       ].filter(Boolean).join(' ').toLowerCase();
-      return !q || haystack.includes(q);
+      const matchesQuery = !q || haystack.includes(q);
+      const matchesShipment = !this.selectedShipment || s.id === this.selectedShipment;
+      return matchesQuery && matchesShipment;
     });
-    this.shipmentLocations = this.createShipmentMarkers(this.filteredShipments);
 
-    // Show all vehicles
-    const filteredVehicles = this.vehicles.filter(v => {
+    this.filteredShipments = filteredShipments;
+    this.shipmentLocations = this.createShipmentMarkers(filteredShipments);
+
+    // If a specific shipment is selected, show its route and vehicle
+    if (this.selectedShipment) {
+      const selectedShipment = this.shipments.find(s => s.id === this.selectedShipment);
+      if (selectedShipment) {
+        // Show the route associated with this shipment
+        if (selectedShipment.route) {
+          const route = this.routes.find(r => r.id === selectedShipment.route?.id);
+          if (route) {
+            this.routeSegments = this.createRouteSegments([route]);
+          }
+        }
+
+        // Show the vehicle associated with this shipment
+        if (selectedShipment.vehicle) {
+          const vehicle = this.vehicles.find(v => v.id === selectedShipment.vehicle?.id);
+          if (vehicle) {
+            this.vehicleLocations = this.createVehicleMarkers([vehicle]);
+          }
+        }
+      }
+    }
+  }
+
+  private showVehiclesData(q: string) {
+    // Filter vehicles based on search query and selected vehicle
+    let filteredVehicles = this.vehicles.filter(v => {
       const haystack = [
         v.id, v.plate_number, v.model, v.status, v.current_location?.name,
       ].filter(Boolean).join(' ').toLowerCase();
-      return !q || haystack.includes(q);
+      const matchesQuery = !q || haystack.includes(q);
+      const matchesVehicle = !this.selectedVehicle || v.id === this.selectedVehicle;
+      return matchesQuery && matchesVehicle;
     });
+
     this.vehicleLocations = this.createVehicleMarkers(filteredVehicles);
 
-    // Show all routes
-    const filteredRoutes = this.routes.filter(r => {
-      const haystack = [r.id, r.name].filter(Boolean).join(' ').toLowerCase();
-      return !q || haystack.includes(q);
-    });
-    this.routeSegments = this.createRouteSegments(filteredRoutes);
+    // If a specific vehicle is selected, show its shipments and routes
+    if (this.selectedVehicle) {
+      const selectedVehicle = this.vehicles.find(v => v.id === this.selectedVehicle);
+      if (selectedVehicle) {
+        // Find shipments using this vehicle
+        const shipmentsUsingVehicle = this.shipments.filter(s =>
+          s.vehicle && s.vehicle.id === this.selectedVehicle
+        );
+        this.filteredShipments = shipmentsUsingVehicle;
+        this.shipmentLocations = this.createShipmentMarkers(shipmentsUsingVehicle);
+
+        // Show routes associated with these shipments
+        const routeIds = new Set(shipmentsUsingVehicle.map(s => s.route?.id).filter(Boolean));
+        const associatedRoutes = this.routes.filter(r => routeIds.has(r.id));
+        this.routeSegments = this.createRouteSegments(associatedRoutes);
+      }
+    }
   }
 
   private createShipmentMarkers(shipments: Shipment[]): ShipmentLocation[] {

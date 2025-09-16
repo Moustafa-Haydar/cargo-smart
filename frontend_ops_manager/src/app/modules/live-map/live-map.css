@@ -1,10 +1,17 @@
 .page-container {
     padding: 0 2vw;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 2vh;
+    gap: 3vh;
     background-color: transparent;
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.page-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
 }
 
 .page-header {
@@ -12,11 +19,12 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 }
 
 h1 {
     color: var(--text-color);
-    font-size: 1.6vw;
+    font-size: 1.4vw;
     font-weight: 600;
     margin: 0;
 }
@@ -64,35 +72,19 @@ h1 {
 
 .map-container {
     width: 100%;
-    border-radius: 10px;
-    border: 1px solid #ccc;
+    height: 75vh;
+    flex: 1;
 }
 
 google-map {
     display: block;
     width: auto;
     height: auto;
-}
-
-/* Search and theme row */
-.search-theme-row {
-    display: flex;
-    flex-direction: row;
-    gap: 1.5rem;
-    align-items: center;
-    width: 100%;
-    background-color: #f0f0f0;
-    padding: 1rem;
     border-radius: 8px;
 }
 
-.search-theme-row search-section {
-    flex: 1;
-    max-width: 500px;
-}
-
-/* Filters row */
-.filters-row {
+/* Search and filters row */
+.search-filters-row {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -100,23 +92,35 @@ google-map {
     gap: 1.5rem;
     width: 100%;
     background-color: #f8f9fa;
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 8px;
     border: 1px solid #e9ecef;
+    margin-bottom: 0.25rem;
+    flex-shrink: 0;
+}
+
+.search-filters-row search-section {
+    flex: 1;
+    max-width: 500px;
+}
+
+.filters-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+.data-type-selector {
+    min-width: 200px;
+}
+
+.data-type-selector app-filter {
+    min-width: 180px;
 }
 
 .filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
     flex: 1;
-}
-
-.filter-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0;
 }
 
 .filter-dropdowns {
@@ -132,98 +136,28 @@ google-map {
     max-width: 250px;
 }
 
-.filter-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.5rem;
-}
-
-.clear-filters-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.clear-filters-btn:hover {
-    background-color: #c82333;
-    transform: translateY(-1px);
-}
-
-.clear-filters-btn i {
-    font-size: 0.8rem;
-}
-
-.filter-status {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    color: var(--secondary-text-color);
-}
-
-.status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #6c757d;
-}
-
-.status-indicator.active {
-    background-color: #28a745;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.5;
-    }
-
-    100% {
-        opacity: 1;
-    }
-}
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .search-theme-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .search-theme-row search-section {
-        max-width: none;
-        min-width: auto;
-    }
-
-    .filters-row {
+    .search-filters-row {
         flex-direction: column;
         align-items: stretch;
         gap: 1rem;
     }
 
-    .filter-group {
-        order: 1;
+    .search-filters-row search-section {
+        max-width: none;
+        min-width: auto;
     }
 
-    .filter-actions {
-        order: 2;
-        align-items: center;
-        flex-direction: row;
-        justify-content: space-between;
+    .filters-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .data-type-selector {
+        min-width: auto;
     }
 
     .filter-dropdowns {
@@ -231,6 +165,11 @@ google-map {
     }
 
     .filter-dropdowns app-filter {
+        max-width: none;
+        min-width: auto;
+    }
+
+    .data-type-selector app-filter {
         max-width: none;
         min-width: auto;
     }

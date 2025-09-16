@@ -11,49 +11,43 @@
         </div>
     </header>
 
-    <!-- First line: Search bar and theme selector -->
-    <div class="search-theme-row">
+    <!-- Single line: Search bar, theme selector, and filters -->
+    <div class="search-filters-row">
         <search-section [options]="themeOptions" [placeHolder]="'Select Map Theme'" [(searchQuery)]="searchQuery"
             [(selected)]="selectedMapTheme" (search)="applySearch($event)" (filterChange)="applyTypeFilter($event)">
         </search-section>
-    </div>
 
-    <!-- Second line: Filter dropdowns and clear button -->
-    <div class="filters-row">
-        <div class="filter-group">
-            <label class="filter-label">Filter by:</label>
-            <div class="filter-dropdowns">
-                <app-filter [options]="shipmentOptions" [placeHolder]="'Select Shipment'"
-                    [(selected)]="selectedShipment" (filterChange)="onShipmentFilterChange($event)">
-                </app-filter>
-
-                <app-filter [options]="vehicleOptions" [placeHolder]="'Select Vehicle'" [(selected)]="selectedVehicle"
-                    (filterChange)="onVehicleFilterChange($event)">
-                </app-filter>
-
-                <app-filter [options]="routeOptions" [placeHolder]="'Select Route'" [(selected)]="selectedRoute"
-                    (filterChange)="onRouteFilterChange($event)">
+        <div class="filters-section">
+            <div class="data-type-selector">
+                <app-filter [options]="dataTypeOptions" [placeHolder]="'Select Data Type'"
+                    [(selected)]="selectedDataType" (filterChange)="onDataTypeChange($event)">
                 </app-filter>
             </div>
-        </div>
 
-        <div class="filter-actions">
-            <button *ngIf="hasActiveFilters" class="clear-filters-btn" (click)="clearAllFilters()"
-                title="Clear all filters to show all data">
-                <i class="fas fa-times"></i>
-                Clear Filters
-            </button>
+            <div class="filter-group">
+                <div class="filter-dropdowns">
+                    <app-filter *ngIf="selectedDataType === 'shipments'" [options]="shipmentOptions"
+                        [placeHolder]="'Select Shipment'" [(selected)]="selectedShipment"
+                        (filterChange)="onShipmentFilterChange($event)">
+                    </app-filter>
 
-            <div class="filter-status" *ngIf="hasActiveFilters">
-                <span class="status-indicator active"></span>
-                <span class="status-text">Filters Active</span>
+                    <app-filter *ngIf="selectedDataType === 'vehicles'" [options]="vehicleOptions"
+                        [placeHolder]="'Select Vehicle'" [(selected)]="selectedVehicle"
+                        (filterChange)="onVehicleFilterChange($event)">
+                    </app-filter>
+
+                    <app-filter *ngIf="selectedDataType === 'routes'" [options]="routeOptions"
+                        [placeHolder]="'Select Route'" [(selected)]="selectedRoute"
+                        (filterChange)="onRouteFilterChange($event)">
+                    </app-filter>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="map-container">
 
-        <google-map height="75vh" width="100%" [options]="options">
+        <google-map height="70vh" width="100%" [options]="options">
 
             <!-- <map-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
                 [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name"
