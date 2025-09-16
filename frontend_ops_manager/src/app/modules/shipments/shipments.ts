@@ -7,10 +7,12 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { map, takeUntil, } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-shipments',
-  imports: [CommonModule, FormsModule, SearchSection, ShipmentCard],
+  standalone: true,
+  imports: [CommonModule, FormsModule, SearchSection, ShipmentCard, SkeletonModule],
   templateUrl: './shipments.html',
   styleUrls: ['./shipments.css']
 })
@@ -23,6 +25,7 @@ export class Shipments implements OnInit {
   // keep a concrete array for filtering
   shipments: Shipment[] = [];
   filteredShipments: Shipment[] = [];
+  loading = true;
 
   searchQuery = '';
   selectedCarrier: string | null = null;
@@ -40,15 +43,17 @@ export class Shipments implements OnInit {
     // load data first, then filter
     this.repo.getShipments().pipe(takeUntilDestroyed(this.destroyRef), map(res => res.shipments ?? []))
       .subscribe({
-        next: (data) => { 
+        next: (data) => {
           this.shipments = data ?? [];
           this.filterShipments();
+          this.loading = false;
           this.changeDetectorRef.markForCheck();
         },
         error: (err) => {
           console.error('Failed to load shipments', err);
           this.shipments = [];
           this.filteredShipments = [];
+          this.loading = false;
         }
       });
   }

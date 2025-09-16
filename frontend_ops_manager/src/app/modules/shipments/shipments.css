@@ -1,5 +1,5 @@
 .page-container {
-    padding: 0 2vw;
+    padding: 0 1vw;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -64,16 +64,17 @@ h1 {
 .shipments-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 2vw;
+    gap: 1.5vw;
     row-gap: 2vh;
     padding: 0 0;
+    max-width: 100%;
 }
 
 /* Responsive design */
 @media (max-width: 1400px) {
     .shipments-grid {
-            grid-template-columns: repeat(1, 1fr);
-        }
+        grid-template-columns: repeat(1, 1fr);
+    }
 
     .stats-section {
         grid-template-columns: repeat(2, 1fr);
@@ -97,5 +98,56 @@ h1 {
     .btn-refresh {
         width: 100%;
         justify-content: center;
+    }
+}
+
+/* Skeleton Loading Styles */
+.skeleton-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5vw;
+    row-gap: 2vh;
+    padding: 0 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+.skeleton-card {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 12px;
+    height: 25vh;
+    min-height: 25vh;
+    width: 100%;
+}
+
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Responsive skeleton design */
+@media (max-width: 1400px) {
+    .skeleton-cards {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .skeleton-card {
+        height: 22vh;
+        min-height: 22vh;
+    }
+}
+
+@media (max-width: 900px) {
+    .skeleton-card {
+        height: 20vh;
+        min-height: 20vh;
     }
 }
