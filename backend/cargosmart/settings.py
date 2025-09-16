@@ -1,7 +1,7 @@
 from pathlib import Path
+import os
 from dotenv import load_dotenv
 
-# Load environment variables from a .env
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'apps.shipments',
     'apps.vehicles',
     'apps.alerts',
+    'apps.agent_reroute',
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -111,7 +112,11 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:4200",
     "http://127.0.0.1:4200",
 ]
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [
+    "localhost", 
+    "127.0.0.1",
+    "host.docker.internal",
+]
 
 
 TEMPLATES = [

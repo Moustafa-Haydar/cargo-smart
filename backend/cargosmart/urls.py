@@ -16,6 +16,7 @@ def root_view(request):
             'routes': '/routes/',
             'rbac': '/rbac/',
             'geo': '/geo/',
+            'agent_reroute': '/api/agentic/',
         }
     })
 
@@ -29,6 +30,7 @@ urlpatterns = [
     path("shipments/", include(("apps.shipments.urls", "shipments"), namespace="shipments")),
     path("vehicles/", include(("apps.vehicles.urls", "vehicles"), namespace="vehicles")),
     path("routes/", include(("apps.routes.urls", "routes"), namespace="routes")),
+    path("api/agentic/", include(("apps.agent_reroute.urls", "agent_reroute"), namespace="agent_reroute")),
 
     
 ]
