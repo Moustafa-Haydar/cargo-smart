@@ -1,8 +1,8 @@
-import { Component, inject, OnInit, DestroyRef } from '@angular/core';
+import { Component, inject, OnInit, DestroyRef, ChangeDetectorRef } from '@angular/core';
 import { SearchSection } from '../../shared/components/search-section/search-section';
 import { Shipment, ShipmentType } from '../../shared/models/logistics.model';
 import { ShipmentCard } from '../../shared/components/shipment-card/shipment-card';
-import { ShipmentRepository } from './shipment.repository';
+import { ShipmentsRepository } from './shipment.repository';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { map, takeUntil, } from 'rxjs';
@@ -10,13 +10,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-shipments',
-  standalone: true,
   imports: [CommonModule, FormsModule, SearchSection, ShipmentCard],
   templateUrl: './shipments.html',
   styleUrls: ['./shipments.css']
 })
 export class Shipments implements OnInit {
-  private repo = inject(ShipmentRepository);
+  private repo = inject(ShipmentsRepository);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   destroyRef = inject(DestroyRef);
 
@@ -40,9 +40,10 @@ export class Shipments implements OnInit {
     // load data first, then filter
     this.repo.getShipments().pipe(takeUntilDestroyed(this.destroyRef), map(res => res.shipments ?? []))
       .subscribe({
-        next: (data) => {
+        next: (data) => { 
           this.shipments = data ?? [];
           this.filterShipments();
+          this.changeDetectorRef.markForCheck();
         },
         error: (err) => {
           console.error('Failed to load shipments', err);

@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GoogleMap, GoogleMapsModule, MapAdvancedMarker, MapInfoWindow } from '@angular/google-maps';
 import { SearchSection } from '../../shared/components/search-section/search-section';
+import { FilterComponent, SelectOption } from '../../shared/components/filter/filter';
 import { GeoLocation, Route, Shipment, TransportVehicle } from '../../shared/models/logistics.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
-import { ShipmentRepository } from '../shipments/shipment.repository';
-import { VehicleRepository } from '../vehicles/vehicles.repository';
+import { ShipmentsRepository } from '../shipments/shipment.repository';
 import { LocationRepository } from './live-map.repository';
-import { RouteRepository } from '../routesPage/routes.repository';
+import { VehiclesRepository } from '../vehicles/vehicles.repository';
+import { RoutesRepository } from '../routesPage/routes.repository';
 
 type LatLng = google.maps.LatLngLiteral;
 type TypeOption = 'Shipments' | 'Vehicles' | 'Routes' | null;
@@ -47,15 +48,15 @@ interface RouteSegmentLine {
 @Component({
   selector: 'app-live-map',
   standalone: true,
-  imports: [CommonModule, FormsModule, GoogleMapsModule, SearchSection, MapAdvancedMarker],
+  imports: [CommonModule, FormsModule, GoogleMapsModule, SearchSection, FilterComponent, MapAdvancedMarker],
   templateUrl: './live-map.html',
   styleUrl: './live-map.css'
 })
 export class LiveMap implements OnInit {
-  private repo = inject(ShipmentRepository);
+  private repo = inject(ShipmentsRepository);
   private geoRepo = inject(LocationRepository);
-  private vehicleRepo = inject(VehicleRepository);
-  private routeRepo = inject(RouteRepository)
+  private vehicleRepo = inject(VehiclesRepository);
+  private routeRepo = inject(RoutesRepository)
   destroyRef = inject(DestroyRef);
 
   @ViewChild(GoogleMap) googleMap!: GoogleMap;
@@ -83,18 +84,32 @@ export class LiveMap implements OnInit {
 
   searchQuery = '';
   selectedTypeOption: TypeOption = 'Shipments';
-  selectedMapTheme: string = 'minimal';
+  selectedMapTheme: string = 'light';
+
+  // New filter properties
+  selectedShipment: string | null = null;
+  selectedVehicle: string | null = null;
+  selectedRoute: string | null = null;
+
+  // Filter status tracking
+  hasActiveFilters = false;
 
   // Custom icons for markers
   shipmentIcon: any;
   vehicleIcon: any;
 
-  typeOptions = [
-    { label: 'All', value: null },
-    { label: 'Shipments', value: 'Shipments' as TypeOption },
-    { label: 'Vehicles', value: 'Vehicles' as TypeOption },
-    { label: 'Routes', value: 'Routes' as TypeOption },
+  // Map theme options for the search component dropdown
+  themeOptions = [
+    { label: 'Light Theme', value: 'light' },
+    { label: 'Dark Theme', value: 'dark' },
+    { label: 'Satellite', value: 'satellite' },
+    { label: 'Terrain', value: 'terrain' }
   ];
+
+  // Filter options
+  shipmentOptions: SelectOption[] = [];
+  vehicleOptions: SelectOption[] = [];
+  routeOptions: SelectOption[] = [];
 
   // fetch all data (shipments, locations, routes, vehicles, ...)
   ngOnInit(): void {
@@ -116,6 +131,10 @@ export class LiveMap implements OnInit {
       .subscribe({
         next: (data) => {
           this.shipments = data ?? [];
+          this.shipmentOptions = this.shipments.map(shipment => ({
+            label: shipment.ref_no || shipment.id,
+            value: shipment.id
+          }));
           this.filterData();
           console.log('Shipments loaded:', this.shipments.length, this.shipments);
         },
@@ -123,21 +142,27 @@ export class LiveMap implements OnInit {
           console.error('Failed to load shipments', err);
           this.shipments = [];
           this.filteredShipments = [];
+          this.shipmentOptions = [];
         }
       });
 
     // load vehicles
     this.vehicleRepo.getVehicles()
-      .pipe(takeUntilDestroyed(this.destroyRef), map(res => res.vehicles ?? []))
+      .pipe(takeUntilDestroyed(this.destroyRef), map((res: any) => res.vehicles ?? []))
       .subscribe({
-        next: (data) => {
+        next: (data: TransportVehicle[]) => {
           this.vehicles = data ?? [];
+          this.vehicleOptions = this.vehicles.map(vehicle => ({
+            label: vehicle.plate_number || vehicle.id,
+            value: vehicle.id
+          }));
           this.filterData();
           console.log(this.vehicles);
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Failed to load vehicles', err);
           this.vehicles = [];
+          this.vehicleOptions = [];
         }
       });
 
@@ -157,15 +182,20 @@ export class LiveMap implements OnInit {
 
     // load routes
     this.routeRepo.getRoutes()
-      .pipe(takeUntilDestroyed(this.destroyRef), map(res => res.routes ?? []))
+      .pipe(takeUntilDestroyed(this.destroyRef), map((res: any) => res.routes ?? []))
       .subscribe({
-        next: (data) => {
+        next: (data: Route[]) => {
           console.log('routes: ', data);
           this.routes = data ?? [];
+          this.routeOptions = this.routes.map(route => ({
+            label: route.name || route.id,
+            value: route.id
+          }));
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Failed to load routes', err);
           this.routes = [];
+          this.routeOptions = [];
         }
       });
 
@@ -215,16 +245,49 @@ export class LiveMap implements OnInit {
     this.filterData();
   }
 
-  applyTypeFilter(type: TypeOption) {
-    this.selectedTypeOption = type ?? null;
+  applyTypeFilter(selectedTheme: any) {
+    this.selectedMapTheme = selectedTheme;
+    console.log('Theme changed to:', this.selectedMapTheme);
+    this.changeMapTheme();
+  }
+
+  onShipmentFilterChange(selectedShipment: any) {
+    // Clear other filters when selecting a shipment
+    this.selectedShipment = selectedShipment;
+    this.selectedVehicle = null;
+    this.selectedRoute = null;
+    this.updateFilterStatus();
     this.filterData();
   }
 
-  onThemeChange(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    this.selectedMapTheme = target.value;
-    console.log('Theme changed to:', this.selectedMapTheme);
-    this.changeMapTheme();
+  onVehicleFilterChange(selectedVehicle: any) {
+    // Clear other filters when selecting a vehicle
+    this.selectedVehicle = selectedVehicle;
+    this.selectedShipment = null;
+    this.selectedRoute = null;
+    this.updateFilterStatus();
+    this.filterData();
+  }
+
+  onRouteFilterChange(selectedRoute: any) {
+    // Clear other filters when selecting a route
+    this.selectedRoute = selectedRoute;
+    this.selectedShipment = null;
+    this.selectedVehicle = null;
+    this.updateFilterStatus();
+    this.filterData();
+  }
+
+  clearAllFilters() {
+    this.selectedShipment = null;
+    this.selectedVehicle = null;
+    this.selectedRoute = null;
+    this.updateFilterStatus();
+    this.filterData();
+  }
+
+  private updateFilterStatus() {
+    this.hasActiveFilters = !!(this.selectedShipment || this.selectedVehicle || this.selectedRoute);
   }
 
   changeMapTheme() {
@@ -232,7 +295,7 @@ export class LiveMap implements OnInit {
       const map = this.googleMap.googleMap;
 
       switch (this.selectedMapTheme) {
-        case 'minimal':
+        case 'light':
           // Custom minimal theme - clean and light
           map.setOptions({
             styles: [
@@ -317,14 +380,83 @@ export class LiveMap implements OnInit {
             ]
           });
           break;
-        case 'roadmap':
-          map.setMapTypeId('roadmap');
+        case 'dark':
+          // Dark theme
+          map.setOptions({
+            styles: [
+              { elementType: "geometry", stylers: [{ color: "#212121" }] },
+              { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
+              { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+              {
+                featureType: "administrative.locality",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#bdbdbd" }]
+              },
+              {
+                featureType: "poi",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#757575" }]
+              },
+              {
+                featureType: "poi.park",
+                elementType: "geometry",
+                stylers: [{ color: "#263238" }]
+              },
+              {
+                featureType: "poi.park",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#6b9b37" }]
+              },
+              {
+                featureType: "road",
+                elementType: "geometry",
+                stylers: [{ color: "#2b2b2b" }]
+              },
+              {
+                featureType: "road",
+                elementType: "geometry.stroke",
+                stylers: [{ color: "#212121" }]
+              },
+              {
+                featureType: "road",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#9ca3af" }]
+              },
+              {
+                featureType: "road.highway",
+                elementType: "geometry",
+                stylers: [{ color: "#373737" }]
+              },
+              {
+                featureType: "road.highway",
+                elementType: "geometry.stroke",
+                stylers: [{ color: "#212121" }]
+              },
+              {
+                featureType: "road.highway",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#b3b3b3" }]
+              },
+              {
+                featureType: "water",
+                elementType: "geometry",
+                stylers: [{ color: "#17263c" }]
+              },
+              {
+                featureType: "water",
+                elementType: "labels.text.fill",
+                stylers: [{ color: "#515c6d" }]
+              },
+              {
+                featureType: "water",
+                elementType: "labels.text.stroke",
+                stylers: [{ color: "#17263c" }]
+              }
+            ]
+          });
           break;
         case 'satellite':
           map.setMapTypeId('satellite');
-          break;
-        case 'hybrid':
-          map.setMapTypeId('hybrid');
           break;
         case 'terrain':
           map.setMapTypeId('terrain');
@@ -336,124 +468,190 @@ export class LiveMap implements OnInit {
   private filterData() {
     const q = this.searchQuery.trim().toLowerCase();
 
-    // Removed custom SVG content since we're using regular markers now
-
-    // --- Shipments ---
-    if (this.selectedTypeOption === 'Shipments') {
-      this.vehicleLocations = [];
-      this.routeSegments = [];
-
-      this.filteredShipments = this.shipments.filter(s => {
-        const haystack = [
-          s.id,
-          s.ref_no,
-          s.status,
-          s.carrier_name,
-          s.origin?.name,
-          s.destination?.name,
-          s.current_location?.name,
-          s.route?.name,
-          s.vehicle?.plate_number,
-          s.vehicle?.model,
-        ].filter(Boolean).join(' ').toLowerCase();
-
-        return !q || haystack.includes(q);
-      });
-
-      this.shipmentLocations = this.filteredShipments.flatMap(s => {
-        const markers: ShipmentLocation[] = [];
-
-        // helper to resolve a location by id
-        const resolveLoc = (id?: string) =>
-          this.locations.find(loc => loc.id === id);
-
-        const current = resolveLoc(s.current_location?.id);
-        if (current) {
-          markers.push({
-            id: `${s.id}-current`,
-            name: current.name,
-            lat: current.lat,
-            lng: current.lng,
-            shipment: s,
-          } as any);
-        }
-
-        return markers;
-      });
-
-      console.log('Shipment markers created:', this.shipmentLocations.length, this.shipmentLocations);
+    // Determine what to show based on active filters
+    if (this.selectedShipment) {
+      // Show selected shipment + its route
+      this.filterByShipment(q);
+    } else if (this.selectedVehicle) {
+      // Show selected vehicle + its route + shipments using this vehicle
+      this.filterByVehicle(q);
+    } else if (this.selectedRoute) {
+      // Show selected route + all shipments and vehicles using this route
+      this.filterByRoute(q);
+    } else {
+      // Show everything (default view)
+      this.showAllData(q);
     }
 
-    // --- Vehicles ---
-    if (this.selectedTypeOption === 'Vehicles') {
-      this.shipmentLocations = [];
+    console.log('Filtered data:', {
+      shipments: this.shipmentLocations.length,
+      vehicles: this.vehicleLocations.length,
+      routes: this.routeSegments.length,
+      activeFilters: this.hasActiveFilters
+    });
+  }
+
+  private filterByShipment(q: string) {
+    const selectedShipment = this.shipments.find(s => s.id === this.selectedShipment);
+    if (!selectedShipment) return;
+
+    // Show only the selected shipment
+    this.filteredShipments = [selectedShipment];
+    this.shipmentLocations = this.createShipmentMarkers([selectedShipment]);
+
+    // Show the route associated with this shipment
+    if (selectedShipment.route) {
+      const route = this.routes.find(r => r.id === selectedShipment.route?.id);
+      if (route) {
+        this.routeSegments = this.createRouteSegments([route]);
+      } else {
+        this.routeSegments = [];
+      }
+    } else {
       this.routeSegments = [];
-
-      this.vehicleLocations = this.vehicles.flatMap(v => {
-        const markers: VehicleLocation[] = [];
-
-        // Prefer last_position if it exists
-        if (v.last_position?.lat && v.last_position?.lng) {
-          markers.push({
-            id: `${v.id}-lastpos`,
-            name: v.last_position.location || v.plate_number,
-            lat: v.last_position.lat,
-            lng: v.last_position.lng,
-            vehicle: v,
-          });
-        }
-
-        // Or fallback to current_location linked with your locations array
-        const current = this.locations.find(loc => loc.id === v.current_location?.id);
-        if (current) {
-          markers.push({
-            id: `${v.id}-current`,
-            name: current.name,
-            lat: current.lat,
-            lng: current.lng,
-            vehicle: v,
-          });
-        }
-
-        return markers;
-      });
-
-      console.log('Vehicle markers:', this.vehicleLocations);
     }
 
-    // --- Routes ---
-    if (this.selectedTypeOption === 'Routes') {
-      this.shipmentLocations = [];
-      this.vehicleLocations = [];
+    // Don't show other vehicles
+    this.vehicleLocations = [];
+  }
 
-      this.routeSegments = this.routes.flatMap(r => {
-        if (q && !r.name.toLowerCase().includes(q)) return [];
+  private filterByVehicle(q: string) {
+    const selectedVehicle = this.vehicles.find(v => v.id === this.selectedVehicle);
+    if (!selectedVehicle) return;
 
-        return (r.segments ?? []).map(seg => {
-          // Parse GeoJSON
-          const geo = JSON.parse(seg.geometry);
-          const path: LatLng[] = geo.coordinates.map(
-            (c: [number, number]) => ({ lat: c[1], lng: c[0] })
-          );
+    // Show the selected vehicle
+    this.vehicleLocations = this.createVehicleMarkers([selectedVehicle]);
 
-          // Color by route (simplified - all routes are truck routes)
-          let color = '#F68716'; // secondary color for truck routes
+    // Find shipments using this vehicle
+    const shipmentsUsingVehicle = this.shipments.filter(s =>
+      s.vehicle && s.vehicle.id === this.selectedVehicle
+    );
+    this.filteredShipments = shipmentsUsingVehicle;
+    this.shipmentLocations = this.createShipmentMarkers(shipmentsUsingVehicle);
 
-          return {
-            id: seg.id,
-            routeId: r.id,
-            routeName: r.name,
-            seq: seg.seq,
-            path,
-            color
-          };
+    // Show routes associated with these shipments
+    const routeIds = new Set(shipmentsUsingVehicle.map(s => s.route?.id).filter(Boolean));
+    const associatedRoutes = this.routes.filter(r => routeIds.has(r.id));
+    this.routeSegments = this.createRouteSegments(associatedRoutes);
+  }
+
+  private filterByRoute(q: string) {
+    const selectedRoute = this.routes.find(r => r.id === this.selectedRoute);
+    if (!selectedRoute) return;
+
+    // Show the selected route
+    this.routeSegments = this.createRouteSegments([selectedRoute]);
+
+    // Find shipments using this route
+    const shipmentsUsingRoute = this.shipments.filter(s =>
+      s.route && s.route.id === this.selectedRoute
+    );
+    this.filteredShipments = shipmentsUsingRoute;
+    this.shipmentLocations = this.createShipmentMarkers(shipmentsUsingRoute);
+
+    // Find vehicles used by these shipments
+    const vehicleIds = new Set(shipmentsUsingRoute.map(s => s.vehicle?.id).filter(Boolean));
+    const associatedVehicles = this.vehicles.filter(v => vehicleIds.has(v.id));
+    this.vehicleLocations = this.createVehicleMarkers(associatedVehicles);
+  }
+
+  private showAllData(q: string) {
+    // Show all shipments
+    this.filteredShipments = this.shipments.filter(s => {
+      const haystack = [
+        s.id, s.ref_no, s.status, s.carrier_name,
+        s.origin?.name, s.destination?.name, s.current_location?.name,
+        s.route?.name, s.vehicle?.plate_number, s.vehicle?.model,
+      ].filter(Boolean).join(' ').toLowerCase();
+      return !q || haystack.includes(q);
+    });
+    this.shipmentLocations = this.createShipmentMarkers(this.filteredShipments);
+
+    // Show all vehicles
+    const filteredVehicles = this.vehicles.filter(v => {
+      const haystack = [
+        v.id, v.plate_number, v.model, v.status, v.current_location?.name,
+      ].filter(Boolean).join(' ').toLowerCase();
+      return !q || haystack.includes(q);
+    });
+    this.vehicleLocations = this.createVehicleMarkers(filteredVehicles);
+
+    // Show all routes
+    const filteredRoutes = this.routes.filter(r => {
+      const haystack = [r.id, r.name].filter(Boolean).join(' ').toLowerCase();
+      return !q || haystack.includes(q);
+    });
+    this.routeSegments = this.createRouteSegments(filteredRoutes);
+  }
+
+  private createShipmentMarkers(shipments: Shipment[]): ShipmentLocation[] {
+    return shipments.flatMap(s => {
+      const markers: ShipmentLocation[] = [];
+      const resolveLoc = (id?: string) => this.locations.find(loc => loc.id === id);
+      const current = resolveLoc(s.current_location?.id);
+
+      if (current) {
+        markers.push({
+          id: `${s.id}-current`,
+          name: current.name,
+          lat: current.lat,
+          lng: current.lng,
+          shipment: s,
+        } as any);
+      }
+      return markers;
+    });
+  }
+
+  private createVehicleMarkers(vehicles: TransportVehicle[]): VehicleLocation[] {
+    return vehicles.flatMap(v => {
+      const markers: VehicleLocation[] = [];
+
+      // Prefer last_position if it exists
+      if (v.last_position?.lat && v.last_position?.lng) {
+        markers.push({
+          id: `${v.id}-lastpos`,
+          name: v.last_position.location || v.plate_number,
+          lat: v.last_position.lat,
+          lng: v.last_position.lng,
+          vehicle: v,
         });
+      }
+
+      // Or fallback to current_location
+      const current = this.locations.find(loc => loc.id === v.current_location?.id);
+      if (current) {
+        markers.push({
+          id: `${v.id}-current`,
+          name: current.name,
+          lat: current.lat,
+          lng: current.lng,
+          vehicle: v,
+        });
+      }
+
+      return markers;
+    });
+  }
+
+  private createRouteSegments(routes: Route[]): RouteSegmentLine[] {
+    return routes.flatMap(r => {
+      return (r.segments ?? []).map(seg => {
+        const geo = JSON.parse(seg.geometry);
+        const path: LatLng[] = geo.coordinates.map(
+          (c: [number, number]) => ({ lat: c[1], lng: c[0] })
+        );
+
+        return {
+          id: seg.id,
+          routeId: r.id,
+          routeName: r.name,
+          seq: seg.seq,
+          path,
+          color: '#F68716'
+        };
       });
-
-      console.log('Route polylines:', this.routeSegments);
-    }
-
-
+    });
   }
 
 }

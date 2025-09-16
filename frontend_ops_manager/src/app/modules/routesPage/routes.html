@@ -11,7 +11,7 @@
         </div>
     </header>
 
-    <search-section [options]="emptyOptions" [placeHolder]="'Search routes'" [(searchQuery)]="searchQuery"
+    <search-section [options]="[]" [placeHolder]="'Search routes'" [(searchQuery)]="searchQuery"
         (search)="applySearch($event)"></search-section>
 
     <div class="routes-grid">

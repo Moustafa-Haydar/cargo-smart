@@ -6,7 +6,7 @@ import { Route } from '../../shared/models/logistics.model';
 interface RoutesResponse { routes: Route[]; }
 
 @Injectable({ providedIn: 'root' })
-export class RouteRepository {
+export class RoutesRepository {
   private http = inject(HttpClient);
 
   getRoutes() {

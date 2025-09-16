@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { SearchSection } from '../../shared/components/search-section/search-section';
 import { VehicleCard } from '../../shared/components/vehicle-card/vehicle-card';
 import { TransportVehicle, VehicleType } from '../../shared/models/logistics.model';
-import { VehicleRepository } from './vehicles.repository';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
+import { VehiclesRepository } from './vehicles.repository';
 
 @Component({
   selector: 'app-vehicles',
@@ -16,7 +16,7 @@ import { map } from 'rxjs';
   styleUrls: ['./vehicles.css']
 })
 export class Vehicles {
-  private repo = inject(VehicleRepository);
+  private repo = inject(VehiclesRepository);
 
   destroyRef = inject(DestroyRef);
 

@@ -6,7 +6,7 @@ import { Shipment } from '../../shared/models/logistics.model';
 interface ShipmentsResponse { shipments: Shipment[]; }
 
 @Injectable({ providedIn: 'root' })
-export class ShipmentRepository {
+export class ShipmentsRepository {
   private http = inject(HttpClient);
 
   getShipments() {

@@ -11,20 +11,43 @@
         </div>
     </header>
 
-    <div class="controls-row">
-        <search-section [options]="typeOptions" [placeHolder]="'Filter by type'" [(searchQuery)]="searchQuery"
-            [(selected)]="selectedTypeOption" (search)="applySearch($event)"
-            (filterChange)="applyTypeFilter($event)"></search-section>
+    <!-- First line: Search bar and theme selector -->
+    <div class="search-theme-row">
+        <search-section [options]="themeOptions" [placeHolder]="'Select Map Theme'" [(searchQuery)]="searchQuery"
+            [(selected)]="selectedMapTheme" (search)="applySearch($event)" (filterChange)="applyTypeFilter($event)">
+        </search-section>
+    </div>
 
-        <div class="theme-selector">
-            <label for="mapTheme">Map Theme:</label>
-            <select id="mapTheme" [value]="selectedMapTheme" (change)="onThemeChange($event)">
-                <option value="minimal">Minimal</option>
-                <option value="roadmap">Road Map</option>
-                <option value="satellite">Satellite</option>
-                <option value="hybrid">Hybrid</option>
-                <option value="terrain">Terrain</option>
-            </select>
+    <!-- Second line: Filter dropdowns and clear button -->
+    <div class="filters-row">
+        <div class="filter-group">
+            <label class="filter-label">Filter by:</label>
+            <div class="filter-dropdowns">
+                <app-filter [options]="shipmentOptions" [placeHolder]="'Select Shipment'"
+                    [(selected)]="selectedShipment" (filterChange)="onShipmentFilterChange($event)">
+                </app-filter>
+
+                <app-filter [options]="vehicleOptions" [placeHolder]="'Select Vehicle'" [(selected)]="selectedVehicle"
+                    (filterChange)="onVehicleFilterChange($event)">
+                </app-filter>
+
+                <app-filter [options]="routeOptions" [placeHolder]="'Select Route'" [(selected)]="selectedRoute"
+                    (filterChange)="onRouteFilterChange($event)">
+                </app-filter>
+            </div>
+        </div>
+
+        <div class="filter-actions">
+            <button *ngIf="hasActiveFilters" class="clear-filters-btn" (click)="clearAllFilters()"
+                title="Clear all filters to show all data">
+                <i class="fas fa-times"></i>
+                Clear Filters
+            </button>
+
+            <div class="filter-status" *ngIf="hasActiveFilters">
+                <span class="status-indicator active"></span>
+                <span class="status-text">Filters Active</span>
+            </div>
         </div>
     </div>
 
