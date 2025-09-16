@@ -1,103 +1,79 @@
-version: '3.8'
-
 services:
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: backend
     ports:
-      - "5001:5000"
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-cargo_db}?schema=public
-    env_file:
-      - ./backend/.env
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./backend/bge-m3:/app/bge-m3
+    working_dir: /app
     depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app-network
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-
-  postgres:
-    image: postgres:16
+      - db
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=cargo_db
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: cargosmart
+      DB_USER: postgres
+      DB_PASSWORD: password
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
     ports:
-      - "5433:5432"
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app:delegated
+    working_dir: /app
+    command: npm start
+    stdin_open: true
+    tty: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - FAST_REFRESH=false
+
+
+  db:
+    image: postgres:15
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_DB: cargosmart
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d cargo_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  adminer:
-    image: adminer:latest
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
     ports:
-      - "8080:8080"
+      - "8081:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     depends_on:
-      - postgres
-    networks:
-      - app-network
-
+      - db
+  
   n8n:
-    build:
-      context: ./n8n
-      dockerfile: Dockerfile
+    image: n8nio/n8n
+    container_name: cargosmart-n8n
     ports:
       - "5678:5678"
-    environment:
-      - N8N_HOST=${N8N_HOST:-localhost}
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
-      - NODE_ENV=production
-      - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL:-http://localhost:5678}
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
-      - DB_POSTGRESDB_PORT=5432
-      - DB_POSTGRESDB_DATABASE=n8n
-      - DB_POSTGRESDB_USER=postgres
-      - DB_POSTGRESDB_PASSWORD=password
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=admin123
     volumes:
-      - n8n_data:/home/node/.n8n
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app-network
-    deploy:
-      restart_policy:
-        condition: on-failure
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
+      - ./n8n:/home/node/.n8n
+
 
 volumes:
   pg_data:
-    driver: local
-  n8n_data:
-    driver: local
-
-networks:
-  app-network:
-    driver: bridge
