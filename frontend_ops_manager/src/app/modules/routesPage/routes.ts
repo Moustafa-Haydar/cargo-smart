@@ -17,7 +17,6 @@ import { RoutesRepository } from './routes.repository';
 })
 export class RoutesPage {
   private routesRepo = inject(RoutesRepository);
-
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   destroyRef = inject(DestroyRef);
@@ -27,6 +26,17 @@ export class RoutesPage {
   filteredRoutes: Route[] = [...this.routes];
 
   searchQuery = '';
+
+  // filter state (mirror shipments page)
+  selectedCarrier: string | null = null;
+  carrierOptions = [
+    { label: 'All', value: null },
+    { label: 'VRL Logistics', value: 'VRL Logistics' },
+    { label: 'Delhivery', value: 'Delhivery' },
+    { label: 'GATI', value: 'GATI' },
+    { label: 'BlueDart', value: 'BlueDart' },
+    { label: 'TCI Express', value: 'TCI Express' },
+  ];
 
   ngOnInit(): void {
     // load routes data
@@ -50,11 +60,18 @@ export class RoutesPage {
     this.filterRoutes();
   }
 
+  applyFilter(carrier: string | null) {
+    this.selectedCarrier = carrier ?? null;
+    this.filterRoutes();
+  }
 
   private filterRoutes() {
     const q = this.searchQuery.trim().toLowerCase();
 
     this.filteredRoutes = this.routes.filter(route => {
+      // Carrier filter: if selectedCarrier, any shipment on this route should match
+      const matchesCarrier = !this.selectedCarrier || (route.shipments || []).some(s => s.carrier_name === this.selectedCarrier);
+
       const haystack = [
         route.id,
         route.name
@@ -64,7 +81,7 @@ export class RoutesPage {
         .toLowerCase();
 
       const matchesQuery = !q || haystack.includes(q);
-      return matchesQuery;
+      return matchesCarrier && matchesQuery;
     });
   }
 }

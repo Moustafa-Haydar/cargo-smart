@@ -56,7 +56,7 @@ export class LiveMap implements OnInit {
   private repo = inject(ShipmentsRepository);
   private geoRepo = inject(LocationRepository);
   private vehicleRepo = inject(VehiclesRepository);
-  private routeRepo = inject(RoutesRepository)
+  private routeRepo = inject(RoutesRepository);
   destroyRef = inject(DestroyRef);
 
   @ViewChild(GoogleMap) googleMap!: GoogleMap;

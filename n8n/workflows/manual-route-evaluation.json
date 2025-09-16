@@ -1,0 +1,249 @@
+{
+    "name": "Manual Route Evaluation",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "route-evaluation",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "webhook-trigger",
+            "name": "Manual Trigger",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                240,
+                300
+            ],
+            "webhookId": "route-evaluation-webhook"
+        },
+        {
+            "parameters": {
+                "url": "http://backend:5000/api/agent_reroute/shipments/active/",
+                "options": {
+                    "timeout": 10000
+                }
+            },
+            "id": "get-active-shipments",
+            "name": "Get Active Shipments",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                460,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "has-shipments",
+                            "leftValue": "={{ $json.count }}",
+                            "rightValue": 0,
+                            "operator": {
+                                "type": "number",
+                                "operation": "gt"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "check-shipments",
+            "name": "Has Shipments?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                680,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Extract shipment IDs from the response\nconst shipments = $input.first().json.shipments;\nconst shipmentIds = shipments.map(shipment => shipment.id);\n\nreturn {\n  shipment_ids: shipmentIds,\n  count: shipmentIds.length\n};"
+            },
+            "id": "extract-shipment-ids",
+            "name": "Extract Shipment IDs",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                900,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "url": "http://backend:5000/api/agent_reroute/batch-evaluate/",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "shipment_ids",
+                            "value": "={{ $json.shipment_ids }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "timeout": 30000
+                }
+            },
+            "id": "batch-evaluate-routes",
+            "name": "Batch Evaluate Routes",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1120,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Process evaluation results\nconst results = $input.first().json.results;\nconst rerouteSuggestions = results.filter(result => result.requires_reroute);\n\nreturn {\n  total_processed: results.length,\n  suggestions_created: rerouteSuggestions.length,\n  results: results,\n  suggestions: rerouteSuggestions\n};"
+            },
+            "id": "process-results",
+            "name": "Process Results",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1340,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Route evaluation completed successfully\",\n  \"total_processed\": $json.total_processed,\n  \"suggestions_created\": $json.suggestions_created,\n  \"timestamp\": new Date().toISOString()\n} }}"
+            },
+            "id": "success-response",
+            "name": "Success Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                1560,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ {\n  \"success\": false,\n  \"message\": \"No active shipments found for evaluation\",\n  \"timestamp\": new Date().toISOString()\n} }}"
+            },
+            "id": "no-shipments-response",
+            "name": "No Shipments Response",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                900,
+                400
+            ]
+        }
+    ],
+    "connections": {
+        "Manual Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Get Active Shipments",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Active Shipments": {
+            "main": [
+                [
+                    {
+                        "node": "Has Shipments?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Has Shipments?": {
+            "main": [
+                [
+                    {
+                        "node": "Extract Shipment IDs",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "No Shipments Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Extract Shipment IDs": {
+            "main": [
+                [
+                    {
+                        "node": "Batch Evaluate Routes",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Batch Evaluate Routes": {
+            "main": [
+                [
+                    {
+                        "node": "Process Results",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Results": {
+            "main": [
+                [
+                    {
+                        "node": "Success Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [
+        {
+            "createdAt": "2024-01-01T00:00:00.000Z",
+            "updatedAt": "2024-01-01T00:00:00.000Z",
+            "id": "route-automation",
+            "name": "Route Automation"
+        }
+    ],
+    "triggerCount": 1,
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "versionId": "1"
+}

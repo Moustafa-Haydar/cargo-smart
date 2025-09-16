@@ -1,0 +1,343 @@
+{
+    "name": "Route Monitoring & Reroute Automation",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "minutes",
+                            "minutesInterval": 5
+                        }
+                    ]
+                }
+            },
+            "id": "schedule-trigger",
+            "name": "Every 5 Minutes",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                240,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "url": "http://backend:5000/api/agent_reroute/shipments/active/",
+                "options": {
+                    "timeout": 10000
+                }
+            },
+            "id": "get-active-shipments",
+            "name": "Get Active Shipments",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                460,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "has-shipments",
+                            "leftValue": "={{ $json.count }}",
+                            "rightValue": 0,
+                            "operator": {
+                                "type": "number",
+                                "operation": "gt"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "check-shipments",
+            "name": "Has Shipments?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                680,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Extract shipment IDs from the response\nconst shipments = $input.first().json.shipments;\nconst shipmentIds = shipments.map(shipment => shipment.id);\n\nreturn {\n  shipment_ids: shipmentIds,\n  count: shipmentIds.length\n};"
+            },
+            "id": "extract-shipment-ids",
+            "name": "Extract Shipment IDs",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                900,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "url": "http://backend:5000/api/agent_reroute/batch-evaluate/",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "shipment_ids",
+                            "value": "={{ $json.shipment_ids }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "timeout": 30000
+                }
+            },
+            "id": "batch-evaluate-routes",
+            "name": "Batch Evaluate Routes",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1120,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Process evaluation results and filter for reroute suggestions\nconst results = $input.first().json.results;\nconst rerouteSuggestions = results.filter(result => result.requires_reroute);\n\nif (rerouteSuggestions.length > 0) {\n  return {\n    has_suggestions: true,\n    suggestions: rerouteSuggestions,\n    count: rerouteSuggestions.length\n  };\n} else {\n  return {\n    has_suggestions: false,\n    suggestions: [],\n    count: 0\n  };\n}"
+            },
+            "id": "process-results",
+            "name": "Process Results",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1340,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "has-suggestions",
+                            "leftValue": "={{ $json.has_suggestions }}",
+                            "rightValue": true,
+                            "operator": {
+                                "type": "boolean",
+                                "operation": "equal"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "check-suggestions",
+            "name": "Has Suggestions?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                1560,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "url": "http://backend:5000/api/agent_reroute/suggestions/pending/",
+                "options": {
+                    "timeout": 10000
+                }
+            },
+            "id": "get-pending-suggestions",
+            "name": "Get Pending Suggestions",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1780,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Create notification message for ops manager\nconst suggestions = $input.first().json.suggestions;\nconst count = suggestions.length;\n\nlet message = `🚨 Route Optimization Alert\\n\\n`;\nmessage += `Found ${count} route optimization suggestion(s) requiring your review:\\n\\n`;\n\nsuggestions.forEach((suggestion, index) => {\n  message += `${index + 1}. Shipment: ${suggestion.shipment_id}\\n`;\n  message += `   Delay Risk: ${(suggestion.delay_probability * 100).toFixed(1)}%\\n`;\n  message += `   Current ETA: ${suggestion.current_eta_minutes} min\\n`;\n  message += `   Proposed ETA: ${suggestion.proposed_eta_minutes} min\\n`;\n  message += `   Improvement: ${suggestion.improvement_percentage.toFixed(1)}%\\n`;\n  message += `   Reason: ${suggestion.rationale}\\n\\n`;\n});\n\nmessage += `Please review these suggestions in the Routes page.`;\n\nreturn {\n  message: message,\n  count: count,\n  timestamp: new Date().toISOString()\n};"
+            },
+            "id": "create-notification",
+            "name": "Create Notification",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2000,
+                100
+            ]
+        },
+        {
+            "parameters": {
+                "url": "http://backend:5000/api/agent_reroute/suggestions/pending/",
+                "options": {
+                    "timeout": 10000
+                }
+            },
+            "id": "log-completion",
+            "name": "Log Completion",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                1780,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Log the monitoring cycle completion\nconst timestamp = new Date().toISOString();\nconst message = `Route monitoring cycle completed at ${timestamp}`;\n\nreturn {\n  message: message,\n  timestamp: timestamp,\n  status: 'completed'\n};"
+            },
+            "id": "log-no-suggestions",
+            "name": "Log No Suggestions",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1780,
+                400
+            ]
+        }
+    ],
+    "connections": {
+        "Every 5 Minutes": {
+            "main": [
+                [
+                    {
+                        "node": "Get Active Shipments",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Active Shipments": {
+            "main": [
+                [
+                    {
+                        "node": "Has Shipments?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Has Shipments?": {
+            "main": [
+                [
+                    {
+                        "node": "Extract Shipment IDs",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Log No Suggestions",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Extract Shipment IDs": {
+            "main": [
+                [
+                    {
+                        "node": "Batch Evaluate Routes",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Batch Evaluate Routes": {
+            "main": [
+                [
+                    {
+                        "node": "Process Results",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Results": {
+            "main": [
+                [
+                    {
+                        "node": "Has Suggestions?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Has Suggestions?": {
+            "main": [
+                [
+                    {
+                        "node": "Get Pending Suggestions",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Log Completion",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Pending Suggestions": {
+            "main": [
+                [
+                    {
+                        "node": "Create Notification",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [
+        {
+            "createdAt": "2024-01-01T00:00:00.000Z",
+            "updatedAt": "2024-01-01T00:00:00.000Z",
+            "id": "route-automation",
+            "name": "Route Automation"
+        }
+    ],
+    "triggerCount": 1,
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "versionId": "1"
+}
