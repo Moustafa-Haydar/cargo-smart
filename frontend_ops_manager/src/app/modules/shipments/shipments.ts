@@ -22,7 +22,6 @@ export class Shipments implements OnInit {
 
   destroyRef = inject(DestroyRef);
 
-  // keep a concrete array for filtering
   shipments: Shipment[] = [];
   filteredShipments: Shipment[] = [];
   loading = true;

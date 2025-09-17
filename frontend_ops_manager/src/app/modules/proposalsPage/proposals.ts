@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchSection } from '../../shared/components/search-section/search-section';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, of } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { AgentProposal, ProposalsResponse } from '../../shared/models/logistics.model';
 import { ProposalsRepository } from './proposal.repository';
 
@@ -13,16 +13,17 @@ import { ProposalsRepository } from './proposal.repository';
     templateUrl: './proposals.html',
     styleUrls: ['./proposals.css']
 })
-export class ProposalsPage {
+export class ProposalsPage implements OnInit {
+    private repo = inject(ProposalsRepository);
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
+
     destroyRef = inject(DestroyRef);
-    private readonly repo = inject(ProposalsRepository);
 
     proposals: AgentProposal[] = [];
-    filteredProposals: AgentProposal[] = [...this.proposals];
+    filteredProposals: AgentProposal[] = [];
+    loading = true;
 
     searchQuery = '';
-    loading = true;
     error: string | null = null;
 
     selectedAction: string | null = null;
@@ -33,30 +34,21 @@ export class ProposalsPage {
     ];
 
     ngOnInit(): void {
-        this.loadProposals();
-    }
-
-    public loadProposals(): void {
-        this.loading = true;
-        this.error = null;
-        this.repo.getProposals()
-            .pipe(
-                catchError(err => {
+        // load data first, then filter
+        this.repo.getProposals().pipe(takeUntilDestroyed(this.destroyRef), map(res => res.proposals ?? []))
+            .subscribe({
+                next: (data) => {
+                    this.proposals = data ?? [];
+                    this.filterProposals();
+                    this.loading = false;
+                    this.changeDetectorRef.markForCheck();
+                },
+                error: (err) => {
                     console.error('Failed to load proposals', err);
-                    this.error = 'Failed to load route proposals';
                     this.proposals = [];
                     this.filteredProposals = [];
                     this.loading = false;
-                    this.changeDetectorRef.markForCheck();
-                    return of({ proposals: [], count: 0 } as ProposalsResponse);
-                }),
-                takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe((data: ProposalsResponse) => {
-                this.proposals = data.proposals || [];
-                this.filterProposals();
-                this.loading = false;
-                this.changeDetectorRef.markForCheck();
+                }
             });
     }
 
@@ -93,39 +85,16 @@ export class ProposalsPage {
         });
     }
 
-    acceptProposal(proposal: AgentProposal) {
-        if (!proposal.proposal) return;
-        this.repo.applyProposal(
-            proposal.shipment_id,
-            proposal.proposal.route_id,
-            proposal.proposal.path || null
-        )
-            .pipe(
-                catchError(err => {
-                    console.error('Failed to apply route proposal:', err);
-                    alert('Failed to apply route proposal. Please try again.');
-                    return of(null);
-                }),
-                takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe(() => {
-                this.loadProposals();
-            });
-    }
-
-    rejectProposal(proposal: AgentProposal) {
-        // For now, just reload the proposals
-        // In the future, you might want to mark it as rejected in the database
-        this.loadProposals();
-    }
-
-    formatTime(minutes: number): string {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
+    // Formatting helpers for template
+    formatTime(minutes?: number | null): string {
+        const total = Number(minutes ?? 0);
+        const hours = Math.floor(total / 60);
+        const mins = total % 60;
         return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
     }
 
-    formatDelayRisk(pDelay: number): string {
-        return `${(pDelay * 100).toFixed(1)}%`;
+    formatDelayRisk(pDelay?: number | null): string {
+        const v = Number(pDelay ?? 0);
+        return `${(v * 100).toFixed(1)}%`;
     }
 }
