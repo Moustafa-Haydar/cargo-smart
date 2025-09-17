@@ -8,6 +8,7 @@ interface ShipmentsResponse { shipments: Shipment[]; }
 
 // Proposal interface to match the ML system output
 export interface RouteProposal {
+  id?: string;
   action: 'stick' | 'propose_switch';
   current: {
     route_id: string;
@@ -25,6 +26,19 @@ export interface RouteProposal {
   };
   rationale: string;
   requires_approval: boolean;
+  created_at?: string;
+}
+
+// Response interface for multiple proposals
+export interface ProposalsResponse {
+  proposals?: RouteProposal[];
+  count?: number;
+  // For single proposal (backward compatibility)
+  action?: 'stick' | 'propose_switch';
+  current?: any;
+  proposal?: any;
+  rationale?: string;
+  requires_approval?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -42,9 +56,9 @@ export class RoutesRepository {
     );
   }
 
-  // Get route proposal for a specific shipment (already evaluated by n8n)
-  getRouteProposal(shipmentId: string): Observable<RouteProposal> {
-    return this.http.get<RouteProposal>(`/api/agentic/shipments/${shipmentId}/proposal/`, { withCredentials: true });
+  // Get route proposals for a specific shipment (already evaluated by n8n)
+  getRouteProposal(shipmentId: string): Observable<ProposalsResponse> {
+    return this.http.get<ProposalsResponse>(`/api/agentic/shipments/${shipmentId}/proposal/`, { withCredentials: true });
   }
 
   // Apply a route proposal

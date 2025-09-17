@@ -6,7 +6,7 @@ import { SearchSection } from '../../shared/components/search-section/search-sec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, catchError, of, forkJoin } from 'rxjs';
 
-import { RoutesRepository, RouteProposal } from './routes.repository';
+import { RoutesRepository, RouteProposal, ProposalsResponse } from './routes.repository';
 
 @Component({
   selector: 'app-routes',
@@ -22,8 +22,8 @@ export class RoutesPage {
   destroyRef = inject(DestroyRef);
 
   // state
-  shipments: Array<Shipment & { proposal: RouteProposal | null }> = [];
-  filteredShipments: Array<Shipment & { proposal: RouteProposal | null }> = [...this.shipments];
+  shipments: Array<Shipment & { proposals: RouteProposal[] | null }> = [];
+  filteredShipments: Array<Shipment & { proposals: RouteProposal[] | null }> = [...this.shipments];
 
   searchQuery = '';
   loading = true;
@@ -50,11 +50,28 @@ export class RoutesPage {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map(shipments => {
-          // For each shipment, get its pre-evaluated proposal from n8n
+          // For each shipment, get its pre-evaluated proposals from n8n
           const proposalRequests = shipments.map(shipment =>
             this.routesRepo.getRouteProposal(shipment.id).pipe(
-              map(proposal => ({ ...shipment, proposal })),
-              catchError(() => of({ ...shipment, proposal: null }))
+              map((response: ProposalsResponse) => {
+                // Handle both single proposal and multiple proposals response
+                let proposals: RouteProposal[] = [];
+                if (response.proposals && response.proposals.length > 0) {
+                  // Multiple proposals
+                  proposals = response.proposals;
+                } else if (response.action) {
+                  // Single proposal (backward compatibility)
+                  proposals = [{
+                    action: response.action,
+                    current: response.current,
+                    proposal: response.proposal,
+                    rationale: response.rationale || '',
+                    requires_approval: response.requires_approval || false
+                  }];
+                }
+                return { ...shipment, proposals };
+              }),
+              catchError(() => of({ ...shipment, proposals: null }))
             )
           );
           return forkJoin(proposalRequests);
@@ -64,7 +81,7 @@ export class RoutesPage {
         next: (requestsObservable) => {
           requestsObservable.subscribe({
             next: (results) => {
-              this.shipments = results.filter(result => result !== undefined) as Array<Shipment & { proposal: RouteProposal | null }>;
+              this.shipments = results.filter(result => result !== undefined) as Array<Shipment & { proposals: RouteProposal[] | null }>;
               this.filterShipments();
               this.loading = false;
               this.changeDetectorRef.markForCheck();
@@ -122,10 +139,10 @@ export class RoutesPage {
   }
 
   // Handle accepting a route proposal
-  acceptProposal(shipment: Shipment & { proposal: RouteProposal | null }) {
-    if (!shipment.proposal?.proposal) return;
+  acceptProposal(shipment: Shipment & { proposals: RouteProposal[] | null }, proposal: RouteProposal) {
+    if (!proposal.proposal) return;
 
-    this.routesRepo.applyRouteProposal(shipment.id, shipment.proposal.proposal)
+    this.routesRepo.applyRouteProposal(shipment.id, proposal.proposal)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -141,7 +158,7 @@ export class RoutesPage {
   }
 
   // Handle rejecting a route proposal
-  rejectProposal(shipment: Shipment & { proposal: RouteProposal | null }) {
+  rejectProposal(shipment: Shipment & { proposals: RouteProposal[] | null }, proposal: RouteProposal) {
     // Simply reload to get fresh proposals
     this.loadShipmentsWithProposals();
   }
