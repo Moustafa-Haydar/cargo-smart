@@ -11,102 +11,40 @@
         </div>
     </header>
 
-    <search-section [options]="carrierOptions" [placeHolder]="'Filter by carrier'" [(searchQuery)]="searchQuery"
-        [(selected)]="selectedCarrier" (search)="applySearch($event)"
-        (filterChange)="applyFilter($event)"></search-section>
+    <search-section [options]="[]" [placeHolder]="'Search routes'" [(searchQuery)]="searchQuery"
+        (search)="applySearch($event)"></search-section>
 
     <!-- Loading State -->
     <div *ngIf="loading" class="loading-container">
         <div class="loading-spinner"></div>
-        <p>Loading shipments with AI route proposals...</p>
+        <p>Loading routes...</p>
     </div>
 
     <!-- Error State -->
     <div *ngIf="error" class="error-container">
         <i class="fas fa-exclamation-triangle"></i>
         <p>{{ error }}</p>
-        <button class="btn-retry" (click)="loadShipmentsWithProposals()">Retry</button>
+        <button class="btn-retry" (click)="ngOnInit()">Retry</button>
     </div>
 
-    <!-- Shipments Grid -->
+    <!-- Routes Grid -->
     <div *ngIf="!loading && !error" class="shipments-grid">
-        <div *ngFor="let shipment of filteredShipments" class="shipment-card">
-            <!-- Shipment Header -->
+        <div *ngFor="let route of filteredRoutes" class="shipment-card">
             <div class="shipment-header">
                 <div class="shipment-info">
-                    <h3>{{ shipment.ref_no }}</h3>
-                    <span class="status-badge" [ngClass]="'status-' + shipment.status.toLowerCase()">
-                        {{ shipment.status }}
-                    </span>
+                    <h3>{{ route.name || 'Route ' + (route.id | slice:0:8) }}</h3>
                 </div>
                 <div class="shipment-details">
-                    <p><strong>Carrier:</strong> {{ shipment.carrier_name }}</p>
-                    <p><strong>Origin:</strong> {{ shipment.origin?.name }}</p>
-                    <p><strong>Destination:</strong> {{ shipment.destination?.name }}</p>
-                </div>
-            </div>
-
-            <!-- Current Route -->
-            <div class="route-section">
-                <h4>Current Route</h4>
-                <div class="route-card current-route">
-                    <div class="route-info">
-                        <p><strong>Route ID:</strong> {{ shipment.route?.id || 'No route assigned' }}</p>
-                        <p *ngIf="shipment.proposal?.current"><strong>ETA:</strong> {{
-                            shipment.proposal?.current?.eta_minutes }} minutes</p>
-                        <p *ngIf="shipment.proposal?.current"><strong>Cost:</strong> ${{
-                            shipment.proposal?.current?.toll_cost_usd }}</p>
-                        <p *ngIf="shipment.proposal?.current"><strong>Delay Risk:</strong> {{
-                            ((shipment.proposal?.current?.p_delay || 0) * 100).toFixed(1) }}%</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- AI Proposal Route -->
-            <div *ngIf="shipment.proposal && shipment.proposal.action === 'propose_switch'" class="route-section">
-                <h4>AI Proposal <span class="proposal-badge">NEW</span></h4>
-                <div class="route-card proposal-route">
-                    <div class="route-info">
-                        <p><strong>Route ID:</strong> {{ shipment.proposal?.proposal?.route_id }}</p>
-                        <p><strong>ETA:</strong> {{ shipment.proposal?.proposal?.eta_minutes }} minutes</p>
-                        <p><strong>Cost:</strong> ${{ shipment.proposal?.proposal?.toll_cost_usd }}</p>
-                        <p><strong>Delay Risk:</strong> {{ ((shipment.proposal?.proposal?.p_delay || 0) *
-                            100).toFixed(1) }}%
-                        </p>
-                    </div>
-
-                    <div class="proposal-details">
-                        <p><strong>Improvement:</strong> {{ shipment.proposal.rationale }}</p>
-                    </div>
-
-                    <div class="proposal-actions">
-                        <button class="btn-accept" (click)="acceptProposal(shipment)">
-                            <i class="fas fa-check"></i>
-                            Accept Proposal
-                        </button>
-                        <button class="btn-reject" (click)="rejectProposal(shipment)">
-                            <i class="fas fa-times"></i>
-                            Reject
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- No Proposal -->
-            <div *ngIf="shipment.proposal && shipment.proposal.action === 'stick'" class="route-section">
-                <div class="no-proposal">
-                    <i class="fas fa-check-circle"></i>
-                    <p>Current route is optimal - no changes needed</p>
-                    <p class="rationale">{{ shipment.proposal.rationale }}</p>
+                    <p><strong>Route ID:</strong> {{ route.id }}</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="!loading && !error && filteredShipments.length === 0" class="empty-state">
+    <div *ngIf="!loading && !error && filteredRoutes.length === 0" class="empty-state">
         <i class="fas fa-route"></i>
-        <h3>No shipments found</h3>
+        <h3>No routes found</h3>
         <p>Try adjusting your search or filter criteria.</p>
     </div>
 </div>

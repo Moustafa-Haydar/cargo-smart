@@ -185,3 +185,33 @@ export interface GeoLocation {
   lng: number;
   timezone: string;
 }
+
+/* =========================================
+ *  Agentic Route Proposals
+ * =======================================*/
+
+export type ProposalAction = 'stick' | 'propose_switch';
+
+export interface RouteSnapshot {
+  route_id: string | null;
+  eta_minutes: number | null;
+  toll_cost_usd: number | null;
+  path: string[] | null;
+  p_delay: number | null;
+}
+
+export interface AgentProposal {
+  id: string;
+  shipment_id: string;
+  action: ProposalAction;
+  current: RouteSnapshot;
+  proposal: RouteSnapshot | null;
+  rationale: string;
+  requires_approval: boolean;
+  created_at: string; // ISO datetime
+}
+
+export interface ProposalsResponse {
+  proposals: AgentProposal[];
+  count: number;
+}

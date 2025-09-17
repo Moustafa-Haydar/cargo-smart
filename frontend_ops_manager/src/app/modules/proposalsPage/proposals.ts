@@ -3,36 +3,8 @@ import { CommonModule } from '@angular/common';
 import { SearchSection } from '../../shared/components/search-section/search-section';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
-
-// Proposal interface
-export interface RouteProposal {
-    id: string;
-    shipment_id: string;
-    action: 'stick' | 'propose_switch';
-    current: {
-        route_id: string;
-        eta_minutes: number;
-        toll_cost_usd: number;
-        path: string[];
-        p_delay: number;
-    };
-    proposal?: {
-        route_id: string;
-        eta_minutes: number;
-        toll_cost_usd: number;
-        path: string[];
-        p_delay: number;
-    };
-    rationale: string;
-    requires_approval: boolean;
-    created_at: string;
-}
-
-// Response interface
-export interface ProposalsResponse {
-    proposals: RouteProposal[];
-    count: number;
-}
+import { AgentProposal, ProposalsResponse } from '../../shared/models/logistics.model';
+import { ProposalsRepository } from './proposal.repository';
 
 @Component({
     selector: 'app-proposals',
@@ -44,9 +16,10 @@ export interface ProposalsResponse {
 export class ProposalsPage {
     private readonly changeDetectorRef = inject(ChangeDetectorRef);
     destroyRef = inject(DestroyRef);
+    private readonly repo = inject(ProposalsRepository);
 
-    proposals: RouteProposal[] = [];
-    filteredProposals: RouteProposal[] = [...this.proposals];
+    proposals: AgentProposal[] = [];
+    filteredProposals: AgentProposal[] = [...this.proposals];
 
     searchQuery = '';
     loading = true;
@@ -66,32 +39,22 @@ export class ProposalsPage {
     public loadProposals(): void {
         this.loading = true;
         this.error = null;
-
-        // Fetch proposals from the new API
-        fetch('/api/agentic/proposals/', {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then((data: ProposalsResponse) => {
+        this.repo.getProposals()
+            .pipe(
+                catchError(err => {
+                    console.error('Failed to load proposals', err);
+                    this.error = 'Failed to load route proposals';
+                    this.proposals = [];
+                    this.filteredProposals = [];
+                    this.loading = false;
+                    this.changeDetectorRef.markForCheck();
+                    return of({ proposals: [], count: 0 } as ProposalsResponse);
+                }),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe((data: ProposalsResponse) => {
                 this.proposals = data.proposals || [];
                 this.filterProposals();
-                this.loading = false;
-                this.changeDetectorRef.markForCheck();
-            })
-            .catch(err => {
-                console.error('Failed to load proposals', err);
-                this.error = 'Failed to load route proposals';
-                this.proposals = [];
-                this.filteredProposals = [];
                 this.loading = false;
                 this.changeDetectorRef.markForCheck();
             });
@@ -130,38 +93,27 @@ export class ProposalsPage {
         });
     }
 
-    acceptProposal(proposal: RouteProposal) {
+    acceptProposal(proposal: AgentProposal) {
         if (!proposal.proposal) return;
-
-        // Apply the proposal using the existing API
-        fetch(`/api/agentic/shipments/${proposal.shipment_id}/apply/`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                proposed_route_id: proposal.proposal.route_id,
-                path: proposal.proposal.path
-            })
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then((response) => {
-                console.log('Route proposal applied successfully:', response);
-                this.loadProposals(); // Reload to update the list
-            })
-            .catch(err => {
-                console.error('Failed to apply route proposal:', err);
-                alert('Failed to apply route proposal. Please try again.');
+        this.repo.applyProposal(
+            proposal.shipment_id,
+            proposal.proposal.route_id,
+            proposal.proposal.path || null
+        )
+            .pipe(
+                catchError(err => {
+                    console.error('Failed to apply route proposal:', err);
+                    alert('Failed to apply route proposal. Please try again.');
+                    return of(null);
+                }),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe(() => {
+                this.loadProposals();
             });
     }
 
-    rejectProposal(proposal: RouteProposal) {
+    rejectProposal(proposal: AgentProposal) {
         // For now, just reload the proposals
         // In the future, you might want to mark it as rejected in the database
         this.loadProposals();
