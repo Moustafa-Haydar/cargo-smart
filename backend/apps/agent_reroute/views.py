@@ -10,6 +10,7 @@ from apps.shipments.models import Shipment
 from apps.routes.models import Route
 from .decision_maker import RouteDecisionAgent
 from .models import RouteProposal
+from .onesignal_service import OneSignalService
 
 @require_POST
 @csrf_protect
@@ -73,7 +74,73 @@ def apply_proposal(request, shipment_id):
 
         shipment.route = new_route
         shipment.save(update_fields=["route"])
-        return JsonResponse({"status": "updated", "route_id": str(new_route.id)})
+        
+        # Send OneSignal notification to the driver assigned to this shipment's vehicle
+        try:
+            onesignal = OneSignalService()
+            
+            # Debug: Check shipment vehicle and driver info
+            print(f"🔍 Debug - Shipment ID: {shipment_id}")
+            print(f"🔍 Debug - Shipment has vehicle: {shipment.vehicle is not None}")
+            if shipment.vehicle:
+                print(f"🔍 Debug - Vehicle ID: {shipment.vehicle.id}")
+                print(f"🔍 Debug - Vehicle has driver: {shipment.vehicle.driver is not None}")
+                if shipment.vehicle.driver:
+                    print(f"🔍 Debug - Driver ID: {shipment.vehicle.driver.id}")
+                    print(f"🔍 Debug - Driver external_id: {shipment.vehicle.driver.external_id}")
+            
+            # Get the driver's external_id from the shipment's vehicle
+            external_user_ids = None
+            driver_info = {
+                "driver_id": None,
+                "driver_name": None,
+                "external_id": None
+            }
+            
+            if shipment.vehicle and shipment.vehicle.driver:
+                driver_info["driver_id"] = str(shipment.vehicle.driver.id)
+                driver_info["driver_name"] = f"{shipment.vehicle.driver.first_name} {shipment.vehicle.driver.last_name}".strip()
+                driver_info["external_id"] = shipment.vehicle.driver.external_id
+                
+                if shipment.vehicle.driver.external_id:
+                    external_user_ids = [shipment.vehicle.driver.external_id]
+            
+            # Fallback: if no driver found, you can still pass external_user_ids from request
+            if not external_user_ids:
+                external_user_ids = data.get("external_user_ids")
+            
+            notification_result = onesignal.send_route_update_notification(
+                shipment_id=shipment_id,
+                route_id=new_route.id,
+                external_user_ids=external_user_ids
+            )
+            
+            if notification_result["success"]:
+                return JsonResponse({
+                    "status": "updated", 
+                    "route_id": str(new_route.id),
+                    "notification_sent": True,
+                    "notification_id": notification_result["data"].get("id"),
+                    "driver_notified": driver_info
+                })
+            else:
+                # Still return success for the route update, but log notification failure
+                return JsonResponse({
+                    "status": "updated", 
+                    "route_id": str(new_route.id),
+                    "notification_sent": False,
+                    "notification_error": notification_result["error"],
+                    "driver_info": driver_info
+                })
+        except Exception as notification_error:
+            # Don't fail the entire request if notification fails
+            return JsonResponse({
+                "status": "updated", 
+                "route_id": str(new_route.id),
+                "notification_sent": False,
+                "notification_error": str(notification_error),
+                "driver_info": driver_info
+            })
         
     except Exception as e:
         return JsonResponse({"detail": "Internal server error", "error": str(e)}, status=500)

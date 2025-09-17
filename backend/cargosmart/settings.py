@@ -78,6 +78,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.56.1:3000",
     "http://localhost:4200",
     "http://127.0.0.1:4200",
+    "http://10.0.2.2:8000"
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -111,11 +112,13 @@ CSRF_TRUSTED_ORIGINS = [
     "http://192.168.56.1:3000",
     "http://localhost:4200",
     "http://127.0.0.1:4200",
+    "http://10.0.2.2:8000",
 ]
 ALLOWED_HOSTS = [
     "localhost", 
     "127.0.0.1",
     "host.docker.internal",
+    "10.0.2.2"
 ]
 
 

@@ -11,6 +11,9 @@ class Vehicle(models.Model):
         "geo.Location", on_delete=models.SET_NULL, null=True, blank=True, related_name="vehicles_here"
     )
     route = models.ForeignKey("routes.Route", on_delete=models.SET_NULL, null=True, blank=True, related_name="vehicles")
+    driver = models.ForeignKey(
+        "accounts.User", on_delete=models.SET_NULL, null=True, blank=True, related_name="assigned_vehicles"
+    )
 
     def __str__(self):
         return self.plate_number

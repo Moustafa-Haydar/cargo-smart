@@ -48,14 +48,12 @@ services:
     ports:
       - "4200:4200"
     volumes:
-      - ./frontend_ops_manager:/app:delegated
+      - ./frontend_ops_manager:/app
+      - /app/node_modules          # prevent overwriting node_modules
+      - /app/.angular/cache        # fix cache permissions
     working_dir: /app
-    command: npm start
     stdin_open: true
     tty: true
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
 
 
   db:
