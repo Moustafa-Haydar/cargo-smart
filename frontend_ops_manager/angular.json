@@ -59,7 +59,9 @@
               "optimization": true,
               "extractLicenses": true,
               "sourceMap": false,
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "browser": "src/main.ts",
+              "server": false
             }
           },
           "defaultConfiguration": "production"
