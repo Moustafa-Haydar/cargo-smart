@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "727485567402",
+    "project_id": "cargosmart-e2a12",
+    "storage_bucket": "cargosmart-e2a12.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:727485567402:android:a3fa21b22253992f035bd3",
+        "android_client_info": {
+          "package_name": "com.example.cargo_smart_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxhcmFjPLMh_X_8TcyqDAiue09YMyp7I0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
