@@ -7,10 +7,12 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { map, takeUntil, } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-shipments',
-  imports: [CommonModule, FormsModule, SearchSection, ShipmentCard],
+  standalone: true,
+  imports: [CommonModule, FormsModule, SearchSection, ShipmentCard, SkeletonModule],
   templateUrl: './shipments.html',
   styleUrls: ['./shipments.css']
 })
@@ -20,35 +22,36 @@ export class Shipments implements OnInit {
 
   destroyRef = inject(DestroyRef);
 
-  // keep a concrete array for filtering
   shipments: Shipment[] = [];
   filteredShipments: Shipment[] = [];
+  loading = true;
 
   searchQuery = '';
   selectedCarrier: string | null = null;
 
   carrierOptions = [
     { label: 'All', value: null },
-    { label: 'VRL Logistics', value: 'VRL Logistics' },
-    { label: 'Delhivery', value: 'Delhivery' },
-    { label: 'GATI', value: 'GATI' },
-    { label: 'BlueDart', value: 'BlueDart' },
-    { label: 'TCI Express', value: 'TCI Express' },
+    { label: 'VAMOSYS', value: 'VAMOSYS' },
+    { label: 'CONSENT TRACK', value: 'CONSENT TRACK' },
+    { label: 'BALLY LOGISTICS', value: 'BALLY LOGISTICS' },
+    { label: 'KRC LOGISTICS', value: 'KRC LOGISTICS' },
   ];
 
   ngOnInit(): void {
     // load data first, then filter
     this.repo.getShipments().pipe(takeUntilDestroyed(this.destroyRef), map(res => res.shipments ?? []))
       .subscribe({
-        next: (data) => { 
+        next: (data) => {
           this.shipments = data ?? [];
           this.filterShipments();
+          this.loading = false;
           this.changeDetectorRef.markForCheck();
         },
         error: (err) => {
           console.error('Failed to load shipments', err);
           this.shipments = [];
           this.filteredShipments = [];
+          this.loading = false;
         }
       });
   }
@@ -83,7 +86,22 @@ export class Shipments implements OnInit {
       ].filter(Boolean).join(' ').toLowerCase();
 
       const matchesQuery = !q || haystack.includes(q);
+
+      // Debug logging
+      if (q) {
+        console.log('Search query:', q);
+        console.log('Haystack:', haystack);
+        console.log('Matches query:', matchesQuery);
+      }
+      if (this.selectedCarrier) {
+        console.log('Selected carrier:', this.selectedCarrier);
+        console.log('Shipment carrier:', s.carrier_name);
+        console.log('Matches carrier:', matchesCarrier);
+      }
+
       return matchesCarrier && matchesQuery;
     });
+
+    console.log('Filtered shipments count:', this.filteredShipments.length);
   }
 }

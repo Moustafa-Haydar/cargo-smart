@@ -1,7 +1,7 @@
 from pathlib import Path
+import os
 from dotenv import load_dotenv
 
-# Load environment variables from a .env
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'apps.shipments',
     'apps.vehicles',
     'apps.alerts',
+    'apps.agent_reroute',
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -77,6 +78,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.56.1:3000",
     "http://localhost:4200",
     "http://127.0.0.1:4200",
+    "http://10.0.2.2:8000"
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -110,8 +112,14 @@ CSRF_TRUSTED_ORIGINS = [
     "http://192.168.56.1:3000",
     "http://localhost:4200",
     "http://127.0.0.1:4200",
+    "http://10.0.2.2:8000",
 ]
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [
+    "localhost", 
+    "127.0.0.1",
+    "host.docker.internal",
+    "10.0.2.2"
+]
 
 
 TEMPLATES = [
@@ -129,16 +137,31 @@ TEMPLATES = [
     },
 ]
 
+ROUTE_AI = {
+    "P_DELAY_THRESHOLD": 0.3,  # Lowered from 0.65 to be more sensitive to delays
+    "SCORE_WEIGHTS": {
+        "eta_minutes": 0.6,
+        "p_delay": 0.3,
+        "toll_cost_usd": 0.1,
+    },
+    "IMPROVEMENT_EPS": 0.05,
+    "MAX_ALTERNATIVES": 3,
+    "MODEL_PATH": BASE_DIR / "models" / "delay_classifier.joblib",
+}
+
+
 WSGI_APPLICATION = 'cargosmart.wsgi.application'
 
+import os
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cargosmart_db',
-        'USER': 'postgres',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '5432',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 

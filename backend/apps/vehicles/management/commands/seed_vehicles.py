@@ -6,11 +6,10 @@ from apps.geo.models import Location
 
 
 class Command(BaseCommand):
-    help = "Seed demo trucks (vehicles) for India. Use --fresh to delete existing first."
+    help = "Seed realistic trucks (vehicles) from actual logistics data. Use --fresh to delete existing first."
 
     def add_arguments(self, parser):
         parser.add_argument("--fresh", action="store_true")
-        parser.add_argument("--count", type=int, default=30, help="Number of vehicles to create")
 
     def handle(self, *args, **opts):
         if opts["fresh"]:
@@ -24,28 +23,40 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR("No locations found. Run seed_geo first."))
             return
 
-        truck_models = [
-            "Tata 407",
-            "Ashok Leyland Dost",
-            "Eicher Pro 3015",
-            "Mahindra Blazo X",
-            "BharatBenz 1617R",
-            "Tata Signa 4825.T",
-            "Eicher Pro 2049",
-            "Mahindra Furio 14",
+        # Only realistic vehicles from actual records
+        realistic_vehicles = [
+            ("HR55AD6502", "32 FT Multi-Axle 14MT - HCV"),
+            ("RJ10GB2085", "32 FT Multi-Axle 14MT - HCV"),
+            ("tn02ap2662", "Standard Truck"),
+            ("TN25M8075", "Standard Truck"),
+            ("UP17T8250", "40 FT 3XL Trailer 35MT"),
+            ("MH11CH3086", "Standard Truck"),
+            ("TN23AA5466", "Standard Truck"),
+            ("TN18AB5514", "Standard Truck"),
+            ("MH12PQ8289", "32 FT Multi-Axle 14MT - HCV"),
+            ("TN30BC6476", "32 FT Multi-Axle 14MT - HCV"),
+            ("TN13K3804", "20 FT CLOSE 7MT-MCV"),
+            ("TN14T4848", "32 FT Multi-Axle 14MT - HCV"),
+            ("KA51C6972", "1 MT Tata Ace (Closed Body)"),
+            ("UP17AT4210", "40 FT 3XL Trailer 35MT"),
+            ("MH12MV8991", "20 FT CLOSE 7MT-MCV"),
+            ("TN28AL5055", "Standard Truck"),
+            ("NL01AE2521", "32 FT Single-Axle 7MT - HCV"),
+            ("KA51AC7656", "17 FT Container"),
+            ("TN60F8519", "Standard Truck"),
+            ("TN60D8749", "24 FT SXL Container"),
         ]
 
         statuses = ["ACTIVE", "IN_TRANSIT", "MAINTENANCE"]
 
         total_created = 0
-        for i in range(opts["count"]):
-            plate_number = f"{random.choice(['TN','MH','KA','DL','GJ','UP'])}{random.randint(10,99)}" \
-                           f"{random.choice(['A','B','C','D','E'])}{random.randint(1000,9999)}"
+        # Only create the realistic vehicles, no additional random ones
+        for plate_number, model in realistic_vehicles:
 
             vehicle = Vehicle.objects.create(
                 id=uuid.uuid4(),
                 plate_number=plate_number,
-                model=random.choice(truck_models),
+                model=model,
                 status=random.choice(statuses),
                 current_location=random.choice(locations),
                 route=None,

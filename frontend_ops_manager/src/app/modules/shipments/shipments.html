@@ -16,8 +16,17 @@
         (filterChange)="applyFilter($event)"></search-section>
 
     <div class="shipments-grid">
-        <shipment-card *ngFor="let s of filteredShipments" [shipment]="s">
-        </shipment-card>
+        <!-- Show skeleton cards when loading -->
+        <div *ngIf="loading" class="skeleton-cards">
+            <div class="skeleton-card" *ngFor="let i of [1,2,3,4, 5, 6, 7, 8, 9, 10]">
+            </div>
+        </div>
+
+        <!-- Show actual shipment cards when loaded -->
+        <ng-container *ngIf="!loading">
+            <shipment-card *ngFor="let s of filteredShipments" [shipment]="s">
+            </shipment-card>
+        </ng-container>
     </div>
 
 </div>

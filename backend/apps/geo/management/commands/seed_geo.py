@@ -4,7 +4,7 @@ from apps.geo.models import Location
 
 
 class Command(BaseCommand):
-    help = "Seed ~25 Indian Locations for truck logistics. Use --fresh to delete existing first."
+    help = "Seed realistic Indian locations from actual logistics data. Use --fresh to delete existing first."
 
     def add_arguments(self, parser):
         parser.add_argument("--fresh", action="store_true")
@@ -16,49 +16,37 @@ class Command(BaseCommand):
 
         random.seed(42)
 
-        # Smaller base list (~12 cities)
-        base_locations = [
-            ("Chennai", "Tamil Nadu", 13.0827, 80.2707),
-            ("Bengaluru", "Karnataka", 12.9716, 77.5946),
-            ("Mumbai", "Maharashtra", 19.0760, 72.8777),
-            ("Delhi", "Delhi", 28.7041, 77.1025),
-            ("Hyderabad", "Telangana", 17.3850, 78.4867),
-            ("Kolkata", "West Bengal", 22.5726, 88.3639),
-            ("Lucknow", "Uttar Pradesh", 26.8467, 80.9462),
-            ("Ahmedabad", "Gujarat", 23.0225, 72.5714),
-            ("Jaipur", "Rajasthan", 26.9124, 75.7873),
-            ("Nagpur", "Maharashtra", 21.1458, 79.0882),
-            ("Coimbatore", "Tamil Nadu", 11.0168, 76.9558),
-            ("Visakhapatnam", "Andhra Pradesh", 17.6868, 83.2185),
+        # Only realistic locations from actual logistics data
+        realistic_locations = [
+            ("TVSLSL-JAMALPURL-HUB", "Gurgaon, Haryana", 28.3540, 76.9390),
+            ("TVSLSL HUB MATHIGIRI", "Hosur, Tamil Nadu", 12.7400, 77.8200),
+            ("TVSLSL HUB (CHAKAN)", "Pune, Maharashtra", 18.7680, 73.8630),
+            ("LUCAS TVS LTD-PONDY", "Pondy, Pondicherry", 11.8720, 79.6320),
+            ("LUCAS TVS LTD-AMBATTUR", "Chennai, Tamil Nadu", 13.1020, 80.1940),
+            ("ASHOK LEYLAND ENNORE", "Chennai, Tamil Nadu", 13.2150, 80.3200),
+            ("ASHOK LEYLAND PLANT 2-HOSUR", "Hosur, Karnataka", 12.7660, 77.7860),
+            ("Shive", "Pune, Maharashtra", 18.750621, 73.87719),
+            ("Pondur", "Kanchipuram, Tamil Nadu", 12.930429, 79.931163),
+            ("Ramte Ram Road", "Ghaziabad, Uttar Pradesh", 28.927021, 77.642158),
+            ("I. E. Partapur", "Meerut, Uttar Pradesh", 28.927021, 77.642158),
+            ("Mookandapalli", "Krishnagiri, Tamil Nadu", 12.746894, 77.806168),
+            ("Athipattu", "Tiruvallur, Tamil Nadu", 13.092058, 80.156813),
+            ("Jagadambigainagar", "Tiruvallur, Tamil Nadu", 13.087428, 80.184717),
+            ("Pozhal", "Tiruvallur, Tamil Nadu", 13.165101, 80.204244),
+            ("Guruvoyal", "Tiruvallur, Tamil Nadu", 13.202214, 80.131693),
+            ("Onnalvadi", "Krishnagiri, Tamil Nadu", 12.683589, 77.859239),
+            ("Vellaripatti", "Madurai, Tamil Nadu", 9.973636, 78.281783),
+            ("Devalapura", "Mysore, Karnataka", 12.223062, 76.690357),
         ]
 
-        suffixes = ["Depot", "Hub"]
-
         total_created = 0
-        for city, state, lat, lng in base_locations:
-            # Always insert base city
-            obj, created = Location.objects.get_or_create(
-                name=city,
-                state=state,
-                country="India",
-                country_code="IN",
-                defaults=dict(lat=lat, lng=lng, timezone="Asia/Kolkata"),
-            )
-            if created:
-                total_created += 1
-
-            # Add at most 1 variation
-            name = f"{city} {random.choice(suffixes)}"
+        for name, state, lat, lng in realistic_locations:
             obj, created = Location.objects.get_or_create(
                 name=name,
                 state=state,
                 country="India",
                 country_code="IN",
-                defaults=dict(
-                    lat=lat + random.uniform(-0.05, 0.05),
-                    lng=lng + random.uniform(-0.05, 0.05),
-                    timezone="Asia/Kolkata",
-                ),
+                defaults=dict(lat=lat, lng=lng, timezone="Asia/Kolkata"),
             )
             if created:
                 total_created += 1

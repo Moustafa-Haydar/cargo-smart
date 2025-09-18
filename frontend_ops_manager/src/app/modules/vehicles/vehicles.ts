@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SearchSection } from '../../shared/components/search-section/search-section';
@@ -17,6 +17,7 @@ import { VehiclesRepository } from './vehicles.repository';
 })
 export class Vehicles {
   private repo = inject(VehiclesRepository);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   destroyRef = inject(DestroyRef);
 
@@ -40,6 +41,7 @@ export class Vehicles {
         next: (data) => {
           this.vehicles = data ?? [];
           this.filterVehicles();
+          this.changeDetectorRef.markForCheck();
         },
         error: (err) => {
           console.error('Failed to load vehicles', err);

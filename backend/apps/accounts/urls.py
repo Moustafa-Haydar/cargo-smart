@@ -24,4 +24,7 @@ urlpatterns = [
     path("mobile/logout/", mobile_logout, name="mobile_logout"),
     path("mobile/profile/", mobile_profile, name="mobile_profile"),
 
+    # --- n8n (token auth) ---
+    path("n8n/login/", mobile_login, name="mobile_login"),
+
 ]

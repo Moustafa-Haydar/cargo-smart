@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GoogleMap, GoogleMapsModule, MapAdvancedMarker, MapInfoWindow } from '@angular/google-maps';
+import { GoogleMap, GoogleMapsModule, MapInfoWindow } from '@angular/google-maps';
 import { SearchSection } from '../../shared/components/search-section/search-section';
 import { FilterComponent, SelectOption } from '../../shared/components/filter/filter';
 import { GeoLocation, Route, Shipment, TransportVehicle } from '../../shared/models/logistics.model';
@@ -48,7 +48,7 @@ interface RouteSegmentLine {
 @Component({
   selector: 'app-live-map',
   standalone: true,
-  imports: [CommonModule, FormsModule, GoogleMapsModule, SearchSection, FilterComponent, MapAdvancedMarker],
+  imports: [CommonModule, FormsModule, GoogleMapsModule, SearchSection, FilterComponent],
   templateUrl: './live-map.html',
   styleUrl: './live-map.css'
 })
@@ -56,7 +56,7 @@ export class LiveMap implements OnInit {
   private repo = inject(ShipmentsRepository);
   private geoRepo = inject(LocationRepository);
   private vehicleRepo = inject(VehiclesRepository);
-  private routeRepo = inject(RoutesRepository)
+  private routeRepo = inject(RoutesRepository);
   destroyRef = inject(DestroyRef);
 
   @ViewChild(GoogleMap) googleMap!: GoogleMap;

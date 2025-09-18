@@ -1,14 +1,32 @@
 import joblib, numpy as np
 import pandas as pd
 from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 _model = None
+_model_loaded = False
+_model_error = None
 
 def get_model():
-    global _model
-    if _model is None:
+    global _model, _model_loaded, _model_error
+    
+    if _model_loaded:
+        if _model_error:
+            raise _model_error
+        return _model
+    
+    try:
         _model = joblib.load(settings.ROUTE_AI["MODEL_PATH"])
-    return _model
+        _model_loaded = True
+        logger.info("ML model loaded successfully")
+        return _model
+    except Exception as e:
+        _model_error = e
+        _model_loaded = True
+        logger.error(f"Failed to load ML model: {e}")
+        raise e
 
 def build_features_from_shipment(shipment, current_option):
     """
@@ -105,7 +123,45 @@ def build_features_from_shipment(shipment, current_option):
     return snap, X
 
 def predict_p_delay(shipment, current_option):
-    model = get_model()
-    snap, X = build_features_from_shipment(shipment, current_option)
-    p = float(model.predict_proba(X)[0, 1]) if hasattr(model, "predict_proba") else float(model.predict(X)[0])
-    return p, snap
+    try:
+        model = get_model()
+        snap, X = build_features_from_shipment(shipment, current_option)
+        p = float(model.predict_proba(X)[0, 1]) if hasattr(model, "predict_proba") else float(model.predict(X)[0])
+        return p, snap
+    except Exception as e:
+        logger.error(f"ML prediction failed: {e}")
+        # Return a default probability based on simple heuristics
+        snap, _ = build_features_from_shipment(shipment, current_option)
+        
+        # Enhanced heuristic: detect delays based on shipment status and timing
+        base_prob = 0.1
+        
+        # Check if shipment is actually delayed based on our realistic data
+        from django.utils import timezone
+        now = timezone.now()
+        
+        # If shipment is PLANNED but scheduled time has passed, it's delayed
+        if shipment.status == "PLANNED" and shipment.scheduled_at < now:
+            base_prob += 0.4  # High delay probability for overdue planned shipments
+            
+        # If shipment is ENROUTE and taking too long, it's delayed
+        elif shipment.status == "ENROUTE":
+            # Check if it's been enroute for too long (more than 2 days)
+            if shipment.scheduled_at < now - timezone.timedelta(days=2):
+                base_prob += 0.3  # Medium delay probability for long enroute shipments
+                
+        # If shipment is DELIVERED but was delivered late, it was delayed
+        elif shipment.status == "DELIVERED" and shipment.delivered_at:
+            # Check if delivery was significantly late (more than 24 hours after scheduled)
+            if shipment.delivered_at > shipment.scheduled_at + timezone.timedelta(hours=24):
+                base_prob += 0.5  # High delay probability for late deliveries
+        
+        # Add weather and distance factors
+        if snap.get("haversine_km", 0) > 500:
+            base_prob += 0.2
+        if snap.get("precipitation", 0) > 5:
+            base_prob += 0.3
+        if snap.get("condition", 0) > 1:  # Not clear weather
+            base_prob += 0.1
+            
+        return min(base_prob, 0.9), snap
