@@ -10,4 +10,12 @@ export class ProposalsRepository {
   getProposals() {
     return this.http.get<ProposalsResponse>(`${this.API_BASE_URL}/api/agentic/proposals/`, { withCredentials: true });
   }
+
+  acceptProposal(shipmentId: string, proposedRouteId: string) {
+    return this.http.post(
+      `${this.API_BASE_URL}/api/agentic/shipments/${shipmentId}/apply/`,
+      { proposed_route_id: proposedRouteId },
+      { withCredentials: true }
+    );
+  }
 }
