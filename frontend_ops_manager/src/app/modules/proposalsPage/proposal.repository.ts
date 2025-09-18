@@ -8,6 +8,6 @@ export class ProposalsRepository {
   private readonly API_BASE_URL = 'http://localhost:8000';
 
   getProposals() {
-    return this.http.get<ProposalsResponse>(`${this.API_BASE_URL}/agentic/proposals/`, { withCredentials: true });
+    return this.http.get<ProposalsResponse>(`${this.API_BASE_URL}/api/agentic/proposals/`, { withCredentials: true });
   }
 }
