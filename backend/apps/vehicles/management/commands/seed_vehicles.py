@@ -45,6 +45,22 @@ class Command(BaseCommand):
             ("KA51AC7656", "17 FT Container"),
             ("TN60F8519", "Standard Truck"),
             ("TN60D8749", "24 FT SXL Container"),
+            # Additional vehicles from comprehensive logistics data
+            ("HR47C5324", "32 FT Single-Axle 7MT - HCV"),
+            ("KA21A6904", "40 FT 3XL Trailer 35MT"),
+            ("TN54K5040", "32 FT Multi-Axle 14MT - HCV"),
+            ("TN52Y0785", "Standard Truck"),
+            ("TN40X6070", "24 FT SXL Container"),
+            ("KA51A7682", "Standard Truck"),
+            ("UP17AT0059", "40 FT 3XL Trailer 35MT"),
+            ("KA14A0338", "Standard Truck"),
+            ("GJ01DY4657", "32 FT Single-Axle 7MT - HCV"),
+            ("TN283256", "Standard Truck"),
+            ("TN88C3198", "32 FT Multi-Axle 14MT - HCV"),
+            ("TN18AB5514", "Standard Truck"),
+            ("TN23AA5466", "Standard Truck"),
+            ("TN28AL5055", "Standard Truck"),
+            ("MH12NX2210", "32 FT Single-Axle 7MT - HCV"),
         ]
 
         statuses = ["ACTIVE", "IN_TRANSIT", "MAINTENANCE"]
