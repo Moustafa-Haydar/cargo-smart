@@ -378,15 +378,15 @@
 }
 
 .btn-accept {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #358C9C;
     color: white;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 15px rgba(var(--accent-color-rgb), 0.3);
 }
 
 .btn-accept:hover:not(:disabled) {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-color) 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 6px 20px rgba(var(--accent-color-rgb), 0.4);
 }
 
 .btn-accept:disabled {

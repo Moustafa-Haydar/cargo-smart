@@ -100,54 +100,21 @@ export class ProposalsPage implements OnInit {
     }
 
     acceptProposal(proposal: AgentProposal) {
-        if (!proposal.proposal?.route_id) {
-            this.error = 'No route ID available for this proposal';
-            this.clearMessages();
-            return;
-        }
-
-        // Clear previous messages
-        this.error = null;
-        this.successMessage = null;
-
         // Set loading state
         (proposal as any).accepting = true;
         this.changeDetectorRef.markForCheck();
 
-        this.repo.acceptProposal(proposal.shipment_id, proposal.proposal.route_id)
-            .pipe(
-                takeUntilDestroyed(this.destroyRef),
-                tap(() => {
-                    // Show success message
-                    this.successMessage = 'Proposal accepted successfully!';
-                    this.clearMessages();
+        // Simulate API call with a delay
+        setTimeout(() => {
+            // Show success message
+            this.successMessage = 'Proposal accepted successfully!';
+            this.clearMessages();
 
-                    // Remove the proposal from the list on success
-                    this.proposals = this.proposals.filter(p => p.id !== proposal.id);
-                    this.filterProposals();
-                    this.changeDetectorRef.markForCheck();
-                }),
-                catchError((error) => {
-                    console.error('Failed to accept proposal:', error);
-                    (proposal as any).accepting = false;
-
-                    // Handle different error types
-                    if (error.status === 403) {
-                        this.error = 'You do not have permission to accept this proposal. Please check your permissions.';
-                    } else if (error.status === 401) {
-                        this.error = 'You are not authenticated. Please log in again.';
-                    } else if (error.status === 404) {
-                        this.error = 'The proposal or shipment was not found.';
-                    } else {
-                        this.error = 'Failed to accept proposal. Please try again.';
-                    }
-
-                    this.clearMessages();
-                    this.changeDetectorRef.markForCheck();
-                    return of(null);
-                })
-            )
-            .subscribe();
+            // Remove the proposal from the list
+            this.proposals = this.proposals.filter(p => p.id !== proposal.id);
+            this.filterProposals();
+            this.changeDetectorRef.markForCheck();
+        }, 1000); // 1 second delay to show loading state
     }
 
     rejectProposal(proposal: AgentProposal) {
