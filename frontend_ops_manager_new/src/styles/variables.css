@@ -1,0 +1,25 @@
+/* Global variables */
+:root {
+    --primary-color: #358C9C;
+    --secondary-color: #F68716;
+    --background-color: #F8F5F5;
+    --text-color: black;
+    --secondary-text-color: #555555;
+    --font-family: "Arial", Helvetica, sans-serif;
+
+    /* Additional theme variables */
+    --sidebar-width: 16vw;
+    --sidebar-bg: var(--primary-color);
+    --sidebar-text: white;
+    --content-bg: var(--background-color);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+
+    --green: #28EA70;
+    --blue: #5F95E4;
+    --orange: #EB651B;
+
+    /* Additional color variables */
+    --primary-color-dark: #2a6b75;
+    --error-color: #dc2626;
+    --error-color-dark: #b91c1c;
+}

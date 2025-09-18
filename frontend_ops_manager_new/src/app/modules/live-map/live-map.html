@@ -1,0 +1,75 @@
+<div class="page-container">
+    <header class="page-header">
+        <h1>Live Map</h1>
+        <div class="user-info">
+            <div class="user">
+                <div class="user-avatar">
+                    <i class="fas fa-question"></i>
+                </div>
+                <span>John Doe</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Single line: Search bar, theme selector, and filters -->
+    <div class="search-filters-row">
+        <search-section [options]="themeOptions" [placeHolder]="'Select Map Theme'" [(searchQuery)]="searchQuery"
+            [(selected)]="selectedMapTheme" (search)="applySearch($event)" (filterChange)="applyTypeFilter($event)">
+        </search-section>
+
+        <div class="filters-section">
+            <div class="data-type-selector">
+                <app-filter [options]="dataTypeOptions" [placeHolder]="'Select Data Type'"
+                    [(selected)]="selectedDataType" (filterChange)="onDataTypeChange($event)">
+                </app-filter>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-dropdowns">
+                    <app-filter *ngIf="selectedDataType === 'shipments'" [options]="shipmentOptions"
+                        [placeHolder]="'Select Shipment'" [(selected)]="selectedShipment"
+                        (filterChange)="onShipmentFilterChange($event)">
+                    </app-filter>
+
+                    <app-filter *ngIf="selectedDataType === 'vehicles'" [options]="vehicleOptions"
+                        [placeHolder]="'Select Vehicle'" [(selected)]="selectedVehicle"
+                        (filterChange)="onVehicleFilterChange($event)">
+                    </app-filter>
+
+                    <app-filter *ngIf="selectedDataType === 'routes'" [options]="routeOptions"
+                        [placeHolder]="'Select Route'" [(selected)]="selectedRoute"
+                        (filterChange)="onRouteFilterChange($event)">
+                    </app-filter>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="map-container">
+
+        <google-map height="70vh" width="100%" [options]="options">
+
+            <!-- <map-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
+                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name"
+                 [content]="loc.content">
+            </map-marker> -->
+
+            <map-marker *ngFor="let loc of shipmentLocations; trackBy: trackById"
+                [position]="{ lat: loc.lat, lng: loc.lng }" [title]="loc.name" [options]="{ icon: shipmentIcon }">
+            </map-marker>
+
+            <!-- Vehicles -->
+            <map-marker *ngFor="let v of vehicleLocations; trackBy: trackById" [position]="{ lat: v.lat, lng: v.lng }"
+                [title]="v.name" [options]="{ icon: vehicleIcon }">
+            </map-marker>
+
+            <!-- Route lines -->
+            <map-polyline *ngFor="let seg of routeSegments; trackBy: trackById" [path]="seg.path"
+                [options]="{ strokeColor: seg.color, strokeWeight: 3 }">
+            </map-polyline>
+
+        </google-map>
+
+
+
+    </div>

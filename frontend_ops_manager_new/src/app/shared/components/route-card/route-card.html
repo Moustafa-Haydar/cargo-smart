@@ -1,0 +1,20 @@
+<p-card>
+    <div class="card-header">
+        <div class="icon-container">
+            <i class="fas fa-route"></i>
+        </div>
+        <div class="route-info">
+            <h3>{{ routeName }}</h3>
+            <p>{{ routeDescription }}</p>
+        </div>
+        <div class="status-badge" [ngClass]="isOptimized ? 'optimized' : 'needs-optimization'">
+            {{ optimizationStatus }}
+        </div>
+        <div class="action-buttons">
+            <button class="btn-edit">
+                <i class="fas fa-edit"></i>
+                <span>Edit</span>
+            </button>
+        </div>
+    </div>
+</p-card>

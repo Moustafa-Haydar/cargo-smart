@@ -1,0 +1,160 @@
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 4vh;
+    margin-bottom: 0.75rem;
+}
+
+.icon-container {
+    width: 6vh;
+    height: 6vh;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.icon-container.delayed {
+    background-color: rgba(246, 135, 22, 0.1);
+}
+
+.icon-container.in-transit {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.icon-container.delivered {
+    background-color: rgba(34, 197, 94, 0.1);
+}
+
+.icon-container.planned {
+    background-color: rgba(107, 114, 128, 0.1);
+}
+
+.icon-container i {
+    font-size: 1.5rem;
+}
+
+.icon-container.delayed i {
+    color: #F68716;
+}
+
+.icon-container.in-transit i {
+    color: #3B82F6;
+}
+
+.icon-container.delivered i {
+    color: #22C55E;
+}
+
+.icon-container.planned i {
+    color: #6B7280;
+}
+
+.shipment-info {
+    flex: 1;
+    min-width: 0;
+    font-weight: bold;
+    /* Allows text to wrap properly */
+}
+
+.shipment-info h3 {
+    font-size: 1vw;
+    font-weight: bold;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.shipment-info p {
+    font-size: 0.9vw;
+    color: var(--secondary-text-color);
+    margin: 0.25rem 0 0 0;
+    white-space: normal;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.status-badge.delayed {
+    background-color: rgba(246, 135, 22, 0.1);
+    color: #F68716;
+}
+
+.status-badge.in-transit {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3B82F6;
+}
+
+.status-badge.delivered {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #22C55E;
+}
+
+.status-badge.planned {
+    background-color: rgba(107, 114, 128, 0.1);
+    color: #6B7280;
+}
+
+.percentage {
+    font-size: 1vw;
+    color: var(--secondary-text-color);
+    font-weight: 550;
+    white-space: nowrap;
+}
+
+.progress-container {
+    margin: 0.75rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background-color: #E5E7EB;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.progress.delayed {
+    background-color: #F68716;
+}
+
+.progress.in-transit {
+    background-color: #3B82F6;
+}
+
+.progress.delivered {
+    background-color: #22C55E;
+}
+
+.progress.planned {
+    background-color: #6B7280;
+}
+
+.card-footer {
+    margin-top: 0.75rem;
+}
+
+.eta-info {
+    font-size: 0.875rem;
+    color: var(--secondary-text-color);
+    margin: 0;
+}
+
+.skeleton-card {
+    width: 100%;
+}

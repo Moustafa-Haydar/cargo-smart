@@ -1,0 +1,5 @@
+<form [formGroup]="filterForm" class="filter-section">
+    <p-select [formControlName]="'category'" class="filter-dropdown" [options]="options" [placeholder]="placeHolder"
+        [showClear]="true" optionLabel="label" optionValue="value">
+    </p-select>
+</form>

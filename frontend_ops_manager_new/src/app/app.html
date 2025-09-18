@@ -1,0 +1,6 @@
+<div class="app-container" [class.no-sidebar]="hideSidebar()">
+    <app-sidebar *ngIf="!hideSidebar()"></app-sidebar>
+    <main class="main-content">
+        <router-outlet></router-outlet>
+    </main>
+</div>

@@ -1,0 +1,28 @@
+<p-card>
+    <div class="card-header">
+        <div class="icon-container" [ngClass]="uiStatus.toLowerCase()">
+            <i class="fas fa-cube"></i>
+        </div>
+        <div class="shipment-info">
+            <h3>{{ shipmentId }}</h3>
+            <p>{{ type }} • {{ origin }} → {{ destination }}</p>
+            <p class="vehicle-info">🚛 {{ vehicle }}</p>
+        </div>
+        <div class="status-badge" [ngClass]="uiStatus.toLowerCase()">
+            {{ uiStatus }}
+        </div>
+        <span class="percentage">{{ progressPercentage }}%</span>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress" [style.width.%]="progressPercentage" [ngClass]="uiStatus.toLowerCase()"></div>
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <p class="eta-info">
+            {{ eta }} • {{ daysRemaining }} days remaining
+        </p>
+    </div>
+</p-card>

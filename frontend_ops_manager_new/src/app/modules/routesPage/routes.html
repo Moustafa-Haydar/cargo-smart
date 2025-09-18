@@ -1,0 +1,50 @@
+<div class="page-container">
+    <header class="page-header">
+        <h1>Route Management</h1>
+        <div class="user-info">
+            <div class="user">
+                <div class="user-avatar">
+                    <i class="fas fa-question"></i>
+                </div>
+                <span>John Doe</span>
+            </div>
+        </div>
+    </header>
+
+    <search-section [options]="[]" [placeHolder]="'Search routes'" [(searchQuery)]="searchQuery"
+        (search)="applySearch($event)"></search-section>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading routes...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="error-container">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>{{ error }}</p>
+        <button class="btn-retry" (click)="ngOnInit()">Retry</button>
+    </div>
+
+    <!-- Routes Grid -->
+    <div *ngIf="!loading && !error" class="shipments-grid">
+        <div *ngFor="let route of filteredRoutes" class="shipment-card">
+            <div class="shipment-header">
+                <div class="shipment-info">
+                    <h3>{{ route.name || 'Route ' + (route.id | slice:0:8) }}</h3>
+                </div>
+                <div class="shipment-details">
+                    <p><strong>Route ID:</strong> {{ route.id }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && filteredRoutes.length === 0" class="empty-state">
+        <i class="fas fa-route"></i>
+        <h3>No routes found</h3>
+        <p>Try adjusting your search or filter criteria.</p>
+    </div>
+</div>

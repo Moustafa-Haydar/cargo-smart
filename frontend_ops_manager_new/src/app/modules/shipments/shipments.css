@@ -1,0 +1,159 @@
+.page-container {
+    padding: 0 1rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    background-color: transparent;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+.page-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 {
+    color: var(--text-color);
+    font-size: 1.6vw;
+    font-weight: 600;
+    margin: 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.notification-icon {
+    font-size: 1.25rem;
+    color: var(--secondary-text-color);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.notification-icon:hover {
+    color: var(--primary-color);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user span {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.shipments-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    row-gap: 1.5rem;
+    padding: 0;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Responsive design */
+@media (max-width: 1400px) {
+    .shipments-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .stats-section {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .shipments-list {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-section {
+        grid-template-columns: 1fr;
+    }
+
+    .search-section {
+        flex-direction: column;
+    }
+
+    .btn-filter,
+    .btn-refresh {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Skeleton Loading Styles */
+.skeleton-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    row-gap: 1.5rem;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.skeleton-card {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 12px;
+    height: 25vh;
+    min-height: 25vh;
+    width: 100%;
+}
+
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Responsive skeleton design */
+@media (max-width: 1400px) {
+    .skeleton-cards {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .skeleton-card {
+        height: 22vh;
+        min-height: 22vh;
+    }
+}
+
+@media (max-width: 900px) {
+    .skeleton-card {
+        height: 20vh;
+        min-height: 20vh;
+    }
+}
