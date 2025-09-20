@@ -11,6 +11,7 @@ import './Styles/style.css';
 import './Styles/variables.css';
 
 function App() {
+  // CI Test - This comment should trigger the workflow
   return (
     <Router>
       <Routes>
