@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  discover:
+    name: Discover projects
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.out.outputs.projects }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find project roots
+        id: out
+        run: |
+          python3 - << 'PY'
+          import json, os, subprocess, pathlib
+          def git_ls_files():
+            try:
+              out = subprocess.check_output(["git", "ls-files"], text=True)
+              return [line.strip() for line in out.splitlines() if line.strip()]
+            except Exception:
+              files = []
+              for p in pathlib.Path(".").rglob("*"):
+                if p.is_file():
+                  files.append(str(p).replace("\\\\","/"))
+              return files
+          manifests = {"package.json","pyproject.toml","requirements.txt","go.mod","Cargo.toml"}
+          dirs = set()
+          for path in git_ls_files():
+            name = path.rsplit("/",1)[-1]
+            if name in manifests:
+              d = path.rsplit("/",1)[0] if "/" in path else "."
+              dirs.add(d or ".")
+          roots = sorted(dirs) or ["."]
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+            fh.write("projects=" + json.dumps(roots) + "\n")
+          print("Discovered:", roots)
+          PY
+
+  build_test:
+    name: Build & test (${{ matrix.project }})
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.discover.outputs.projects) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node.js
+      - name: Setup Node
+        if: hashFiles(format('{0}/package.json', matrix.project)) != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+      - name: Install & test (Node)
+        if: hashFiles(format('{0}/package.json', matrix.project)) != ''
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+          npm run -s lint || true
+          npm test --if-present
+
+      # Python
+      - name: Setup Python
+        if: hashFiles(format('{0}/pyproject.toml', matrix.project)) != '' || hashFiles(format('{0}/requirements.txt', matrix.project)) != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install & test (Python)
+        if: hashFiles(format('{0}/pyproject.toml', matrix.project)) != '' || hashFiles(format('{0}/requirements.txt', matrix.project)) != ''
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f pyproject.toml ]; then pip install .; fi
+          pip install pytest
+          pytest -q
+
+      # Go
+      - name: Setup Go
+        if: hashFiles(format('{0}/go.mod', matrix.project)) != ''
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+      - name: Vet & test (Go)
+        if: hashFiles(format('{0}/go.mod', matrix.project)) != ''
+        run: |
+          go mod download
+          go vet ./...
+          go test ./... -cover
+
+      # Rust
+      - name: Setup Rust
+        if: hashFiles(format('{0}/Cargo.toml', matrix.project)) != ''
+        uses: dtolnay/rust-toolchain@stable
+      - name: Format, Clippy, Test (Rust)
+        if: hashFiles(format('{0}/Cargo.toml', matrix.project)) != ''
+        run: |
+          cargo fmt --all -- --check || true
+          cargo clippy --all-targets --all-features -- -D warnings || true
+          cargo test --all --locked
