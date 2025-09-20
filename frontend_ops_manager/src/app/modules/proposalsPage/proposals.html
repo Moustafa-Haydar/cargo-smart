@@ -11,6 +11,18 @@
         [(selected)]="selectedAction" (search)="applySearch($event)" (filterChange)="applyFilter($event)">
     </search-section>
 
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        {{ successMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="error" class="alert alert-error">
+        <i class="fas fa-exclamation-triangle"></i>
+        {{ error }}
+    </div>
+
     <!-- Proposals Grid -->
     <div *ngIf="!loading && !error" class="proposals-grid">
         <div *ngFor="let proposal of filteredProposals" class="proposal-card">
@@ -58,7 +70,19 @@
                         <p><strong>Improvement:</strong> {{ proposal.rationale }}</p>
                     </div>
 
-
+                    <!-- Action Buttons -->
+                    <div class="proposal-actions">
+                        <button class="btn-accept" [disabled]="isAccepting(proposal)"
+                            (click)="acceptProposal(proposal)">
+                            <i class="fas fa-check" *ngIf="!isAccepting(proposal)"></i>
+                            <i class="fas fa-spinner fa-spin" *ngIf="isAccepting(proposal)"></i>
+                            {{ isAccepting(proposal) ? 'Accepting...' : 'Accept Proposal' }}
+                        </button>
+                        <button class="btn-reject" (click)="rejectProposal(proposal)">
+                            <i class="fas fa-times"></i>
+                            Reject
+                        </button>
+                    </div>
                 </div>
             </div>
 

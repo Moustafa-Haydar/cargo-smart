@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from '@angul
 import { CommonModule } from '@angular/common';
 import { SearchSection } from '../../shared/components/search-section/search-section';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, map, of } from 'rxjs';
+import { catchError, map, of, tap } from 'rxjs';
 import { AgentProposal, ProposalsResponse } from '../../shared/models/logistics.model';
 import { ProposalsRepository } from './proposal.repository';
 
@@ -25,6 +25,7 @@ export class ProposalsPage implements OnInit {
 
     searchQuery = '';
     error: string | null = null;
+    successMessage: string | null = null;
 
     selectedAction: string | null = null;
     actionOptions = [
@@ -96,5 +97,45 @@ export class ProposalsPage implements OnInit {
     formatDelayRisk(pDelay?: number | null): string {
         const v = Number(pDelay ?? 0);
         return `${(v * 100).toFixed(1)}%`;
+    }
+
+    acceptProposal(proposal: AgentProposal) {
+        // Set loading state
+        (proposal as any).accepting = true;
+        this.changeDetectorRef.markForCheck();
+
+        // Simulate API call with a delay
+        setTimeout(() => {
+            // Show success message
+            this.successMessage = 'Proposal accepted successfully!';
+            this.clearMessages();
+
+            // Remove the proposal from the list
+            this.proposals = this.proposals.filter(p => p.id !== proposal.id);
+            this.filterProposals();
+            this.changeDetectorRef.markForCheck();
+        }, 1000); // 1 second delay to show loading state
+    }
+
+    rejectProposal(proposal: AgentProposal) {
+        // For now, just remove from the list
+        // You can implement a proper reject API call later
+        this.proposals = this.proposals.filter(p => p.id !== proposal.id);
+        this.filterProposals();
+        this.changeDetectorRef.markForCheck();
+    }
+
+    // Helper method to check if proposal is accepting
+    isAccepting(proposal: AgentProposal): boolean {
+        return (proposal as any).accepting === true;
+    }
+
+    // Clear messages after a delay
+    private clearMessages() {
+        setTimeout(() => {
+            this.error = null;
+            this.successMessage = null;
+            this.changeDetectorRef.markForCheck();
+        }, 5000); // Clear after 5 seconds
     }
 }

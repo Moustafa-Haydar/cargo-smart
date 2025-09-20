@@ -209,6 +209,7 @@ export interface AgentProposal {
   rationale: string;
   requires_approval: boolean;
   created_at: string; // ISO datetime
+  accepting?: boolean; // UI state for loading
 }
 
 export interface ProposalsResponse {

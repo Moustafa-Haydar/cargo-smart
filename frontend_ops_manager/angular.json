@@ -51,23 +51,15 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
-            },
-            "docker": {
-              "outputMode": "static",
-              "prerender": false,
-              "ssr": false,
-              "optimization": true,
-              "extractLicenses": true,
-              "sourceMap": false,
-              "outputHashing": "all",
-              "browser": "src/main.ts",
-              "server": false
             }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "frontend_ops_manager:build:production"
@@ -75,9 +67,6 @@
             "development": {
               "buildTarget": "frontend_ops_manager:build:development"
             }
-          },
-          "options": {
-            "proxyConfig": "proxy.conf.json"
           },
           "defaultConfiguration": "development"
         },
