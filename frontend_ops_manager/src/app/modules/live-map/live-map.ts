@@ -1,9 +1,10 @@
-import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GoogleMap, GoogleMapsModule, MapInfoWindow } from '@angular/google-maps';
 import { SearchSection } from '../../shared/components/search-section/search-section';
 import { FilterComponent, SelectOption } from '../../shared/components/filter/filter';
+import { HoverTooltipComponent } from '../../shared/components/hover-tooltip/hover-tooltip.component';
 import { GeoLocation, Route, Shipment, TransportVehicle } from '../../shared/models/logistics.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -48,7 +49,7 @@ interface RouteSegmentLine {
 @Component({
   selector: 'app-live-map',
   standalone: true,
-  imports: [CommonModule, FormsModule, GoogleMapsModule, SearchSection, FilterComponent],
+  imports: [CommonModule, FormsModule, GoogleMapsModule, SearchSection, FilterComponent, HoverTooltipComponent],
   templateUrl: './live-map.html',
   styleUrl: './live-map.css'
 })
@@ -98,6 +99,12 @@ export class LiveMap implements OnInit {
   // Custom icons for markers
   shipmentIcon: any;
   vehicleIcon: any;
+
+  // Hover tooltip properties
+  showTooltip = false;
+  tooltipData: any = null;
+  tooltipPosition = { x: 0, y: 0 };
+  tooltipType: 'shipment' | 'vehicle' | 'route' = 'shipment';
 
   // Map theme options for the search component dropdown
   themeOptions = [
@@ -658,6 +665,81 @@ export class LiveMap implements OnInit {
         };
       });
     });
+  }
+
+  // Hover event handlers
+  onShipmentMarkerHover(event: MouseEvent, shipment: Shipment) {
+    console.log('Shipment hover:', shipment);
+    this.showTooltip = true;
+    this.tooltipData = shipment;
+    this.tooltipType = 'shipment';
+    this.updateTooltipPosition(event);
+  }
+
+  onVehicleMarkerHover(event: MouseEvent, vehicle: TransportVehicle) {
+    console.log('Vehicle hover:', vehicle);
+    this.showTooltip = true;
+    this.tooltipData = vehicle;
+    this.tooltipType = 'vehicle';
+    this.updateTooltipPosition(event);
+  }
+
+  onRouteSegmentHover(event: MouseEvent, segment: RouteSegmentLine) {
+    console.log('Route segment hover:', segment);
+    console.log('Available routes:', this.routes);
+    this.showTooltip = true;
+    // Find the full route data for this segment
+    const route = this.routes.find(r => r.id === segment.routeId);
+    console.log('Found route:', route);
+
+    // If route is not found, create a minimal route object with segment info
+    if (!route) {
+      this.tooltipData = {
+        id: segment.routeId,
+        name: segment.routeName || 'Unknown Route',
+        segments: [],
+        shipments: []
+      };
+    } else {
+      this.tooltipData = route;
+    }
+
+    this.tooltipType = 'route';
+    this.updateTooltipPosition(event);
+  }
+
+  onMarkerLeave() {
+    this.showTooltip = false;
+    this.tooltipData = null;
+  }
+
+  private updateTooltipPosition(event: MouseEvent) {
+    this.tooltipPosition = {
+      x: event.clientX + 10,
+      y: event.clientY - 10
+    };
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.showTooltip) {
+      this.updateTooltipPosition(event);
+    }
+  }
+
+  getTooltipTitle(): string {
+    if (!this.tooltipData) return '';
+
+    switch (this.tooltipType) {
+      case 'shipment':
+        return this.tooltipData.ref_no || this.tooltipData.id || 'Shipment';
+      case 'vehicle':
+        return this.tooltipData.plate_number || this.tooltipData.id || 'Vehicle';
+      case 'route':
+        return this.tooltipData.name || this.tooltipData.id || 'Route';
+      default:
+        return '';
+    }
   }
 
 }
