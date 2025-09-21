@@ -5,9 +5,7 @@
 <!-- project overview -->
 <img src="./readme/title2.svg"/>
 
-> Description here.
->
-> Description here.
+CargoSmart is an AI-powered intelligent logistics platform that leverages machine learning algorithms and agentic AI systems to autonomously optimize cargo delivery routes, predict delays, and automate shipment management decisions in real-time. 
 
 <br><br>
 

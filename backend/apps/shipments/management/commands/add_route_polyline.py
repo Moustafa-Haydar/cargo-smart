@@ -100,7 +100,7 @@ class Command(BaseCommand):
         calls_done = 0
 
 
-        for start in range(0, rows, max_per_minute):
+        for start in range(870, 1500, max_per_minute):
             end = min(start + max_per_minute, rows)
             batch = df.iloc[start:end]
 

@@ -44,7 +44,7 @@ class Command(BaseCommand):
         file_path = os.path.join(settings.BASE_DIR, "data", "delivery_truck_data.xlsx")
         df = pd.read_excel(file_path, sheet_name="Sheet1")
 
-        for i, row in df.head(800).iterrows():  # limit to 5 rows for testing
+        for i, row in df.iloc[800:1500].iterrows():
             try:
                 dt = int(row["trip_start_date"].timestamp())  # UTC timestamp
                 lat, lon = map(float, row["Org_lat_lon"].split(","))
