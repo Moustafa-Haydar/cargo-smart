@@ -38,44 +38,51 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 <table style="width:100%; table-layout:fixed;">
   <tr>
     <td style="width:50%;">Login screen</td>
-    <td style="width:50%;">Map screen</td>
+    <td style="width:50%;">Shipments screen</td>
   </tr>
   <tr>
     <td style="width:50%; vertical-align:top;">
       <img src="./readme/demo/screens - ops manager/login.png" style="width:100%; height:auto; object-fit:contain;"/>
     </td>
     <td style="width:50%; vertical-align:top;">
-      <img src="./readme/demo/screens - ops manager/map.gif" style="width:100%; height:auto; object-fit:contain;"/>
+      <img src="./readme/demo/screens - ops manager/shipments.png" style="width:100%; height:auto; object-fit:contain;"/>
     </td>
   </tr>
 </table>
 
 <table style="width:100%; table-layout:fixed;">
   <tr>
-    <td>Map screen (2)</td>
-    <td>Reroute Proposals screen</td>
+    <td style="width:50%;">Map screen</td>
+  </tr>
+  <tr>
+    <td style="width:50%; vertical-align:top;">
+        <img src="./readme/demo/screens - ops manager/map.gif" style="width:100%; height:auto; object-fit:contain;"/>
+    </td>
+  </tr>
+</table>
+
+<table style="width:100%; table-layout:fixed;">
+  <tr>
+    <td>Vehicles screen</td>
+    <td>Routes screen</td>
   </tr>
   <tr>
     <td>
-      <img src="./readme/demo/screens - ops manager/shipments.png" style="max-width:100%; height:auto;"/>
+      <img src="./readme/demo/screens - ops manager/vehicles.png" style="max-width:100%; height:auto;"/>
     </td>
     <td style="width:50%; vertical-align:top;">
-      <img src="./readme/demo/screens - ops manager/reroute gif.gif" style="width:100%; height:auto; object-fit:contain;"/>
+      <img src="./readme/demo/screens - ops manager/routes.png" style="width:100%; height:auto; object-fit:contain;"/>
     </td>
   </tr>
 </table>
 
 <table style="width:100%; table-layout:fixed; margin-top:20px;">
   <tr>
-    <td>Shipments screen</td>
-    <td>Vehicles screen</td>
+    <td>Reroute screen</td>
   </tr>
   <tr>
     <td>
-      <img src="./readme/demo/screens - ops manager/vehicles.png" style="max-width:100%; height:auto;"/>
-    </td>
-    <td>
-      <img src="./readme/demo/screens - ops manager/routes.png" style="max-width:100%; height:auto;"/>
+      <img src="./readme/demo/screens - ops manager/reroute gif.gif" style="max-width:100%; height:auto;"/>
     </td>
   </tr>
 </table>
