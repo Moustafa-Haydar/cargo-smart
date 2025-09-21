@@ -50,25 +50,33 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
   </tr>
 </table>
 
-<table>
+<table style="width:100%; table-layout:fixed;">
   <tr>
     <td>Map screen (2)</td>
     <td>Reroute Proposals screen</td>
   </tr>
   <tr>
-    <td><img src="./readme/demo/screens - ops manager/map 2.png" width="250"/></td>
-    <td><img src="./readme/demo/screens - ops manager/reroute proposals.png" width="250"/></td>
+    <td>
+      <img src="./readme/demo/screens - ops manager/map 2.png" style="max-width:100%; height:auto;"/>
+    </td>
+    <td>
+      <img src="./readme/demo/screens - ops manager/reroute proposals.png" style="max-width:100%; height:auto;"/>
+    </td>
   </tr>
 </table>
 
-<table>
+<table style="width:100%; table-layout:fixed; margin-top:20px;">
   <tr>
     <td>Shipments screen</td>
     <td>Vehicles screen</td>
   </tr>
   <tr>
-    <td><img src="./readme/demo/screens - ops manager/shipments.png" width="250"/></td>
-    <td><img src="./readme/demo/screens - ops manager/vehicles.png" width="250"/></td>
+    <td>
+      <img src="./readme/demo/screens - ops manager/shipments.png" style="max-width:100%; height:auto;"/>
+    </td>
+    <td>
+      <img src="./readme/demo/screens - ops manager/vehicles.png" style="max-width:100%; height:auto;"/>
+    </td>
   </tr>
 </table>
 
