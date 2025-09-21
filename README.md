@@ -41,11 +41,11 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
     <td style="width:50%;">Map screen</td>
   </tr>
   <tr>
-    <td style="width:50%;">
-      <img src="./readme/demo/screens - ops manager/login.png" style="width:100%; height:auto;"/>
+    <td style="width:50%; vertical-align:top;">
+      <img src="./readme/demo/screens - ops manager/login.png" style="width:100%; height:300px; object-fit:contain;"/>
     </td>
-    <td style="width:50%;">
-      <img src="./readme/demo/screens - ops manager/map.gif" style="width:100%; height:auto;"/>
+    <td style="width:50%; vertical-align:top;">
+      <img src="./readme/demo/screens - ops manager/map.gif" style="width:100%; height:300px; object-fit:contain;"/>
     </td>
   </tr>
 </table>
