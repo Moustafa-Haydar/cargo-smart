@@ -21,11 +21,12 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 <!-- Project Highlights -->
 <img src="./readme/title4.svg"/>
 
-### Add Title Here
+### Main Features
 
 - Machine Learning Model that analysis weather, and location data to forecast shipment delays with 86%+ accuracy. The machine learning classifier processes multiple environmental factors to provide both delay probability and ETA adjustments.
 - AI Agent that generates optimal alternative routes using Dijkstra's algorithm when delays are predicted, and presents rerouting suggestions to operations managers for approval.
 - N8N automation engine that monitors all active shipments every 5 minutes, identifies delayed routes using ML predictions, and automatically triggers the agentic AI for route regeneration, also sending real-time notifications to drivers.
+- Interactive Google Maps-powered operations center that displays vehicle tracking, shipment locations, and route visualizations with dynamic filtering and hover tooltips. The live map provides route polylines, and multi-theme support (light, dark, satellite, terrain) for comprehensive logistics oversight.
 
 <br><br>
 
