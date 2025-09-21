@@ -43,9 +43,18 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 
 ### User Screens (Mobile)
 
-| Login screen                                                          | Shipments screen                                                        | Mark As Delivered screen                                                            |
-| --------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| ![Landing](./readme/demo/screens%20-%20mobile/mobile%20-%20login.png) | ![fsdaf](./readme/demo/screens%20-%20mobile/mobile%20-%20shipments.png) | ![fsdaf](./readme/demo/screens%20-%20mobile/mobile%20-%20mark%20as%20delivered.png) |
+<table>
+  <tr>
+    <td>Login screen</td>
+    <td>Shipments screen</td>
+    <td>Mark As Delivered screen</td>
+  </tr>
+  <tr>
+    <td><img src="./readme/demo/screens%20-%20mobile/mobile%20-%20login.png" width="250"/></td>
+    <td><img src="./readme/demo/screens%20-%20mobile/mobile%20-%20shipments.png" width="250"/></td>
+    <td><img src="./readme/demo/screens%20-%20mobile/mobile%20-%20mark%20as%20delivered.png" width="250"/></td>
+  </tr>
+</table>
 
 ### Admin Screens (Web)
 
