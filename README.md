@@ -156,8 +156,17 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 
 - Description here.
 
-| Postman API 1                           | Postman API 2                         | Postman API 3                         |
-| --------------------------------------- | ------------------------------------- | ------------------------------------- |
-| ![Landing](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) |
+<table>
+  <tr>
+    <td>Postman API 1</td>
+    <td>Postman API 2</td>
+    <td>Postman API 3</td>
+  </tr>
+  <tr>
+    <td><img src="./readme/demo/postman apis/evaluate.png" width="250"/></td>
+    <td><img src="./readme/demo/postman apis/proposals.png" width="250"/></td>
+    <td><img src="./readme/demo/postman apis/mobile - shipment delivered.png" width="250"/></td>
+  </tr>
+</table>
 
 <br><br>
