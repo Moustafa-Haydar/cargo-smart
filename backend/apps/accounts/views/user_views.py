@@ -2,12 +2,12 @@ from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_protect
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
 from .utils import _user_payload
 import json
-from ..models import User
-from django.apps import apps
-from apps.rbac.models import Group, Permission, UserGroup, GroupPermission
+import logging
+from ..services.user_services import user_service
+
+logger = logging.getLogger(__name__)
 
 
 def _parse_json(request):
@@ -19,22 +19,23 @@ def _parse_json(request):
 @login_required
 @require_GET
 def users(request, id=None):
-    
+    """
+    Get user(s) - single user by ID or all users
+    """
     if id is not None:
-        user = User.objects.filter(pk=id).first()
+        user = user_service.get_user_by_id(id)
         if not user:
             return JsonResponse({"detail": "User not found"}, status=404)
         return JsonResponse({"user": _user_payload(user)})
     
-    qs = User.objects.all().order_by("username")
-    data = [_user_payload(u) for u in qs]
+    users_list = user_service.get_all_users()
+    data = [_user_payload(u) for u in users_list]
     return JsonResponse({"users": data})
 
 
 @login_required
 @require_POST
 @csrf_protect
-@transaction.atomic
 def create_user(request):
     """
     Body (JSON):
@@ -50,56 +51,26 @@ def create_user(request):
     try:
         data = _parse_json(request)
     except ValueError as e:
+        logger.warning(f"Invalid JSON in create_user request: {e}")
         return HttpResponseBadRequest(str(e))
 
-    first_name = (data.get("first_name") or "").strip()
-    last_name = (data.get("last_name") or "").strip()
-    username = (data.get("username") or "").strip()
-    email = (data.get("email") or "").strip()
-    password = data.get("password") or ""
-    group_name = (data.get("group")      or "").strip()
+    # Use service layer to create user
+    success, result = user_service.create_user(data)
+    
+    if not success:
+        error_msg = result.get("error", "Unknown error")
+        status_code = 409 if "already exists" in error_msg else 400
+        logger.warning(f"User creation failed: {error_msg}")
+        return JsonResponse({"detail": error_msg}, status=status_code)
 
-    if not username or not password:
-        return HttpResponseBadRequest("username and password are required")
-
-    if User.objects.filter(username=username).exists():
-        return JsonResponse({"detail": "username already exists"}, status=409)
-    if email and User.objects.filter(email=email).exists():
-        return JsonResponse({"detail": "email already exists"}, status=409)
-
-    group = None
-    if group_name:
-        Group = apps.get_model("rbac", "Group")
-        try:
-            group = Group.objects.get(name__iexact=group_name)
-        except Group.DoesNotExist:
-            return JsonResponse(
-                {"detail": f"Group '{group_name}' does not exist"},
-                status=400
-            )
-
-    try:
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-        )
-    except:
-        return JsonResponse({"detail": "username or email already exists"}, status=409)
-
-    if group:
-        UserGroup = apps.get_model("rbac", "UserGroup")
-        UserGroup.objects.get_or_create(user_id=user.id, group_id=group.id)
-
+    user = result["user"]
+    logger.info(f"User created successfully: {user.username}")
     return JsonResponse({"created": True, "user": _user_payload(user)}, status=201)
 
 
 @login_required
 @require_POST
 @csrf_protect
-@transaction.atomic
 def update_user(request):
     """
     Body:
@@ -116,66 +87,30 @@ def update_user(request):
     try:
         data = _parse_json(request)
     except ValueError as e:
+        logger.warning(f"Invalid JSON in update_user request: {e}")
         return HttpResponseBadRequest(str(e))
  
     user_id = data.get("id")
     if not user_id:
         return HttpResponseBadRequest("id is required")
 
-    try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return JsonResponse({"detail": "User not found"}, status=404)
+    # Use service layer to update user
+    success, result = user_service.update_user(user_id, data)
+    
+    if not success:
+        error_msg = result.get("error", "Unknown error")
+        status_code = 404 if "not found" in error_msg else 409 if "already exists" in error_msg else 400
+        logger.warning(f"User update failed: {error_msg}")
+        return JsonResponse({"detail": error_msg}, status=status_code)
 
-    username   = (data.get("username") or "").strip() or None
-    email      = (data.get("email") or "").strip() or None
-    first_name = (data.get("first_name") or "").strip() if "first_name" in data else None
-    last_name  = (data.get("last_name")  or "").strip() if "last_name"  in data else None
-    password   = data.get("password") or None
-    group_name = (data.get("group") or "").strip() if "group" in data else None
-
-    # Uniqueness checks only when provided
-    if username and User.objects.filter(username=username).exclude(id=user_id).exists():
-        return JsonResponse({"detail": "username already exists"}, status=409)
-    if email and User.objects.filter(email=email).exclude(id=user_id).exists():
-        return JsonResponse({"detail": "email already exists"}, status=409)
-
-    target_group = None
-    if group_name is not None and group_name != "":
-        try:
-            target_group = Group.objects.get(name__iexact=group_name)
-        except Group.DoesNotExist:
-            return JsonResponse({"detail": f"Group '{group_name}' does not exist"}, status=400)
-
-    # Update only set fields that were provided
-    if first_name is not None:
-        user.first_name = first_name
-    if last_name is not None:
-        user.last_name = last_name
-    if username is not None:
-        user.username = username
-    if email is not None:
-        user.email = email
-    if password:
-        user.set_password(password)
-
-    try:
-        user.save()
-    except:
-        return JsonResponse({"detail": "username or email already exists"}, status=409)
-
-    if group_name is not None:
-        UserGroup.objects.filter(user_id=user.id).delete()
-        if target_group:
-            UserGroup.objects.get_or_create(user_id=user.id, group_id=target_group.id)
-
+    user = result["user"]
+    logger.info(f"User updated successfully: {user.username}")
     return JsonResponse({"updated": True, "user": _user_payload(user)})
 
 
 @login_required
 @require_POST
 @csrf_protect
-@transaction.atomic
 def delete_user(request):
     """
     Body: { "id": uuid }
@@ -183,16 +118,21 @@ def delete_user(request):
     try:
         data = _parse_json(request)
     except ValueError as e:
+        logger.warning(f"Invalid JSON in delete_user request: {e}")
         return HttpResponseBadRequest(str(e))
 
     user_id = data.get("id")
     if not user_id:
         return HttpResponseBadRequest("id is required")
 
-    try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return JsonResponse({"detail": "User not found"}, status=404)
+    # Use service layer to delete user
+    success, result = user_service.delete_user(user_id)
+    
+    if not success:
+        error_msg = result.get("error", "Unknown error")
+        status_code = 404 if "not found" in error_msg else 400
+        logger.warning(f"User deletion failed: {error_msg}")
+        return JsonResponse({"detail": error_msg}, status=status_code)
 
-    user.delete()
+    logger.info(f"User deleted successfully: {user_id}")
     return JsonResponse({"deleted": True})
