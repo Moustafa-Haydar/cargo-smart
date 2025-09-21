@@ -33,11 +33,19 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 <!-- Demo -->
 <img src="./readme/title5.svg"/>
 
+### Operations Manager Screens (Web)
+
+| Login screen                            | Register screen                       |
+| --------------------------------------- | ------------------------------------- |
+| ![Landing](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) |
+
+<br><br>
+
 ### User Screens (Mobile)
 
-| Login screen                            | Register screen                       | Register screen                       |
-| --------------------------------------- | ------------------------------------- | ------------------------------------- |
-| ![Landing](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) |
+| Login screen                                                          | Shipments screen                                                        | Mark As Delivered screen                                                            |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| ![Landing](./readme/demo/screens%20-%20mobile/mobile%20-%20login.png) | ![fsdaf](./readme/demo/screens%20-%20mobile/mobile%20-%20shipments.png) | ![fsdaf](./readme/demo/screens%20-%20mobile/mobile%20-%20mark%20as%20delivered.png) |
 
 ### Admin Screens (Web)
 
