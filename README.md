@@ -99,9 +99,35 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 
 ### Admin Screens (Web)
 
-| Login screen                            | Register screen                       |
-| --------------------------------------- | ------------------------------------- |
-| ![Landing](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) |
+<table style="width:100%; table-layout:fixed; margin-top:20px;">
+  <tr>
+    <td>Users screen</td>
+    <td>Groups screen</td>
+  </tr>
+  <tr>
+    <td>
+      <img src="./readme/demo/screens - admin/users.png" style="max-width:100%; height:auto;"/>
+    </td>
+    <td>
+      <img src="./readme/demo/screens - admin/groups.png" style="max-width:100%; height:auto;"/>
+    </td>
+  </tr>
+</table>
+
+<table style="width:100%; table-layout:fixed; margin-top:20px;">
+  <tr>
+    <td>Permissions screen</td>
+    <td>Group Permissions screen</td>
+  </tr>
+  <tr>
+    <td>
+      <img src="./readme/demo/screens - admin/permissions.png" style="max-width:100%; height:auto;"/>
+    </td>
+    <td>
+      <img src="./readme/demo/screens - admin/group permissions.png" style="max-width:100%; height:auto;"/>
+    </td>
+  </tr>
+</table>
 
 <br><br>
 
