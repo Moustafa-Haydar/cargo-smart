@@ -7,9 +7,13 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
 import json
+import logging
 from .utils import _user_payload, _user_permissions
+from ..validators import validate_login_data
 from apps.accounts.models import User
 from apps.rbac.models import Group, Permission, UserGroup, GroupPermission
+
+logger = logging.getLogger(__name__)
 
 
 @require_GET
@@ -32,27 +36,49 @@ def login(request):
     try:
         data = json.loads(request.body.decode() or "{}")
     except json.JSONDecodeError:
-        return HttpResponseBadRequest("Invalid JSON")
+        logger.warning("Invalid JSON in login request")
+        return JsonResponse({"ok": False, "error": "Invalid JSON format"}, status=400)
 
-    username = (data.get("username") or "").strip()
-    password = data.get("password") or ""
-    if not username or not password:
-        return HttpResponseBadRequest("username and password are required")
+    # Validate request data
+    is_valid, validation_result = validate_login_data(data, is_mobile=False)
+    
+    if not is_valid:
+        logger.warning(f"Login validation failed: {validation_result.get('errors', [])}")
+        return JsonResponse({
+            "ok": False, 
+            "error": "Validation failed",
+            "details": validation_result.get('errors', []),
+            "warnings": validation_result.get('warnings', [])
+        }, status=400)
+
+    username = validation_result['username']
+    password = validation_result['password']
+    warnings = validation_result.get('warnings', [])
+
+    # Log security warnings if any
+    if warnings:
+        logger.warning(f"Login warnings for user {username}: {warnings}")
 
     user = authenticate(request, username=username, password=password)
     if not user:
-        print(f"Login failed - Invalid credentials for username: {username}")
+        logger.warning(f"Login failed - Invalid credentials for username: {username}")
         return JsonResponse({"ok": False, "error": "Invalid credentials"}, status=401)
 
-    print(f"Login successful for user: {user.username}")
+    logger.info(f"Login successful for user: {user.username}")
     auth_login(request, user)
-    print(f"Session created - Session key: {request.session.session_key}")
+    logger.info(f"Session created - Session key: {request.session.session_key}")
 
     # Optional: cache permission ids in session for quick checks (invalidate on group updates)
     perm_ids, _ = _user_permissions(user)
     request.session["permission_ids"] = perm_ids
 
-    return JsonResponse({"ok": True, "user": _user_payload(user)})
+    response_data = {"ok": True, "user": _user_payload(user)}
+    
+    # Include warnings in response if any
+    if warnings:
+        response_data["warnings"] = warnings
+
+    return JsonResponse(response_data)
 
 
 @require_POST
