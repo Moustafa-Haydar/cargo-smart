@@ -161,9 +161,9 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 <!-- Deployment -->
 <img src="./readme/title7.svg"/>
 
-### Add Title Here
+<!-- ### Add Title Here
 
-- Description here.
+- Description here. -->
 
 <table>
   <tr>
