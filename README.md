@@ -35,9 +35,38 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 
 ### Operations Manager Screens (Web)
 
-| Login screen                            | Register screen                       |
-| --------------------------------------- | ------------------------------------- |
-| ![Landing](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) |
+<table>
+  <tr>
+    <td>Login screen</td>
+    <td>Map screen</td>
+  </tr>
+  <tr>
+    <td><img src="./readme/demo/screens - ops manager//login.png" width="250"/></td>
+    <td><img src="./readme/demo/screens - ops manager/map.png" width="250"/></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td>Map screen (2)</td>
+    <td>Reroute Proposals screen</td>
+  </tr>
+  <tr>
+    <td><img src="./readme/demo/screens - ops manager/map 2.png" width="250"/></td>
+    <td><img src="./readme/demo/screens - ops manager/reroute proposals.png" width="250"/></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td>Shipments screen</td>
+    <td>Vehicles screen</td>
+  </tr>
+  <tr>
+    <td><img src="./readme/demo/screens - ops manager/shipments.png" width="250"/></td>
+    <td><img src="./readme/demo/screens - ops manager/vehicles.png" width="250"/></td>
+  </tr>
+</table>
 
 <br><br>
 
