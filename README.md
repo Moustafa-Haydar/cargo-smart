@@ -178,4 +178,22 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
   </tr>
 </table>
 
+<!-- Project Management -->
+<img src="./readme/title8.svg"/>
+
+### Project Management (Linear)
+
+- Overview of how tasks were organized and tracked throughout the project.
+
+<table>
+  <tr>
+    <td>Linear</td>
+  </tr>
+  <tr>
+    <td>
+        <img src="./readme/demo/tools/linear .png" style="max-width:100%; height:auto;"/>
+    </td>
+  </tr>
+</table>
+
 <br><br>
