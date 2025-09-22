@@ -229,6 +229,27 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
   </tr>
 </table>
 
+### Swagger API Documentation
+
+- Interactive API docs for backend services
+- Groups: Web Authentication, User Management, Mobile Authentication, Mobile Shipments,...
+- Tips:
+  - Mobile: login to get a token, then Authorize with Bearer token
+  - Web: get CSRF, then login; session cookies are used
+
+<table style="width:100%; table-layout:fixed; margin-top:10px;">
+  <tr>
+    <td>Swagger API 1</td>
+    <td>Swagger API 2</td>
+    <td>Swagger API 3</td>
+  </tr>
+  <tr>
+    <td><img src="./readme/demo/swagger/api1.png" style="width:100%; height:auto; object-fit:contain;"/></td>
+    <td><img src="./readme/demo/swagger/api2.png" style="width:100%; height:auto; object-fit:contain;"/></td>
+    <td><img src="./readme/demo/swagger/api3.png" style="width:100%; height:auto; object-fit:contain;"/></td>
+  </tr>
+</table>
+
 <br><br>
 
 ### Swagger Documentation

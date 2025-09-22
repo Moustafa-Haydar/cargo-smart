@@ -6,6 +6,9 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
+from rest_framework import serializers
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 import json
 import logging
 from .utils import _user_payload, _user_permissions
@@ -15,7 +18,33 @@ from apps.rbac.models import Group, Permission, UserGroup, GroupPermission
 
 logger = logging.getLogger(__name__)
 
+# Serializers for accounts
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(help_text="Username for authentication")
+    password = serializers.CharField(help_text="Password for authentication", write_only=True)
 
+class LoginResponseSerializer(serializers.Serializer):
+    ok = serializers.BooleanField(help_text="Login success status")
+    user = serializers.DictField(help_text="User information", required=False)
+    error = serializers.CharField(help_text="Error message", required=False)
+    warnings = serializers.ListField(help_text="Validation warnings", required=False)
+
+@swagger_auto_schema(
+    method='get',
+    operation_description="Get CSRF token for session-based authentication",
+    responses={
+        200: openapi.Response(
+            description="CSRF token retrieved successfully",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'csrfToken': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        )
+    },
+    tags=['Web Authentication']
+)
 @require_GET
 @ensure_csrf_cookie
 def csrf(request):
@@ -26,6 +55,40 @@ def csrf(request):
     return JsonResponse({"csrfToken": token})
 
 
+@swagger_auto_schema(
+    method='post',
+    operation_description="Web login endpoint for session-based authentication",
+    request_body=LoginSerializer,
+    responses={
+        200: openapi.Response(
+            description="Login successful",
+            schema=LoginResponseSerializer
+        ),
+        400: openapi.Response(
+            description="Bad request - invalid JSON or validation failed",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'ok': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                    'error': openapi.Schema(type=openapi.TYPE_STRING),
+                    'details': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING)),
+                    'warnings': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING))
+                }
+            )
+        ),
+        401: openapi.Response(
+            description="Invalid credentials",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'ok': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        )
+    },
+    tags=['Web Authentication']
+)
 @require_POST
 @csrf_protect
 def login(request):
@@ -81,6 +144,22 @@ def login(request):
     return JsonResponse(response_data)
 
 
+@swagger_auto_schema(
+    method='post',
+    operation_description="Logout from web session",
+    responses={
+        200: openapi.Response(
+            description="Logout successful",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'ok': openapi.Schema(type=openapi.TYPE_BOOLEAN)
+                }
+            )
+        )
+    },
+    tags=['Web Authentication']
+)
 @require_POST
 @csrf_protect
 def logout(request):
@@ -88,6 +167,32 @@ def logout(request):
     return JsonResponse({"ok": True})
 
 
+@swagger_auto_schema(
+    method='get',
+    operation_description="Get current authenticated user information",
+    responses={
+        200: openapi.Response(
+            description="User information retrieved successfully",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'authenticated': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                    'user': openapi.Schema(type=openapi.TYPE_OBJECT)
+                }
+            )
+        ),
+        401: openapi.Response(
+            description="User not authenticated",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'authenticated': openapi.Schema(type=openapi.TYPE_BOOLEAN)
+                }
+            )
+        )
+    },
+    tags=['Web Authentication']
+)
 @require_GET
 def me(request):
     print(f"Me endpoint called - User authenticated: {request.user.is_authenticated}")
