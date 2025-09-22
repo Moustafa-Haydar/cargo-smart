@@ -4,19 +4,57 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.permissions import IsAuthenticated
 from apps.accounts.authentication import BearerTokenAuthentication
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, serializers
 from django.db.models import Prefetch
 from django.utils import timezone
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from .web_views import _serialize_shipment
 from ..models import Shipment, ShipmentMilestone
 
 
+# Serializers for shipments
+class ShipmentStatusUpdateSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(
+        choices=['PENDING', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'],
+        help_text="New status for the shipment"
+    )
+
+@swagger_auto_schema(
+    method='get',
+    operation_description="Get all shipments assigned to the authenticated driver",
+    responses={
+        200: openapi.Response(
+            description="List of shipments retrieved successfully",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'shipments': openapi.Schema(
+                        type=openapi.TYPE_ARRAY,
+                        items=openapi.Schema(type=openapi.TYPE_OBJECT)
+                    )
+                }
+            )
+        ),
+        401: openapi.Response(
+            description="Authentication required",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        )
+    },
+    tags=['Mobile Shipments'],
+    security=[{'Bearer': []}]
+)
 @api_view(['GET'])
 @authentication_classes([BearerTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def driver_shipments(request):
     """
-    Get all shipments
+    Get all shipments assigned to the authenticated driver
     """
     # Get all shipments (since there's no driver field in the current model)
     shipments = (
@@ -42,6 +80,50 @@ def driver_shipments(request):
     })
 
 
+@swagger_auto_schema(
+    method='get',
+    operation_description="Get detailed information about a specific shipment",
+    manual_parameters=[
+        openapi.Parameter(
+            'shipment_id',
+            openapi.IN_PATH,
+            description="UUID of the shipment",
+            type=openapi.TYPE_STRING,
+            format=openapi.FORMAT_UUID
+        )
+    ],
+    responses={
+        200: openapi.Response(
+            description="Shipment details retrieved successfully",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'shipment': openapi.Schema(type=openapi.TYPE_OBJECT)
+                }
+            )
+        ),
+        404: openapi.Response(
+            description="Shipment not found",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        ),
+        401: openapi.Response(
+            description="Authentication required",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        )
+    },
+    tags=['Mobile Shipments'],
+    security=[{'Bearer': []}]
+)
 @api_view(['GET'])
 @authentication_classes([BearerTokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -78,6 +160,60 @@ def driver_shipment_detail(request, shipment_id):
         }, status=status.HTTP_404_NOT_FOUND)
 
 
+@swagger_auto_schema(
+    method='post',
+    operation_description="Mark a shipment as delivered",
+    manual_parameters=[
+        openapi.Parameter(
+            'shipment_id',
+            openapi.IN_PATH,
+            description="UUID of the shipment to mark as delivered",
+            type=openapi.TYPE_STRING,
+            format=openapi.FORMAT_UUID
+        )
+    ],
+    responses={
+        200: openapi.Response(
+            description="Shipment marked as delivered successfully",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING),
+                    'shipment': openapi.Schema(type=openapi.TYPE_OBJECT)
+                }
+            )
+        ),
+        400: openapi.Response(
+            description="Bad request - shipment already delivered",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        ),
+        404: openapi.Response(
+            description="Shipment not found",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        ),
+        401: openapi.Response(
+            description="Authentication required",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        )
+    },
+    tags=['Mobile Shipments'],
+    security=[{'Bearer': []}]
+)
 @api_view(['POST'])
 @authentication_classes([BearerTokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -113,6 +249,61 @@ def mark_shipment_delivered(request, shipment_id):
         }, status=status.HTTP_404_NOT_FOUND)
 
 
+@swagger_auto_schema(
+    method='post',
+    operation_description="Update shipment status (for status changes like IN_TRANSIT, CANCELLED, etc.)",
+    manual_parameters=[
+        openapi.Parameter(
+            'shipment_id',
+            openapi.IN_PATH,
+            description="UUID of the shipment to update",
+            type=openapi.TYPE_STRING,
+            format=openapi.FORMAT_UUID
+        )
+    ],
+    request_body=ShipmentStatusUpdateSerializer,
+    responses={
+        200: openapi.Response(
+            description="Shipment status updated successfully",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING),
+                    'shipment': openapi.Schema(type=openapi.TYPE_OBJECT)
+                }
+            )
+        ),
+        400: openapi.Response(
+            description="Bad request - missing status or invalid status",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        ),
+        404: openapi.Response(
+            description="Shipment not found",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        ),
+        401: openapi.Response(
+            description="Authentication required",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        )
+    },
+    tags=['Mobile Shipments'],
+    security=[{'Bearer': []}]
+)
 @api_view(['POST'])
 @authentication_classes([BearerTokenAuthentication])
 @permission_classes([IsAuthenticated])

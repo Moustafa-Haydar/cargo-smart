@@ -230,3 +230,22 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 </table>
 
 <br><br>
+
+### Swagger Documentation
+
+- Description here.
+
+<table>
+  <tr>
+    <td>Swagger API 1</td>
+    <td>Swagger API 2</td>
+    <td>Swagger API 3</td>
+  </tr>
+  <tr>
+    <td><img src="./readme/demo/swagger apis/api 1.png" width="250"/></td>
+    <td><img src="./readme/demo/swagger apis/api 2.png" width="250"/></td>
+    <td><img src="./readme/demo/swagger apis/api 3.png" width="250"/></td>
+  </tr>
+</table>
+
+<br><br>

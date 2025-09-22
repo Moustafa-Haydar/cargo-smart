@@ -8,10 +8,62 @@ from apps.accounts.authentication import BearerTokenAuthentication
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework import serializers
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 import json
 from apps.rbac.models import UserGroup
 
 
+# Serializer for login request
+class MobileLoginSerializer(serializers.Serializer):
+    username = serializers.CharField(help_text="Driver username")
+    password = serializers.CharField(help_text="Driver password", write_only=True)
+
+# Serializer for login response
+class MobileLoginResponseSerializer(serializers.Serializer):
+    token = serializers.CharField(help_text="Authentication token")
+    user = serializers.DictField(help_text="User information")
+
+@swagger_auto_schema(
+    method='post',
+    operation_description="Mobile login endpoint for drivers. Returns a token for authentication.",
+    request_body=MobileLoginSerializer,
+    responses={
+        200: openapi.Response(
+            description="Login successful",
+            schema=MobileLoginResponseSerializer
+        ),
+        400: openapi.Response(
+            description="Bad request - missing username/password or invalid JSON",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        ),
+        401: openapi.Response(
+            description="Invalid credentials",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        ),
+        403: openapi.Response(
+            description="Access denied - user is not a driver",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        )
+    },
+    tags=['Mobile Authentication']
+)
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([])
@@ -61,6 +113,32 @@ def mobile_login(request):
     })
 
 
+@swagger_auto_schema(
+    method='post',
+    operation_description="Logout endpoint for mobile apps. Deletes the user's authentication token.",
+    responses={
+        200: openapi.Response(
+            description="Logout successful",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        ),
+        400: openapi.Response(
+            description="Bad request",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'error': openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        )
+    },
+    tags=['Mobile Authentication'],
+    security=[{'Bearer': []}]
+)
 @api_view(['POST'])
 @authentication_classes([BearerTokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -77,6 +155,34 @@ def mobile_logout(request):
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@swagger_auto_schema(
+    method='get',
+    operation_description="Get current user profile for mobile apps",
+    responses={
+        200: openapi.Response(
+            description="User profile retrieved successfully",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'user': openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            'id': openapi.Schema(type=openapi.TYPE_STRING),
+                            'username': openapi.Schema(type=openapi.TYPE_STRING),
+                            'email': openapi.Schema(type=openapi.TYPE_STRING),
+                            'first_name': openapi.Schema(type=openapi.TYPE_STRING),
+                            'last_name': openapi.Schema(type=openapi.TYPE_STRING),
+                            'is_active': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                            'groups': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING))
+                        }
+                    )
+                }
+            )
+        )
+    },
+    tags=['Mobile Authentication'],
+    security=[{'Bearer': []}]
+)
 @api_view(['GET'])
 @authentication_classes([BearerTokenAuthentication])
 @permission_classes([IsAuthenticated])
