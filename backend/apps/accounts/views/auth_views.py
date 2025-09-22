@@ -30,7 +30,6 @@ class LoginResponseSerializer(serializers.Serializer):
     warnings = serializers.ListField(help_text="Validation warnings", required=False)
 
 @swagger_auto_schema(
-    method='get',
     operation_description="Get CSRF token for session-based authentication",
     responses={
         200: openapi.Response(
@@ -56,7 +55,6 @@ def csrf(request):
 
 
 @swagger_auto_schema(
-    method='post',
     operation_description="Web login endpoint for session-based authentication",
     request_body=LoginSerializer,
     responses={
@@ -145,7 +143,6 @@ def login(request):
 
 
 @swagger_auto_schema(
-    method='post',
     operation_description="Logout from web session",
     responses={
         200: openapi.Response(
@@ -168,7 +165,6 @@ def logout(request):
 
 
 @swagger_auto_schema(
-    method='get',
     operation_description="Get current authenticated user information",
     responses={
         200: openapi.Response(

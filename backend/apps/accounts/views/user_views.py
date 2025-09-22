@@ -40,7 +40,6 @@ def _parse_json(request):
         raise ValueError("Invalid JSON")
 
 @swagger_auto_schema(
-    method='get',
     operation_description="Get user(s) - single user by ID or all users (Admin only)",
     manual_parameters=[
         openapi.Parameter(
@@ -48,8 +47,7 @@ def _parse_json(request):
             openapi.IN_PATH,
             description="UUID of the user to retrieve (optional)",
             type=openapi.TYPE_STRING,
-            format=openapi.FORMAT_UUID,
-            required=False
+            format=openapi.FORMAT_UUID
         )
     ],
     responses={
@@ -103,7 +101,6 @@ def users(request, id=None):
 
 
 @swagger_auto_schema(
-    method='post',
     operation_description="Create a new user (Admin only)",
     request_body=CreateUserSerializer,
     responses={
@@ -184,7 +181,6 @@ def create_user(request):
 
 
 @swagger_auto_schema(
-    method='post',
     operation_description="Update an existing user (Admin only)",
     request_body=UpdateUserSerializer,
     responses={
@@ -279,7 +275,6 @@ def update_user(request):
 
 
 @swagger_auto_schema(
-    method='post',
     operation_description="Delete a user (Admin only)",
     request_body=DeleteUserSerializer,
     responses={
