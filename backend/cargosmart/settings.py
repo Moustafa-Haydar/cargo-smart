@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'corsheaders', 
     'rest_framework',
     'rest_framework.authtoken',  # For token authentication
+    'drf_yasg',  # Swagger documentation
 
     # apps
     'apps.accounts',
@@ -205,3 +206,40 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Swagger/OpenAPI Configuration
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'JWT token. Example: "Bearer {token}"'
+        },
+        'Session': {
+            'type': 'apiKey',
+            'name': 'csrftoken',
+            'in': 'header',
+            'description': 'CSRF token for session authentication'
+        }
+    },
+    'USE_SESSION_AUTH': True,
+    'JSON_EDITOR': True,
+    'SUPPORTED_SUBMIT_METHODS': [
+        'get',
+        'post',
+        'put',
+        'delete',
+        'patch'
+    ],
+    'OPERATIONS_SORTER': 'alpha',
+    'TAGS_SORTER': 'alpha',
+    'DOC_EXPANSION': 'none',
+    'DEEP_LINKING': True,
+    'SHOW_EXTENSIONS': True,
+    'SHOW_COMMON_EXTENSIONS': True,
+}
+
+REDOC_SETTINGS = {
+    'LAZY_RENDERING': False,
+}
