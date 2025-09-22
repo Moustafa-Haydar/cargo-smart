@@ -182,12 +182,10 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
   </tr>
 </table>
 
-<!-- Project Management -->
+<!-- N8N Automation -->
 <img src="./readme/title8.svg"/>
 
-### Project Management (Linear)
-
-- Overview of how tasks were organized and tracked throughout the project.
+### N8N Automation
 
 <table>
   <tr>
@@ -199,6 +197,13 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
     </td>
   </tr>
 </table>
+
+<!-- Project Management -->
+<img src="./readme/title8.svg"/>
+
+### Project Management (Linear)
+
+- Overview of how tasks were organized and tracked throughout the project.
 
 <table>
   <tr>
