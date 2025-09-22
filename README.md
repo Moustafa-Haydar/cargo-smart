@@ -162,6 +162,38 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
   </tr>
 </table>
 
+### Dataset
+
+### add here the dataset
+
+### N8N Automation
+
+<table>
+  <tr>
+    <td>N8N Automation</td>
+  </tr>
+  <tr>
+    <td>
+        <img src="./readme/demo/tools/n8n.png" style="max-width:100%; height:auto;"/>
+    </td>
+  </tr>
+</table>
+
+### Project Management (Linear)
+
+- Overview of how tasks were organized and tracked throughout the project.
+
+<table>
+  <tr>
+    <td>Linear</td>
+  </tr>
+  <tr>
+    <td>
+        <img src="./readme/demo/tools/linear .png" style="max-width:100%; height:auto;"/>
+    </td>
+  </tr>
+</table>
+
 <br><br>
 
 <!-- Deployment -->
@@ -181,40 +213,6 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
     <td><img src="./readme/demo/postman apis/evaluate.png" width="250"/></td>
     <td><img src="./readme/demo/postman apis/proposals.png" width="250"/></td>
     <td><img src="./readme/demo/postman apis/mobile - shipment delivered.png" width="250"/></td>
-  </tr>
-</table>
-
-<!-- N8N Automation -->
-<img src="./readme/title9.svg"/>
-
-### N8N Automation
-
-<table>
-  <tr>
-    <td>N8N Automation</td>
-  </tr>
-  <tr>
-    <td>
-        <img src="./readme/demo/tools/n8n.png" style="max-width:100%; height:auto;"/>
-    </td>
-  </tr>
-</table>
-
-<!-- Project Management -->
-<img src="./readme/title8.svg"/>
-
-### Project Management (Linear)
-
-- Overview of how tasks were organized and tracked throughout the project.
-
-<table>
-  <tr>
-    <td>Linear</td>
-  </tr>
-  <tr>
-    <td>
-        <img src="./readme/demo/tools/linear .png" style="max-width:100%; height:auto;"/>
-    </td>
   </tr>
 </table>
 
