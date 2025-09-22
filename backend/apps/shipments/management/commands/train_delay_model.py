@@ -15,6 +15,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, average_precision_score, f1_score, classification_report
 
+# Import our visualization module
+from .ml_visualizations import MLVisualizer
+
 
 def parse_latlon(s):
     try:
@@ -37,6 +40,10 @@ class Command(BaseCommand):
     help = "Train a simple delay classifier and save the model to models/delay_classifier.joblib"
 
     def handle(self, *args, **options):
+        # Initialize visualizer
+        models_dir = os.path.join(settings.BASE_DIR, "models")
+        visualizer = MLVisualizer(os.path.join(models_dir, "plots"))
+        
         # 1) Load data
         data_path = os.path.join(settings.BASE_DIR, "data", "delivery_truck_data.xlsx")
         # df = pd.read_excel(data_path)
@@ -77,6 +84,10 @@ class Command(BaseCommand):
         df["is_weekend"]    = df["planned_dow"].isin([5,6]).astype(int)
         df["lead_time_hours"] = (df["Planned_ETA"] - df["BookingID_Date"]).dt.total_seconds() / 3600
 
+        # Now that the target and engineered features exist, create data distribution visuals
+        self.stdout.write("📊 Creating data distribution visualizations...")
+        visualizer.plot_data_distribution(df)
+
         # 7) Weather flags (if available)
         if "precipitation" in df.columns:
             df["rain_flag"] = (df["precipitation"].fillna(0) > 0).astype(int)
@@ -107,6 +118,10 @@ class Command(BaseCommand):
 
         X = df[num_feats + cat_feats].copy()
         y = df["delayed_flag"].copy()
+
+        # Create feature analysis plots
+        self.stdout.write("🔍 Creating feature analysis visualizations...")
+        visualizer.plot_feature_analysis(X, y, num_feats + cat_feats)
 
         # 9) Train/test split (simple random split; later you can switch to time-based)
         X_train, X_test, y_train, y_test = train_test_split(
@@ -148,6 +163,14 @@ class Command(BaseCommand):
         self.stdout.write(f"PR-AUC : {pr:.3f}")
         self.stdout.write(f"F1     : {f1:.3f}")
         self.stdout.write("\nClassification report:\n" + classification_report(y_test, preds))
+        
+        # Create model performance visualizations
+        self.stdout.write("📈 Creating model performance visualizations...")
+        visualizer.plot_model_performance(y_test, probs, preds)
+        
+        # Create summary report
+        self.stdout.write("📋 Creating summary report...")
+        visualizer.create_summary_report(pipe, X_test, y_test, preds, probs)
 
         # 12) Save model
         models_dir = os.path.join(settings.BASE_DIR, "models")
@@ -156,3 +179,9 @@ class Command(BaseCommand):
         joblib.dump(pipe, model_path)
 
         self.stdout.write(self.style.SUCCESS(f"Model saved to {model_path}"))
+        self.stdout.write(self.style.SUCCESS(f"📊 Visualizations saved to {visualizer.output_dir}/"))
+        self.stdout.write(self.style.SUCCESS("Generated plots:"))
+        self.stdout.write("  • data_distribution.png - Data analysis and insights")
+        self.stdout.write("  • feature_analysis.png - Feature correlations and importance")
+        self.stdout.write("  • model_performance.png - ROC, PR curves, confusion matrix")
+        self.stdout.write("  • summary_report.png - Comprehensive model summary")
