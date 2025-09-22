@@ -191,6 +191,17 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 
 <table>
   <tr>
+    <td>N8N Automation</td>
+  </tr>
+  <tr>
+    <td>
+        <img src="./readme/demo/tools/n8n.png" style="max-width:100%; height:auto;"/>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
     <td>Linear</td>
   </tr>
   <tr>
