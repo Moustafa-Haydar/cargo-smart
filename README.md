@@ -208,10 +208,6 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 <!-- Deployment -->
 <img src="./readme/title7.svg"/>
 
-<!-- ### Add Title Here
-
-- Description here. -->
-
 ### Swagger API Documentation
 
 - Interactive API docs for backend services
