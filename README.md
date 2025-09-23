@@ -20,7 +20,7 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 
 [View on Eraser](https://app.eraser.io/workspace/hUhaIbwbfGFrjAfvHiIM)
 
-<img src="./readme/demo/tools/eraser .png" style="max-width:60%; height:auto;"/>
+<img src="./readme/demo/tools/eraser .png" width="200"/>
 
 <br><br>
 
