@@ -171,7 +171,7 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 ### Machine Learning
 
 <p align="center">
-  <img src="./backend/models/plots/confusion_matrix.png" width="500"/>
+  <img src="./backend/models/plots/confusion_matrix.png" width="700"/>
 </p>
 
 #### Delay Prediction — Summary
