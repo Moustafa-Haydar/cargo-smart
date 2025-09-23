@@ -62,7 +62,7 @@ class ShipmentViewsTestCase(TestCase):
 
     def test_shipments_list_view(self):
         """Test the shipments list view"""
-        response = self.client.get('/shipments/')
+        response = self.client.get('/shipments/shipments/')
         self.assertEqual(response.status_code, 200)
         
         data = json.loads(response.content)
@@ -84,7 +84,7 @@ class ShipmentViewsTestCase(TestCase):
 
     def test_shipment_detail_view(self):
         """Test the shipment detail view"""
-        response = self.client.get(f'/shipment/{self.shipment.id}/')
+        response = self.client.get(f'/shipments/shipment/{self.shipment.id}/')
         self.assertEqual(response.status_code, 200)
         
         data = json.loads(response.content)
@@ -99,7 +99,7 @@ class ShipmentViewsTestCase(TestCase):
         """Test shipment not found case"""
         import uuid
         fake_id = uuid.uuid4()
-        response = self.client.get(f'/shipment/{fake_id}/')
+        response = self.client.get(f'/shipments/shipment/{fake_id}/')
         self.assertEqual(response.status_code, 404)
         
         data = json.loads(response.content)
