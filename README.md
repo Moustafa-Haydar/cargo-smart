@@ -34,7 +34,7 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 ### Main Features
 
 <p align="center">
-  <img src="./readme/demo/tools/features.png" width="400"/>
+  <img src="./readme/demo/tools/features.png" width="600"/>
 </p>
 
 - Machine Learning Model that analysis weather, and location data to forecast shipment delays with 86%+ accuracy. The machine learning classifier processes multiple environmental factors to provide both delay probability and ETA adjustments.
@@ -171,7 +171,7 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 ### Machine Learning
 
 <p align="center">
-  <img src="./backend/models/plots/confusion_matrix.png" width="700"/>
+  <img src="./backend/models/plots/confusion_matrix.png" width="500"/>
 </p>
 
 #### Delay Prediction — Summary
