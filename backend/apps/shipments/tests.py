@@ -1,6 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+import apps.rbac.authz as authz
 from apps.shipments.models import Shipment, ShipmentMilestone
 from apps.geo.models import Location
 from apps.routes.models import Route
@@ -59,6 +60,11 @@ class ShipmentViewsTestCase(TestCase):
         )
         
         self.client = Client()
+        # Authenticate and bypass RBAC for tests
+        User = get_user_model()
+        self.user = User.objects.create_user(username='tester', email='tester@example.com', password='pass1234')
+        self.client.login(username='tester', password='pass1234')
+        authz._perm_codes = lambda user: {"shipments.read"}
 
     def test_shipments_list_view(self):
         """Test the shipments list view"""
