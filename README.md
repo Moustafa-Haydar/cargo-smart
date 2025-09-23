@@ -188,6 +188,19 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
 - **Accuracy**: 0.75 (support: 1,278)
 - Confusion matrix shown above (`confusion_matrix.png`).
 
+### Dataset
+
+The dataset used in this project is published: [Enhanced Delivery Truck Trips Dataset with Routes and Weather](https://zenodo.org/records/17185680).
+
+This dataset contains enriched delivery truck trip records. The base data was originally obtained from the Kaggle Delivery Truck Trips Dataset.
+
+To extend the dataset’s analytical value, two additional data sources were integrated:
+
+- **Routes**: Calculated using the OpenRouteService API, providing geographical routing information.
+- **Weather**: Historical weather data retrieved via the OpenWeatherMap API, giving environmental context to each trip.
+
+This combination allows researchers and practitioners to explore the impact of routes and weather conditions on delivery logistics and performance.
+
 ### N8N Automation
 
 <table>
