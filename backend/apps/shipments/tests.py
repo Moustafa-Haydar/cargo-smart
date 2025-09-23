@@ -15,13 +15,13 @@ class ShipmentViewsTestCase(TestCase):
         # Create test locations
         self.origin = Location.objects.create(
             name="Test Origin",
-            latitude=40.7128,
-            longitude=-74.0060
+            lat=40.7128,
+            lng=-74.0060
         )
         self.destination = Location.objects.create(
             name="Test Destination", 
-            latitude=34.0522,
-            longitude=-118.2437
+            lat=34.0522,
+            lng=-118.2437
         )
         
         # Create test route

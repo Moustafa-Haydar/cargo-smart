@@ -4,7 +4,7 @@ This file demonstrates how to write and run tests in Django
 """
 
 from django.test import TestCase, Client
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.core.management import call_command
 import json
@@ -21,6 +21,7 @@ class BasicTestCase(TestCase):
         This runs before each test method
         """
         self.client = Client()
+        User = get_user_model()
         self.test_user = User.objects.create_user(
             username='testuser',
             email='test@example.com',
@@ -31,6 +32,7 @@ class BasicTestCase(TestCase):
         """
         Test that a user can be created successfully
         """
+        User = get_user_model()
         user = User.objects.create_user(
             username='newuser',
             email='new@example.com',
@@ -86,6 +88,7 @@ class APITestCase(TestCase):
     
     def setUp(self):
         self.client = Client()
+        User = get_user_model()
         self.user = User.objects.create_user(
             username='apiuser',
             email='api@example.com',
@@ -122,6 +125,7 @@ class DatabaseTestCase(TestCase):
         Test that database connection is working
         """
         # Try to create and retrieve a user
+        User = get_user_model()
         user = User.objects.create_user(
             username='dbuser',
             email='db@example.com',
@@ -129,28 +133,28 @@ class DatabaseTestCase(TestCase):
         )
         
         # Verify user was saved to database
-        saved_user = User.objects.get(username='dbuser')
+        saved_user = get_user_model().objects.get(username='dbuser')
         self.assertEqual(saved_user.email, 'db@example.com')
         
         # Test database query
-        user_count = User.objects.count()
+        user_count = get_user_model().objects.count()
         self.assertGreaterEqual(user_count, 1)
     
     def test_database_rollback(self):
         """
         Test that database changes are rolled back after each test
         """
-        initial_count = User.objects.count()
+        initial_count = get_user_model().objects.count()
         
         # Create a user in this test
-        User.objects.create_user(
+        get_user_model().objects.create_user(
             username='rollbackuser',
             email='rollback@example.com',
             password='rollbackpass123'
         )
         
         # Verify user was created
-        new_count = User.objects.count()
+        new_count = get_user_model().objects.count()
         self.assertEqual(new_count, initial_count + 1)
         
         # After this test ends, the user should be automatically deleted
@@ -174,8 +178,9 @@ class ManagementCommandTestCase(TestCase):
             pass
         
         # Test migrate command (dry run)
+        # Use showmigrations as a non-invasive check in tests
         try:
-            call_command('migrate', '--dry-run')
+            call_command('showmigrations')
         except SystemExit:
             pass
 
