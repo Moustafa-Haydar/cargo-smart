@@ -24,11 +24,10 @@ class ShipmentViewsTestCase(TestCase):
             lng=-118.2437
         )
         
-        # Create test route
+        # Create test route (Route model only requires name + geometry)
         self.route = Route.objects.create(
             name="Test Route",
-            origin=self.origin,
-            destination=self.destination
+            geometry="[ [77.5946,12.9716], [72.8777,19.0760] ]"
         )
         
         # Create test vehicle
