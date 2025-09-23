@@ -231,6 +231,43 @@ class MLVisualizer:
         plt.tight_layout()
         fig_cm.savefig(os.path.join(self.output_dir, 'confusion_matrix.png'), dpi=300, bbox_inches='tight')
         plt.close(fig_cm)
+
+    def plot_metrics_matrix(self, accuracy: float, precision: float, recall: float, f1: float,
+                            filename: str = 'metrics_matrix.png') -> None:
+        """Create a 2x2 heatmap styled like a confusion matrix but showing key metrics.
+
+        Layout:
+            [ [Accuracy, Precision],
+              [Recall,   F1-score ] ]
+        """
+        data = np.array([[accuracy, precision], [recall, f1]])
+
+        fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+        sns.heatmap(
+            data,
+            annot=False,
+            cmap='Blues',
+            cbar=True,
+            square=True,
+            xticklabels=['Accuracy', 'Precision'],
+            yticklabels=['Recall', 'F1-score'],
+            ax=ax
+        )
+
+        # Overlay metric labels with values
+        labels = [[f"Acc\n{accuracy:.3f}", f"Prec\n{precision:.3f}"],
+                  [f"Rec\n{recall:.3f}",  f"F1\n{f1:.3f}"]]
+        for i in range(2):
+            for j in range(2):
+                ax.text(j + 0.5, i + 0.5, labels[i][j],
+                        ha='center', va='center', color='black', fontsize=12)
+
+        ax.set_title('Model Metrics Overview')
+        ax.set_xlabel('')
+        ax.set_ylabel('')
+        plt.tight_layout()
+        fig.savefig(os.path.join(self.output_dir, filename), dpi=300, bbox_inches='tight')
+        plt.close(fig)
         
     def plot_feature_analysis(self, X: pd.DataFrame, y: pd.Series, 
                             feature_names: List[str]) -> None:
