@@ -40,20 +40,20 @@ services:
       - WATCHPACK_POLLING=true
       - FAST_REFRESH=false
 
-  frontend-ops:
-    build:
-      context: ./frontend_ops_manager
-      dockerfile: Dockerfile
-    container_name: frontend-ops
-    ports:
-      - "4200:4200"
-    volumes:
-      - ./frontend_ops_manager:/app
-      - /app/node_modules          # prevent overwriting node_modules
-      - /app/.angular/cache        # fix cache permissions
-    working_dir: /app
-    stdin_open: true
-    tty: true
+  # frontend-ops:
+  #   build:
+  #     context: ./frontend_ops_manager
+  #     dockerfile: Dockerfile
+  #   container_name: frontend-ops
+  #   ports:
+  #     - "4200:4200"
+  #   volumes:
+  #     - ./frontend_ops_manager:/app
+  #     - /app/node_modules          # prevent overwriting node_modules
+  #     - /app/.angular/cache        # fix cache permissions
+  #   working_dir: /app
+  #   stdin_open: true
+  #   tty: true
 
 
   db:

@@ -175,6 +175,41 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
   </tr>
 </table>
 
+#### Delay Prediction Model
+
+CargoSmart includes a supervised learning classifier that predicts whether a shipment will be delayed. The training script lives in `backend/apps/shipments/management/commands/train_delay_model.py`.
+
+- **Model**: Scikit-learn `LogisticRegression` wrapped in a preprocessing `Pipeline`
+- **Preprocessing**: `ColumnTransformer` with numeric imputation + scaling and categorical imputation + one-hot encoding
+- **Dataset**: First 800 cleaned rows from `data/delivery_truck_data.xlsx`
+- **Train/Test split**: 80/20 stratified split
+- **Features**:
+  - **Geospatial**: Haversine distance between origin and destination
+  - **Temporal**: Hour, day-of-week, month, weekend flag, lead time hours
+  - **Weather (if available)**: Temperature, wind speed, humidity, precipitation; simple flags for rain/wind
+- **Outputs**: Predicted delay probability and class label
+- **Artifacts**: Trained model saved to `models/delay_classifier.joblib`; plots saved under `models/plots/`
+
+#### Reported Performance
+
+```
+ROC-AUC: 0.841
+PR-AUC : 0.914
+F1     : 0.797
+
+Classification report:
+              precision    recall  f1-score   support
+
+           0       0.60      0.76      0.67       427
+           1       0.86      0.74      0.80       851
+
+    accuracy                           0.75      1278
+   macro avg       0.73      0.75      0.73      1278
+weighted avg       0.77      0.75      0.75      1278
+```
+
+These metrics reflect a balanced ability to identify delays with strong precision/recall on the positive (delayed) class. Visualizations for data distribution, feature analysis, model performance, and a summary report are generated alongside training.
+
 ### N8N Automation
 
 <table>
