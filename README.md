@@ -171,44 +171,18 @@ CargoSmart is an AI-powered intelligent logistics platform that leverages machin
   <tr>
     <td>
         <img src="./backend/models/plots/confusion_matrix.png" style="max-width:40%; height:auto;"/>
+        <img src="./confusion_matrix.png" style="max-width:40%; height:auto; margin-left:10px;"/>
     </td>
   </tr>
 </table>
 
-#### Delay Prediction Model
+#### Delay Prediction — Summary
 
-CargoSmart includes a supervised learning classifier that predicts whether a shipment will be delayed. The training script lives in `backend/apps/shipments/management/commands/train_delay_model.py`.
+`train_delay_model.py` trains a delay classifier using a Scikit‑learn `LogisticRegression` inside a preprocessing `Pipeline` (imputation + scaling for numeric, one‑hot for categorical). Features include geospatial distance, temporal signals, and simple weather flags. Data comes from `data/delivery_truck_data.xlsx` with an 80/20 stratified split. The trained model is saved to `models/delay_classifier.joblib` and plots to `models/plots/`.
 
-- **Model**: Scikit-learn `LogisticRegression` wrapped in a preprocessing `Pipeline`
-- **Preprocessing**: `ColumnTransformer` with numeric imputation + scaling and categorical imputation + one-hot encoding
-- **Dataset**: First 800 cleaned rows from `data/delivery_truck_data.xlsx`
-- **Train/Test split**: 80/20 stratified split
-- **Features**:
-  - **Geospatial**: Haversine distance between origin and destination
-  - **Temporal**: Hour, day-of-week, month, weekend flag, lead time hours
-  - **Weather (if available)**: Temperature, wind speed, humidity, precipitation; simple flags for rain/wind
-- **Outputs**: Predicted delay probability and class label
-- **Artifacts**: Trained model saved to `models/delay_classifier.joblib`; plots saved under `models/plots/`
-
-#### Reported Performance
-
-```
-ROC-AUC: 0.841
-PR-AUC : 0.914
-F1     : 0.797
-
-Classification report:
-              precision    recall  f1-score   support
-
-           0       0.60      0.76      0.67       427
-           1       0.86      0.74      0.80       851
-
-    accuracy                           0.75      1278
-   macro avg       0.73      0.75      0.73      1278
-weighted avg       0.77      0.75      0.75      1278
-```
-
-These metrics reflect a balanced ability to identify delays with strong precision/recall on the positive (delayed) class. Visualizations for data distribution, feature analysis, model performance, and a summary report are generated alongside training.
+- **ROC‑AUC**: 0.841 • **PR‑AUC**: 0.914 • **F1**: 0.797
+- **Accuracy**: 0.75 (support: 1,278)
+- Confusion matrix shown above (`confusion_matrix.png`).
 
 ### N8N Automation
 
@@ -219,6 +193,11 @@ These metrics reflect a balanced ability to identify delays with strong precisio
   <tr>
     <td>
         <img src="./readme/demo/tools/n8n description .png" style="max-width:100%; height:auto;"/>
+    </td>
+  </tr>
+  <tr>
+    <td>
+        <img src="./readme/demo/tools/n8n.png" style="max-width:100%; height:auto;"/>
     </td>
   </tr>
 </table>
