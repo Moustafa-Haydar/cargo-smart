@@ -243,9 +243,9 @@ This combination allows researchers and practitioners to explore the impact of r
 
 <table style="width:100%; table-layout:fixed; margin-top:10px;">
   <tr>
-    <td>Swagger API 1</td>
-    <td>Swagger API 2</td>
-    <td>Swagger API 3</td>
+    <td>Mobile Login (Token Authentication)</td>
+    <td>Login Response</td>
+    <td>Mark shipment as delivered</td>
   </tr>
   <tr>
     <td><img src="./readme/demo/swagger apis/api 1.png" width="250"/></td>
