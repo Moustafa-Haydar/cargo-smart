@@ -243,7 +243,7 @@ This combination allows researchers and practitioners to explore the impact of r
 
 <table style="width:100%; table-layout:fixed; margin-top:10px;">
   <tr>
-    <td>Mobile Login (Token Authentication)</td>
+    <td>Login (Token Authentication)</td>
     <td>Login Response</td>
     <td>Mark shipment as delivered</td>
   </tr>
